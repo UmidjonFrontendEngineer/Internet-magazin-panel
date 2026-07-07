@@ -7,6 +7,7 @@ export default function PutPage() {
     const [gradient, setGradient] = useState("auto");
     const [optionsNum, setOptionsNum] = useState(1)
     const theme = useThemeStore(state => state.theme)
+    const [tab, setTab] = useState('auto')
     let dark = theme === 'dark' ? true : false
 
     const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,9 +59,9 @@ export default function PutPage() {
                 <input type="text" name='ID' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none" placeholder="mahsulot ID sini yozing..." />
                 <input type="text" name='title' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none" placeholder="mahsulot titlesini yozing..." />
                 <div className="flex gap-4">
-                    <textarea name='descriptionUz' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini UZ yozing..." rows='10'></textarea>
-                    <textarea name='descriptionEn' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini EN yozing..." rows='10'></textarea>
-                    <textarea name='descriptionRu' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini RU yozing..." rows='10'></textarea>
+                    <textarea name='descriptionUz' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini UZ yozing..." rows={10}></textarea>
+                    <textarea name='descriptionEn' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini EN yozing..." rows={10}></textarea>
+                    <textarea name='descriptionRu' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini RU yozing..." rows={10}></textarea>
                 </div>
                 <input type="number" name='foiz' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none" placeholder="mahsulot foizini yozing..." />
                 <input type="number" name='oy' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none" placeholder="bo'lib to'lash oyini max yozing..." />
@@ -86,13 +87,21 @@ export default function PutPage() {
                     </>
                 ) : null}
                 <label htmlFor="">mahsulot qisimlari</label>
-                <div className="flex gap-4 w-full">
+                <div className="w-full p-2 bg-white/40 rounded-full flex relative">
+                    <div className={`w-1/2 rounded-full bg-white/30 absolute top-2 bottom-2 left-0 scale-x-[0.9] duration-300 ${tab === 'auto' ? 'translate-x-0' : 'translate-x-full'}`}></div>
+
+                    <button type="button" className="w-1/2 rounded-full py-3 px-4 capitalize relative z-10" onClick={() => setTab('auto')}>auto</button>
+                    <button type="button" className="w-1/2 rounded-full py-3 px-4 capitalize relative z-10" onClick={() => setTab('custom')}>custom</button>
+                </div>
+                <div className={`flex gap-4 w-full ${tab === 'auto' ? 'hidden' : ''}`}>
                     <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-sky-600/40 duration-200 font-semibold w-full bg-sky-600/60 " onClick={() => setOptionsNum(prev => prev + 1)}>qo'shish</button>
                     <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-rose-600/40 duration-200 font-semibold w-full bg-rose-600/60 " onClick={() => { optionsNum > 1 && setOptionsNum(prev => prev - 1) }}>o'chirish</button>
                 </div>
-                {Array(optionsNum).fill(null).map((_, index) => (
-                    <ProductOptionGroup key={index} groupIndex={index} />
-                ))}
+                <div className={`flex flex-col gap-4 ${tab === 'auto' ? 'hidden' : ''}`}>
+                    {Array(optionsNum).fill(null).map((_, index) => (
+                        <ProductOptionGroup key={index} groupIndex={index} />
+                    ))}
+                </div>
                 <button type="submit" className="f-full bg-sky-600 hover:bg-sky-700 duration-300 text-white rounded-2xl py-2 text-2xl font-semibold select-none capitalize">databasega yozish</button>
             </form>
         </div>

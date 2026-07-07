@@ -87,9 +87,9 @@ export default function PostPage() {
             <form className="flex gap-4 flex-col" onSubmit={handleSubmit}>
                 <input type="text" name='title' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none" placeholder="mahsulot titlesini yozing..." />
                 <div className="flex gap-4">
-                    <textarea name='descriptionUz' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini UZ yozing..." rows='10'></textarea>
-                    <textarea name='descriptionEn' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini EN yozing..." rows='10'></textarea>
-                    <textarea name='descriptionRu' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini RU yozing..." rows='10'></textarea>
+                    <textarea name='descriptionUz' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini UZ yozing..." rows={10}></textarea>
+                    <textarea name='descriptionEn' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini EN yozing..." rows={10}></textarea>
+                    <textarea name='descriptionRu' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-[10px]" placeholder="mahsulot descriptionini RU yozing..." rows={10}></textarea>
                 </div>
                 <input type="number" name='foiz' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none" placeholder="mahsulot foizini yozing..." />
                 <input type="number" name='oy' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none" placeholder="bo'lib to'lash oyini max yozing..." />

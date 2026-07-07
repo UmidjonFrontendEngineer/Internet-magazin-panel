@@ -8,8 +8,8 @@ const ProductOptionGroup = ({ groupIndex }: { groupIndex: number }) => {
             <div className='flex gap-4 max-[500px]:flex-col'>
                 <input type="text" name={`option${groupIndex + 1}Name`} className="rounded-[1rem] max-[500px]:text-[10px] bg-sky-200/10 border w-1/2 border-sky-500/40 py-2 px-4 w-full outline-none" placeholder={`mahsulotning ${groupIndex + 1} - qismini nomini yozing...`} />
                 <div className="flex gap-4 w-1/2 max-[500px]:w-full">
-                    <button className="px-2 py-2 rounded-xl max-[500px]:text-sm capitalize active:scale-[0.9] hover:bg-sky-600/40 duration-200 font-semibold w-full bg-sky-600/60" onClick={() => setOptionNum(prev => prev + 1)}>qo'shish</button>
-                    <button className="px-2 py-2 rounded-xl max-[500px]:text-sm capitalize active:scale-[0.9] hover:bg-rose-600/40 duration-200 font-semibold w-full bg-rose-600/60" onClick={() => {optionNum > 1 && setOptionNum(prev => prev - 1)}}>o'chirish</button>
+                    <button type='button' className="px-2 py-2 rounded-xl max-[500px]:text-sm capitalize active:scale-[0.9] hover:bg-sky-600/40 duration-200 font-semibold w-full bg-sky-600/60" onClick={() => setOptionNum(prev => prev + 1)}>qo'shish</button>
+                    <button type='button' className="px-2 py-2 rounded-xl max-[500px]:text-sm capitalize active:scale-[0.9] hover:bg-rose-600/40 duration-200 font-semibold w-full bg-rose-600/60" onClick={() => {optionNum > 1 && setOptionNum(prev => prev - 1)}}>o'chirish</button>
                 </div>
             </div>
 

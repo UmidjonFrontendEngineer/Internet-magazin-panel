@@ -1,133 +1,39 @@
-"use client";
-
-import { useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useThemeStore } from "@/src/store/useThemeStore";
-import Image from "next/image";
+import LayoutWrapper from "./_components/LayoutWrapper";
 import "@/app/globals.css";
-// export const metadata: Metadata = {
-//     title: "Uzum Market - O'zbekistondagi milliy marketplex",
-//     description: "Next.js texnologiyasida full-stack e-commerce App.",
-//     keywords: ["nextjs", "react", "uzbekistan", "e-commerce", "internet do'kon", "uzum market"],
+import { Metadata } from "next";
 
-//     openGraph: {
-//         title: "Uzum Market - O'zbekistondagi milliy marketplex",
-//         description: "Next.js texnologiyasida full-stack e-commerce App.",
-//         url: "https://loyihangiz.uz",
-//         siteName: "Uzum Market",
-//         locale: "uz_UZ",
-//         type: "website",
-//     },
+export const metadata: Metadata = {
+    title: "internet do'kon - panel",
+    description: "Next.js texnologiyasida full-stack e-commerce App.",
+    keywords: ["nextjs", "react", "uzbekistan", "e-commerce", "internet do'kon", "internet do'kon"],
 
-//     twitter: {
-//         card: "summary_large_image",
-//         title: "Uzum Market - O'zbekistondagi milliy marketplex",
-//         description: "Next.js texnologiyasida full-stack e-commerce App.",
-//     },
+    openGraph: {
+        title: "internet do'kon - panel",
+        description: "Next.js texnologiyasida full-stack e-commerce App.",
+        siteName: "internet do'kon",
+        locale: "uz_UZ",
+        type: "website",
+    },
 
-//     robots: {
-//         index: true,
-//         follow: true,
-//     },
-// };
+    twitter: {
+        card: "summary_large_image",
+        title: "internet do'kon - panel",
+        description: "Next.js texnologiyasida full-stack e-commerce App.",
+    },
+
+    robots: {
+        index: true,
+        follow: true,
+    },
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    const mode = useThemeStore(state => state.theme)
-    const setMode = useThemeStore(state => state.setTheme)
-    const pathname = usePathname()
-    const menuItems = [
-        { name: "Dashboard", path: "/" },
-        { name: "GET Method", path: "/get" },
-        { name: "POST Method", path: "/post" },
-        { name: "PUT Method", path: "/put" },
-        { name: "PATCH Method", path: "/patch" },
-        { name: "DELETE Method", path: "/delete" },
-        { name: "Settings", path: "/settings" },
-    ];
-
-    let dark = mode === 'dark' ? true : false
-
     return (
         <html lang="uz">
-            <body className={`${dark ? 'bg-[#09090b] text-[#f5f5f7]' : 'bg-[#f0f2f5] text-[#1d1d1f]'} antialiased duration-100 relative min-h-screen overflow-hidden`}>
-
-                <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-sky-600/30 to-sky-600/0 blur-[120px] pointer-events-none z-0" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tl from-blue-600/20 to-cyan-600/0 blur-[150px] pointer-events-none z-0" />
-                <div className={`absolute top-[30%] right-[-5%] w-[35vw] h-[35vw] rounded-full ${dark ? 'bg-sky-500/10' : 'bg-sky-500/20'} blur-[100px] pointer-events-none z-0`} />
-
-                <div className="relative z-10 flex h-screen p-3 gap-5 overflow-hidden sm-hide">
-
-                    <aside className={`relative w-72 rounded-[28px] ${dark ? 'bg-[#121214]/40 border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]' : 'bg-white/40 border-white/40 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]'} max-[1000px]:hidden backdrop-blur-3xl border p-6 flex flex-col justify-between`}>
-                        <div>
-                            <div className="flex items-center justify-between px-2 mb-10">
-                                <Link href='/'>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-900 to-sky-500 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-sky-500/20">
-                                            G
-                                        </div>
-                                        <span className={`font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${dark ? 'to-neutral-400 from-neutral-900' : 'to-neutral-600 from-white'}`}>
-                                            E-COMMERCE
-                                        </span>
-                                    </div>
-                                </Link>
-                            </div>
-
-                            <nav className="space-y-1.5 overflow-y-scroll">
-                                {menuItems.map((item) => {
-                                    const isActive = pathname === item.path;
-                                    return (
-                                        <Link
-                                            key={item.path}
-                                            href={item.path}
-                                            className={`flex items-center px-4 py-3.5 rounded-2xl text-sm font-medium tracking-wide transition-all duration-300 group capitalize ${isActive
-                                                ? "bg-gradient-to-r from-blue-600/90 to-sky-600/90 text-white shadow-[0_4px_30px_10px_rgba(138, 204, 255, 0.3)] translate-x-1"
-                                                : `${dark ? 'text-neutral-500 hover:bg-white/5 hover:text-white' : 'text-neutral-400 hover:bg-black/5 hover:text-neutral-900'}`
-                                                }`}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                    );
-                                })}
-                                <Link href='https://internet-magazin-uzum.vercel.app' target="_blank" className="flex items-center px-4 py-3.5 rounded-2xl text-sm font-medium tracking-wide transition-all duration-300 group capitalize">
-                                    loyihaga o'tish
-                                </Link>
-                            </nav>
-                        </div>
-
-                        <button
-                            onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}
-                            className={`absolute bottom-3 left-1/20 flex items-center justify-between w-9/10 px-4 py-3.5 rounded-2xl  ${dark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-black/5 border-black/5 hover:bg-black/10'} border text-sm font-medium tracking-wide transition-all duration-300 group`}
-                        >
-                            <span className={`${dark ? 'text-neutral-300' : 'text-neutral-700'}`}>{mode === 'dark' ? "Qorong'u Rejim" : "Yorug'k Rejim"}</span>
-                            <div className={`p-1.5 rounded-xl ${dark ? 'bg-[#1a1a1e]' : 'bg-white'} shadow-sm group-hover:scale-105 transition-transform duration-300`}>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-sky-500">
-                                    {mode === 'dark' ? (
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                                    ) : (
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                                    )}
-                                </svg>
-                            </div>
-                        </button>
-                    </aside>
-
-                    <main className="flex-1 rounded-[28px] p-8 overflow-y-auto overflow-x-hidden">
-                        <header className="flex items-center justify-between mb-8 font-semibold text-sm text-neutral-500 dark:text-neutral-400 uppercase tracking-widest max-[500px]:text-[8px]">
-                            <Link className="hover:text-white hover:underline duration-200" href="/">dashboard</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/get">get</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/post">post</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/put">put</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/patch">patch</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/delete">delete</Link>
-                            <Link href="/settings">
-                                <Image src="/setting.png" alt="Settings" width={25} height={25} />
-                            </Link>
-                        </header>
-                        {children}
-                    </main>
-
-                </div>
-            </body>
+            {/* Butun dizayn va client ishlari shu wrapper ichida bo'ladi */}
+            <LayoutWrapper>
+                {children}
+            </LayoutWrapper>
         </html>
     );
 }
