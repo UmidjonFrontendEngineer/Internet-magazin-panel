@@ -5,8 +5,9 @@ import ProductOptionGroup from "../_components/ProductOptionGroup";
 
 export default function PostPage() {
     const [gradient, setGradient] = useState("auto");
-    const [optionsNum, setOptionsNum] = useState(0)
+    const [optionsNum, setOptionsNum] = useState(1)
     const theme = useThemeStore(state => state.theme)
+    const [tab, setTab] = useState('auto')
     let dark = theme === 'dark' ? true : false
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -114,13 +115,21 @@ export default function PostPage() {
                     </>
                 ) : null}
                 <label htmlFor="">mahsulot qisimlari</label>
-                <div className="flex gap-4 w-full">
-                    <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-sky-600/40 duration-200 font-semibold w-full bg-sky-600/60 " onClick={() => setOptionsNum(prev => prev + 1)}>qo'shish</button>
-                    <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-rose-600/40 duration-200 font-semibold w-full bg-rose-600/60 " onClick={() => {optionsNum > 0 && setOptionsNum(prev => prev - 1)}}>o'chirish</button>
+                <div className="w-full p-2 bg-white/40 rounded-full flex relative">
+                    <div className={`w-1/2 rounded-full bg-white/30 absolute top-2 bottom-2 left-0 scale-x-[0.9] duration-300 ${tab === 'auto' ? 'translate-x-0' : 'translate-x-full'}`}></div>
+
+                    <button type="button" className="w-1/2 rounded-full py-3 px-4 capitalize relative z-10" onClick={() => setTab('auto')}>auto</button>
+                    <button type="button" className="w-1/2 rounded-full py-3 px-4 capitalize relative z-10" onClick={() => setTab('custom')}>custom</button>
                 </div>
-                {Array(optionsNum).fill(null).map((_, index) => (
-                    <ProductOptionGroup key={index} groupIndex={index} />
-                ))}
+                <div className={`flex gap-4 w-full ${tab === 'auto' ? 'hidden' : ''}`}>
+                    <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-sky-600/40 duration-200 font-semibold w-full bg-sky-600/60 " onClick={() => setOptionsNum(prev => prev + 1)}>qo'shish</button>
+                    <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-rose-600/40 duration-200 font-semibold w-full bg-rose-600/60 " onClick={() => { optionsNum > 1 && setOptionsNum(prev => prev - 1) }}>o'chirish</button>
+                </div>
+                <div className={`flex flex-col gap-4 ${tab === 'auto' ? 'hidden' : ''}`}>
+                    {Array(optionsNum).fill(null).map((_, index) => (
+                        <ProductOptionGroup key={index} groupIndex={index} />
+                    ))}
+                </div>
                 <button type="submit" className="f-full bg-sky-600 hover:bg-sky-700 duration-300 text-white rounded-2xl py-2 text-2xl font-semibold select-none capitalize">databasega yozish</button>
             </form>
         </div>
