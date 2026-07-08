@@ -28,7 +28,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tl from-blue-600/20 to-cyan-600/0 blur-[150px] pointer-events-none z-0" />
                 <div className={`absolute top-[30%] right-[-5%] w-[35vw] h-[35vw] rounded-full ${dark ? 'bg-sky-500/10' : 'bg-sky-500/20'} blur-[100px] pointer-events-none z-0`} />
 
-                <div className="relative z-10 flex h-screen p-3 gap-5 overflow-hidden sm-hide">
+                <div className="relative z-10 flex h-screen p-2 gap-5 overflow-hidden sm-hide">
 
                     <aside className={`relative w-72 rounded-[28px] ${dark ? 'bg-[#121214]/40 border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]' : 'bg-white/40 border-white/40 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]'} max-[1000px]:hidden backdrop-blur-3xl border p-6 flex flex-col justify-between`}>
                         <div>
@@ -70,7 +70,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         <ThemeBtn />
                     </aside>
 
-                    <main className="flex-1 rounded-[28px] p-8 overflow-y-auto overflow-x-hidden">
+                    <main className="flex-1 rounded-[28px] p-4 overflow-y-auto overflow-x-hidden">
                         <header className="flex items-center justify-between mb-8 font-semibold text-sm text-neutral-500 dark:text-neutral-400 uppercase tracking-widest max-[500px]:text-[8px]">
                             <Link className="hover:text-white hover:underline duration-200" href="/">dashboard</Link>
                             <Link className="hover:text-white hover:underline duration-200" href="/get">get</Link>
