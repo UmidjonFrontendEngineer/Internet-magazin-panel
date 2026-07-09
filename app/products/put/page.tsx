@@ -5,7 +5,7 @@ import ProductOptionGroup from "../../_components/ProductOptionGroup";
 import ColorPicker from "../../_components/Color";
 import Image from "next/image";
 
-export default function PutPage() {
+const ProductsPut = () => {
     const [gradient, setGradient] = useState("auto");
     const [optionsNum, setOptionsNum] = useState(1)
     const theme = useThemeStore(state => state.theme)
@@ -13,6 +13,8 @@ export default function PutPage() {
     const [range, setRange] = useState(4)
     const [descr, setDescr] = useState('uz')
     const [lans, setLans] = useState(['uz', 'en', 'ru'])
+
+    export default ProductsPut
     let dark = theme === 'dark' ? true : false
 
     useEffect(() => {
@@ -160,3 +162,5 @@ export default function PutPage() {
         </div>
     );
 }
+
+export default ProductsPut

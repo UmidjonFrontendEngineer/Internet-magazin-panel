@@ -5,7 +5,7 @@ import ProductOptionGroup from "../../_components/ProductOptionGroup";
 import ColorPicker from "../../_components/Color";
 import Image from "next/image";
 
-export default function PostPage() {
+const ProductsPost = () => {
     const [gradient, setGradient] = useState("auto");
     const [optionsNum, setOptionsNum] = useState(1)
     const theme = useThemeStore(state => state.theme)
@@ -178,8 +178,18 @@ export default function PostPage() {
                     <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-sky-600/40 duration-200 font-semibold w-full bg-sky-600/60 max-[500px]:text-sm max-[500px]:p-2" onClick={() => setOptionsNum(prev => prev + 1)}>qo'shish</button>
                     <button type="button" className="capitalize px-4 py-4 rounded-3xl active:scale-[0.95] hover:bg-rose-600/40 duration-200 font-semibold w-full bg-rose-600/60 max-[500px]:text-sm max-[500px]:p-2" onClick={() => { optionsNum > 1 && setOptionsNum(prev => prev - 1) }}>o'chirish</button>
                 </div>
+                <div className={`${tab === 'custom' ? 'hidden' : ''}`}>
+                    <div className="relative">
+                        <input type="text" name='price' className="rounded-[1rem] bg-sky-200/10 border border-sky-500/40 py-2 px-10 w-full outline-none" placeholder="mahsulot narxini yozing..." />
+                        <div className="absolute top-0 left-2 h-full flex items-center justify-center">
+                            <Image src='/dollar.png' alt="price" width={20} height={20} />
+                        </div>
+                    </div>
+                </div>
                 <button type="submit" className="f-full bg-sky-600 hover:bg-sky-700 duration-300 text-white rounded-2xl py-2 text-2xl font-semibold select-none capitalize">databasega yozish</button>
             </form>
         </div>
     );
 }
+
+export default ProductsPost

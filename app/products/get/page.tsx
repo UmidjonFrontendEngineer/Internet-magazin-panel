@@ -11,7 +11,7 @@ interface Product {
     };
     price: number;
 }
-export default function GetPage() {
+const ProductsGet = () => {
     const [data, setData] = useState<Product[]>([]);
 
     useEffect(() => {
@@ -108,3 +108,5 @@ export default function GetPage() {
         </div>
     );
 }
+
+export default ProductsGet

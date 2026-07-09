@@ -13,7 +13,7 @@ export default function ThemeBtn() {
             onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}
             className={`absolute bottom-3 left-1/20 flex items-center justify-between w-9/10 px-4 py-3.5 rounded-2xl  ${dark ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-black/5 border-black/5 hover:bg-black/10'} border text-sm font-medium tracking-wide transition-all duration-300 group`}
         >
-            <span className={`${dark ? 'text-neutral-300' : 'text-neutral-700'}`}>{mode === 'dark' ? "Qorong'u Rejim" : "Yorug'k Rejim"}</span>
+            <span className={`${dark ? 'text-neutral-300' : 'text-neutral-700'}`}>{mode === 'dark' ? "Qorong'u Rejim" : "Yorug' Rejim"}</span>
             <div className={`p-1.5 rounded-xl ${dark ? 'bg-[#1a1a1e]' : 'bg-white'} shadow-sm group-hover:scale-105 transition-transform duration-300`}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-sky-500">
                     {mode === 'dark' ? (

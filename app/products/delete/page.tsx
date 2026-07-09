@@ -1,5 +1,5 @@
 'use client';
-export default function DeletePage() {
+const ProductsDelete = () => {
     const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -49,3 +49,5 @@ export default function DeletePage() {
         </div>
     );
 }
+
+export default ProductsDelete

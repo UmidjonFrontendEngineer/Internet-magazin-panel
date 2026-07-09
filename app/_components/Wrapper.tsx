@@ -10,12 +10,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const pathname = usePathname()
     const menuItems = [
         { name: "Dashboard", path: "/" },
-        { name: "GET Method", path: "/products/get" },
-        { name: "POST Method", path: "/products/post" },
-        { name: "PUT Method", path: "/products/put" },
-        { name: "PATCH Method", path: "/products/patch" },
-        { name: "DELETE Method", path: "/products/delete" },
-        { name: "Settings", path: "/products/settings" },
+        { name: "Products", path: "/products" },
+        { name: "Slider", path: "/slider" },
+        { name: "Search", path: "/search" },
+        { name: "Settings", path: "/settings" },
     ];
 
     let dark = mode === 'dark' ? true : false
@@ -61,8 +59,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                         </Link>
                                     );
                                 })}
-                                <Link href='https://internet-magazin-uzum.vercel.app' target="_blank" className="flex items-center px-4 py-3.5 rounded-2xl text-sm font-medium tracking-wide transition-all duration-300 group capitalize">
-                                    loyihaga o'tish
+                                <Link href='https://internet-magazin-uzum.vercel.app' target="_blank" className="px-6 py-2.5 rounded-xl font-medium tracking-wide text-white bg-sky-500 hover:bg-sky-600 active:scale-95 shadow-md shadow-sky-500/20 transition-all duration-200 dark:bg-sky-600 dark:hover:bg-sky-500 dark:shadow-sky-900/30 flex items-center gap-2">
+                                    <span>Loyihaga o'tish</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>
                                 </Link>
                             </nav>
                         </div>
@@ -70,17 +71,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         <ThemeBtn />
                     </aside>
 
-                    <main className="flex-1 rounded-[28px] p-4 overflow-y-auto overflow-x-hidden">
-                        <header className="flex items-center justify-between mb-8 font-semibold text-sm text-neutral-500 dark:text-neutral-400 uppercase tracking-widest max-[500px]:text-[8px]">
+                    <main className="flex-1 rounded-[28px] p-4 overflow-y-auto overflow-x-hidden relative">
+
+                        <header className={`flex items-center absolute p-4 top-1 left-[50%] w-8/10 translate-x-[-50%] justify-between mb-8 font-semibold text-lg text-sky-500 rounded-full uppercase tracking-widest max-[500px]:text-[8px] border ${dark ? 'bg-[#121214]/40 border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]' : 'bg-white/40 border-white/40 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]'}`}>
                             <Link className="hover:text-white hover:underline duration-200" href="/">dashboard</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/products/get">get</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/products/post">post</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/products/put">put</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/products/patch">patch</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/products/delete">delete</Link>
-                            <Link href="/settings">
-                                <Image src="/setting.png" alt="Settings" width={25} height={25} />
-                            </Link>
+                            <Link className="hover:text-white hover:underline duration-200" href="/products">products</Link>
+                            <Link className="hover:text-white hover:underline duration-200" href="/slider">slider</Link>
+                            <Link className="hover:text-white hover:underline duration-200" href="/search">search</Link>
                         </header>
                         {children}
                     </main>

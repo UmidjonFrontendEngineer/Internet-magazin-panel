@@ -1,4 +1,4 @@
-import LayoutWrapper from "./_components/ProductsLayoutWrapper";
+import LayoutWrapper from "./_components/Wrapper";
 import "@/app/globals.css";
 import { Metadata } from "next";
 
