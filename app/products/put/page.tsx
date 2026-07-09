@@ -14,7 +14,6 @@ const ProductsPut = () => {
     const [descr, setDescr] = useState('uz')
     const [lans, setLans] = useState(['uz', 'en', 'ru'])
 
-    export default ProductsPut
     let dark = theme === 'dark' ? true : false
 
     useEffect(() => {
