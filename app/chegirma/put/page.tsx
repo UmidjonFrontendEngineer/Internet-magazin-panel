@@ -14,6 +14,7 @@ const ProductsPut = () => {
     const [range, setRange] = useState(4)
     const [descr, setDescr] = useState('uz')
     const [lans, setLans] = useState(['uz', 'en', 'ru'])
+    const [customColors, setCustomColors] = useState<string[]>([])
 
     let dark = theme === 'dark' ? true : false
 
@@ -22,6 +23,14 @@ const ProductsPut = () => {
             descr === 'en' ? setLans(['en', 'uz', 'ru']) :
                 descr === 'ru' ? setLans(['ru', 'en', 'uz']) : ''
     }, [descr])
+
+    const handleColorChange = (index: number, color: string) => {
+        setCustomColors(prev => {
+            const updatedColors = [...prev];
+            updatedColors[index] = color;
+            return updatedColors;
+        });
+    };
 
     const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -136,7 +145,7 @@ const ProductsPut = () => {
                         <input type="range" name="range" max={10} min={2} onChange={e => setRange(Number(e.target.value))} value={range} className="duration-300" />
                         {Array(range).fill(null).map((_, index) => (
                             <div key={index} className="flex flex-wrap w-full">
-                                <ColorPicker num={index} />
+                                <ColorPicker num={index} onChangeColor={handleColorChange} />
                             </div>
                         ))}
                     </>
