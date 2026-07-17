@@ -1,6 +1,6 @@
 "use client";
 
-import { useThemeStore } from "@/src/store/useThemeStore";
+import { useThemeStore } from "@/app/_store/useThemeStore";
 import Image from "next/image";
 export default function ThemeBtn() {
     const mode = useThemeStore(state => state.theme)

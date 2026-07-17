@@ -1,6 +1,6 @@
 'use client'
 import Image from "next/image";
-import { useThemeStore } from "@/src/store/useThemeStore";
+import { useThemeStore } from "@/app/_store/useThemeStore";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -30,6 +30,11 @@ export default function Dashboard() {
                 <Link href="/slider" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-300/20 transition-all duration-150 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-sky-400 group-hover:scale-125 transition-transform duration-150" />
                     <span className="capitalize">Slider</span>
+                </Link>
+
+                <Link href="/chegirma" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-300/20 transition-all duration-150 group">
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400 group-hover:scale-125 transition-transform duration-150" />
+                    <span className="capitalize">Chegirma</span>
                 </Link>
             </section>
 

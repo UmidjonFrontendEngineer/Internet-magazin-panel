@@ -1,9 +1,7 @@
 'use client';
-import { useApikeyStore } from "@/app/_store/useApikeyStore";
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 const ProductsDelete = () => {
-    const apikey = useApikeyStore(state => state.apikey)
     const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -21,8 +19,7 @@ const ProductsDelete = () => {
             const response = await fetch(`${API_URL}/api/products`, {
                 method: 'DELETE',
                 headers: {
-                    'api-key': apikey,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ ID: data.ID }),
             });

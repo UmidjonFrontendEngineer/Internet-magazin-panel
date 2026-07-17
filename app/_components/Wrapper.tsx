@@ -1,7 +1,7 @@
 'use client'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useThemeStore } from "@/src/store/useThemeStore";
+import { useThemeStore } from "@/app/_store/useThemeStore";
 import Image from "next/image";
 import ThemeBtn from "./ThemeBtn";
 

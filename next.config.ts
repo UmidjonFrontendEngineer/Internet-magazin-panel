@@ -13,10 +13,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'dummyimage.com',
         pathname: '**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
-  
+
   /* 2. React Strict Mode fon rejimida yoqilgan, lekin qo'lda boshqarish uchun (ixtiyoriy) */
   reactStrictMode: true,
 

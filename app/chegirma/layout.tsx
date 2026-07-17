@@ -1,14 +1,15 @@
+import ProductsWrapper from "../_components/ProductsWrapper";
 import "@/app/globals.css";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "internet do'kon - Settings",
-    description: "Next.js texnologiyasida full-stack e-commerce App => Settings.",
+    title: "internet do'kon - Products",
+    description: "Next.js texnologiyasida full-stack e-commerce App => Products.",
     keywords: ["nextjs", "react", "uzbekistan", "e-commerce", "internet do'kon", "internet do'kon"],
 
     openGraph: {
-        title: "internet do'kon - Settings",
-        description: "Next.js texnologiyasida full-stack e-commerce App => Settings.",
+        title: "internet do'kon - Products",
+        description: "Next.js texnologiyasida full-stack e-commerce App => Products.",
         siteName: "internet do'kon",
         locale: "uz_UZ",
         type: "website",
@@ -16,8 +17,8 @@ export const metadata: Metadata = {
 
     twitter: {
         card: "summary_large_image",
-        title: "internet do'kon - Settings",
-        description: "Next.js texnologiyasida full-stack e-commerce App => Settings.",
+        title: "internet do'kon - Products",
+        description: "Next.js texnologiyasida full-stack e-commerce App => Products.",
     },
 
     robots: {
@@ -29,7 +30,9 @@ export const metadata: Metadata = {
 export default function ProductsLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="uz">
-            {children}
+            <ProductsWrapper>
+                {children}
+            </ProductsWrapper>
         </html>
     );
 }
