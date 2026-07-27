@@ -1,6 +1,20 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Slider from '@/app/_components/Slider'
+interface Rating {
+    rate: number;
+    count: number;
+}
+
+interface Product {
+    id: number;
+    title: string;
+    price: number;
+    description: string;
+    category: string;
+    image: string;
+    rating: Rating;
+}
 
 const SliderGet = () => {
     const [count, setCount] = useState(0)
@@ -30,7 +44,7 @@ const SliderGet = () => {
     return (
         <>
             <h1>slider</h1>
-            <Slider count={count} link={true} products={products} setCount={setCount} />
+            <Slider products={products} />
         </>
     )
 }

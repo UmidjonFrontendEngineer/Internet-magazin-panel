@@ -3,13 +3,22 @@ import React, { useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-interface ProductProps {
-    id: number;
-    image: string;
-    title: string;
+interface Rating {
+    rate: number;
+    count: number;
 }
 
-const Slider = ({ products }: { products: ProductProps[] }) => {
+interface Product {
+    id: number;
+    title: string;
+    price: number;
+    description: string;
+    category: string;
+    image: string;
+    rating: Rating;
+}
+
+const Slider = ({ products }: { products: Product[] }) => {
     const sliderRef = useRef<HTMLDivElement>(null);
     const [isDown, setIsDown] = useState(false);
     const [startX, setStartX] = useState(0);
@@ -33,8 +42,8 @@ const Slider = ({ products }: { products: ProductProps[] }) => {
 
     return (
         <div className="relative w-full bg-sky-500 rounded-[40px] p-6 flex items-center overflow-hidden">
-            
-            <div 
+
+            <div
                 ref={sliderRef}
                 onMouseDown={onMouseDown}
                 onMouseLeave={onMouseLeave}
@@ -44,16 +53,16 @@ const Slider = ({ products }: { products: ProductProps[] }) => {
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
                 {products.map((item) => (
-                    <div 
-                        key={item.id} 
+                    <div
+                        key={item.id}
                         className="min-w-[80%] md:min-w-[300px] h-[300px] bg-white rounded-[24px] flex items-center justify-center p-4 select-none"
                     >
                         <Link href={`/${item.id}`} className="w-full h-full flex items-center justify-center">
-                            <Image 
-                                src={item.image} 
-                                alt={item.title} 
-                                width={250} 
-                                height={250} 
+                            <Image
+                                src={item.image}
+                                alt={item.title}
+                                width={250}
+                                height={250}
                                 className="object-contain"
                                 draggable={false}
                             />
