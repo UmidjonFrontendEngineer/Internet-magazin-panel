@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request: Request) {
     try {
-        // 1. API key tekshiruvi (Header'dan 'x-api-key' ni o'qib tekshiramiz)
         const apiKey = request.headers.get('x-api-key');
 
         if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
@@ -17,7 +16,7 @@ export async function POST(request: Request) {
 
         const transporter = nodemailer.createTransport({
             host: process.env.MAIL_HOST,
-            port: Number(process.env.MAIL_PORT), // Port raqam bo'lishi uchun Number ga o'tkazish tavsiya qilinadi
+            port: Number(process.env.MAIL_PORT),
             secure: false,
             auth: {
                 user: process.env.MAIL_USER,
@@ -41,7 +40,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true, message: 'Xat muvaffaqiyatli yuborildi!' });
     } catch (error: any) {
-        console.error('Nodemailer xatoligi:', error);
+        console.error('ERROR nodemailer:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
