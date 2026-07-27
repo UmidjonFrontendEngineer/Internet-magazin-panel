@@ -35,10 +35,8 @@ const ProductsGet = () => {
     const [data, setData] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    // Slider rasmlarining aktiv indekslari { productId: index }
     const [activeImageIndices, setActiveImageIndices] = useState<{ [key: number]: number }>({});
 
-    // Dinamik tanlangan optionlar: { [productId]: { [groupName]: value } }
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: { [groupName: string]: number } }>({});
 
     useEffect(() => {
@@ -116,7 +114,7 @@ const ProductsGet = () => {
 
     return (
         <div className="min-h-screen text-zinc-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto space-y-10">
+            <div className="max-w-6xl space-y-10">
 
                 <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
                     Mahsulotlar

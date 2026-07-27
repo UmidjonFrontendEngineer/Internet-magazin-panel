@@ -22,11 +22,6 @@ export default function Dashboard() {
                     <span className="capitalize">Products</span>
                 </Link>
 
-                <Link href="/search" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-300/20 transition-all duration-150 group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400 group-hover:scale-125 transition-transform duration-150" />
-                    <span className="capitalize">Search Console</span>
-                </Link>
-
                 <Link href="/slider" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-300/20 transition-all duration-150 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-sky-400 group-hover:scale-125 transition-transform duration-150" />
                     <span className="capitalize">Slider</span>

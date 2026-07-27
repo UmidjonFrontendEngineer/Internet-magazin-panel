@@ -12,7 +12,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         { name: "Dashboard", path: "/" },
         { name: "Products", path: "/products" },
         { name: "Slider", path: "/slider" },
-        { name: "Search", path: "/search" },
+        { name: "Chegirma", path: '/chegirma'},
         { name: "Settings", path: "/settings" },
     ];
 
@@ -77,7 +77,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                             <Link className="hover:text-white hover:underline duration-200" href="/">dashboard</Link>
                             <Link className="hover:text-white hover:underline duration-200" href="/products">products</Link>
                             <Link className="hover:text-white hover:underline duration-200" href="/slider">slider</Link>
-                            <Link className="hover:text-white hover:underline duration-200" href="/search">search</Link>
+                            <Link className="hover:text-white hover:underline duration-200" href="/chegirma">chegirma</Link>
                         </header>
                         {children}
                     </main>

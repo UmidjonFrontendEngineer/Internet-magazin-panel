@@ -257,8 +257,9 @@ const ProductsPost = () => {
                     </div>
                 </div>
 
-                <button type="submit" className="w-full bg-sky-600 hover:bg-sky-700 duration-300 text-white rounded-2xl py-3 text-xl font-semibold select-none capitalize mt-4">
-                    databasega yozish
+                <button type="submit" className="w-full bg-sky-700 hover:bg-sky-900 duration-300 text-white rounded-2xl py-3 text-xl font-semibold select-none capitalize mt-4 flex items-center justify-center gap-4">
+                    <h1>databasega yozish</h1>
+                    <Image src='/database.png' alt="database" width={20} height={20} />
                 </button>
             </form>
         </div>

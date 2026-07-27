@@ -30,7 +30,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="uz">
-            {/* Butun dizayn va client ishlari shu wrapper ichida bo'ladi */}
             <LayoutWrapper>
                 {children}
             </LayoutWrapper>

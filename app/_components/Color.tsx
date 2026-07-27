@@ -21,7 +21,7 @@ export default function SimpleColorRange({ num, onChangeColor }: ColorPickerProp
 
         const hex = `#${f(0)}${f(8)}${f(4)}`;
         setCurrentColor(hex);
-        onChangeColor(num, hex); // Rangni parent state-ga yuboramiz
+        onChangeColor(num, hex);
     };
 
     return (
@@ -48,7 +48,6 @@ export default function SimpleColorRange({ num, onChangeColor }: ColorPickerProp
                     background: 'linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)'
                 }}
             />
-            {/* Tanlangan rangni kichik doiracha qilib ko'rsatish */}
             <div
                 className="w-8 h-8 rounded-full border border-white/40 shadow-md flex-shrink-0"
                 style={{ backgroundColor: currentColor }}
