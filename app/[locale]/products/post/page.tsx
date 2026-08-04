@@ -223,52 +223,6 @@ const ProductsPost = () => {
                 </div>
 
                 <GlassInput />
-
-                <GlassModal isOpen={true} title="Yangi foydalanuvchi qo'shish" open={false} onClose={false}>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                F-I-SH
-                            </label>
-                            <GlassInput placeholder="Masalan: Alisher Navoiy" />
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                Elektron pochta
-                            </label>
-                            <GlassInput placeholder="alisher@example.com" />
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                Rolni tanlang
-                            </label>
-                            <select
-                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-sky-500 focus:outline-none transition-colors text-sm"
-                            >
-                                <option value="Admin">Admin</option>
-                                <option value="Moderator">Moderator</option>
-                                <option value="Super Admin">Super Admin</option>
-                            </select>
-                        </div>
-
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button
-                                type="button"
-                                className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
-                            >
-                                Bekor qilish
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
-                            >
-                                Saqlash
-                            </button>
-                        </div>
-                    </form>
-                </GlassModal>
                 <GlassButton><h1>submit</h1></GlassButton>
                 <GlassCard><h1>hello</h1></GlassCard>
                 <GlassTable
