@@ -6,7 +6,7 @@ interface ColorPickerProps {
     onChangeColor: (index: number, color: string) => void;
 }
 
-export default function SimpleColorRange({ num, onChangeColor }: ColorPickerProps) {
+const ColorPicker = ({ num, onChangeColor }: ColorPickerProps) => {
     const [currentColor, setCurrentColor] = useState("#00ddff");
 
     const handleColorChange = (hue: number) => {
@@ -55,3 +55,5 @@ export default function SimpleColorRange({ num, onChangeColor }: ColorPickerProp
         </div>
     );
 }
+
+export default ColorPicker
