@@ -15,7 +15,7 @@ import { useSelectShopStore } from "../_store/useSelectShopStore";
 import { useParams } from "next/navigation";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (containerRef.current) {
