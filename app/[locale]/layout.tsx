@@ -6,7 +6,7 @@ import { NotificationProvider } from "@/components/Notification";
 
 type Props = {
     children: React.ReactNode;
-    params: { locale?: string };
+    params: Promise<{ locale: string }>;
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -46,9 +46,11 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default async function RootLayout({ children }: Props) {
+export default async function RootLayout({ children, params }: Props) {
+    const { locale: paramLocale } = await params;
+    
     const cookieStore = await cookies();
-    const locale = cookieStore.get("NEXT_LOCALE")?.value || "uz";
+    const locale = paramLocale || cookieStore.get("NEXT_LOCALE")?.value || "uz";
 
     return (
         <html lang={locale}>
