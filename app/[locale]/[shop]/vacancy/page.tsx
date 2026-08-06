@@ -5,7 +5,7 @@ import GlassModal from '@/components/admin/GlassModal'
 import React, { useEffect, useState } from 'react'
 import { useThemeStore } from '@/app/_store/useThemeStore'
 import GlassButton from '@/components/admin/GlassButton'
-import { useSelectShopStore } from '@/app/_store/useSelectShopStore'
+import { useSelectMarketStore } from '@/app/_store/useSelectMarketStore'
 import { useTokenStore } from '@/app/_store/useTokenStore'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -95,7 +95,7 @@ const Vacancy = () => {
 
     const [isOpen, setIsOpen] = useState(false)
     const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
-    const selectShop = useSelectShopStore(state => state.selectShop)
+    const selectMarket = useSelectMarketStore(state => state.selectMarket)
     const token = useTokenStore(state => state.token)
     const [vacancions, setVacancions] = useState<VacancyType[]>([])
 
@@ -117,7 +117,7 @@ const Vacancy = () => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
 
-        formData.append('shopId', selectShop);
+        formData.append('marketId', selectMarket);
 
         const response = await fetch('https://internet-magazin-nest-server.onrender.com/vacancies', {
             method: 'POST',

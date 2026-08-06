@@ -33,7 +33,7 @@ export default function ProductActivityPage() {
     const [activeTab, setActiveTab] = useState<'comments' | 'requests' | 'reactions'>('comments')
 
     const [comments, setComments] = useState<CommentItem[]>([
-        { id: '1', author: 'Shop Admin (Siz)', text: 'Mahsulot narxi va sifati bo\'yicha barcha talablar bajarildi.', date: '2026-07-28', isAdmin: true },
+        { id: '1', author: 'Market Admin (Siz)', text: 'Mahsulot narxi va sifati bo\'yicha barcha talablar bajarildi.', date: '2026-07-28', isAdmin: true },
         { id: '2', author: 'Mijoz #42', text: 'Yetkazib berish tezligi juda zo\'r ekan, rahmat!', date: '2026-07-27', isAdmin: false }
     ])
     const [newComment, setNewComment] = useState('')
@@ -54,7 +54,7 @@ export default function ProductActivityPage() {
         e.preventDefault()
         if (newComment.trim()) {
             setComments([
-                { id: Date.now().toString(), author: 'Shop Admin (Siz)', text: newComment, date: new Date().toISOString().split('T')[0], isAdmin: true },
+                { id: Date.now().toString(), author: 'Market Admin (Siz)', text: newComment, date: new Date().toISOString().split('T')[0], isAdmin: true },
                 ...comments
             ])
             setNewComment('')
@@ -65,7 +65,7 @@ export default function ProductActivityPage() {
         e.preventDefault()
         if (newRequest.trim()) {
             setRequests([
-                { id: Date.now().toString(), author: 'Shop Admin', requestText: newRequest, status: 'Kutilmoqda' },
+                { id: Date.now().toString(), author: 'Market Admin', requestText: newRequest, status: 'Kutilmoqda' },
                 ...requests
             ])
             setNewRequest('')

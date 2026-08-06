@@ -36,7 +36,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         success: {
             border: "border-emerald-500/30",
             glow: "shadow-[0_0_30px_rgba(16,185,129,0.2),inset_0_1px_0_0_rgba(16,185,129,0.4)]",
-            iconBg: "bg-emerald-500/20 text-emerald-400",
+            iconBg: "bg-emerald-500/50 text-emerald-400",
             icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -46,7 +46,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         error: {
             border: "border-rose-500/30",
             glow: "shadow-[0_0_30px_rgba(244,63,94,0.2),inset_0_1px_0_0_rgba(244,63,94,0.4)]",
-            iconBg: "bg-rose-500/20 text-rose-400",
+            iconBg: "bg-rose-500/50 text-rose-400",
             icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
@@ -56,8 +56,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     };
 
     const themeConfig = {
-        dark: "bg-zinc-950/85 text-zinc-100 border-white/10",
-        light: "bg-white/85 text-zinc-900 border-black/10",
+        dark: "bg-transparent text-zinc-100 border-white/10",
+        light: "bg-transparent text-zinc-900 border-black/10",
     };
 
     const currentStatus = statusConfig[status];
@@ -77,7 +77,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                         className="fixed top-5 left-1/2 -translate-x-1/2 z-[999999999999999999999] flex justify-center pointer-events-none"
                     >
                         <div
-                            className={`pointer-events-auto relative flex items-center gap-3.5 px-5 py-3.5 rounded-2xl border backdrop-blur-2xl ${currentTheme} ${currentStatus.border} ${currentStatus.glow} w-auto max-w-md`}
+                            className={`pointer-events-auto relative flex items-center gap-3.5 px-5 py-3.5 rounded-2xl border backdrop-blur-md ${currentTheme} ${currentStatus.border} ${currentStatus.glow} w-auto max-w-md`}
                             style={{
                                 backdropFilter: "blur(24px)",
                                 WebkitBackdropFilter: "blur(24px)",

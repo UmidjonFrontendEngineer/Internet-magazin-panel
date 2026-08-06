@@ -3,18 +3,18 @@ import React from 'react';
 interface DashboardProps {
     params: Promise<{
         locale: string;
-        shop: string;
+        market: string;
     }>;
 }
 
 export default async function Dashboard({ params }: DashboardProps) {
-    const { locale, shop } = await params;
+    const { locale, market } = await params;
 
     return (
         <div>
             <h1>Dashboard</h1>
             <p>Til (Locale): {locale}</p>
-            <p>Do'kon ID (Shop ID): {shop}</p>
+            <p>Market ID (Market ID): {market}</p>
         </div>
     );
 }

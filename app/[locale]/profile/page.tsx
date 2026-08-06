@@ -8,11 +8,11 @@ import GlassInput from '@/components/admin/GlassInput'
 import GlassButton from '@/components/admin/GlassButton'
 import GlassCard from '@/components/admin/GlassCard'
 import { useThemeStore } from '@/app/_store/useThemeStore'
-import { useSelectShopStore } from '@/app/_store/useSelectShopStore'
+import { useSelectMarketStore } from '@/app/_store/useSelectMarketStore'
 import Map from '@/app/_components/Map'
 import { useNotification } from '@/components/Notification'
 
-interface Shop {
+interface Market {
     id: string
     title: string
     logo: string
@@ -30,20 +30,20 @@ export default function ProfilePage() {
     const [lastName, setLastName] = useState('lastName')
     const [email, setEmail] = useState('example@gmail.com')
     const [image, setImage] = useState('https://i.ibb.co/nNZrjBSD/user.png')
-    const [shopAdd, setShopAdd] = useState(false)
+    const [marketAdd, setMarketAdd] = useState(false)
     const [deleteAkkModalOpen, setDeleteAkkModalOpen] = useState(false)
-    const selectShop = useSelectShopStore(state => state.selectShop)
+    const selectMarket = useSelectMarketStore(state => state.selectMarket)
     const [openMap, setOpenMap] = useState(false)
-    const setSelectShop = useSelectShopStore(state => state.setSelectShop)
+    const setSelectMarket = useSelectMarketStore(state => state.setSelectMarket)
     const [mapLat, setMapLat] = useState(0)
     const [mapLng, setMapLng] = useState(0)
 
     useEffect(() => {
-        if (shopAdd === false) {
+        if (marketAdd === false) {
             setMapLat(0)
             setMapLng(0)
         }
-    }, [shopAdd])
+    }, [marketAdd])
 
     const renderToken = async (token: string) => {
         console.log("Yuborilayotgan token:", token);
@@ -103,10 +103,10 @@ export default function ProfilePage() {
         }
     };
 
-    const [shops, setShops] = useState<Shop[]>([])
-    const handleGetShops = async (token: string) => {
+    const [markets, setMarkets] = useState<Market[]>([])
+    const handleGetMarkets = async (token: string) => {
         try {
-            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/shops/get`, {
+            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/markets/get`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -116,7 +116,7 @@ export default function ProfilePage() {
             const data = await response.json();
 
             if (response.ok) {
-                setShops(data)
+                setMarkets(data)
             } else {
                 notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
             }
@@ -126,7 +126,7 @@ export default function ProfilePage() {
         }
     }
 
-    const handleCreateShop = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleCreateMarket = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         console.log(mapLat, mapLng)
         const formData = new FormData(e.currentTarget);
@@ -136,21 +136,21 @@ export default function ProfilePage() {
         const logo = formData.get('logo');
 
         if (title === '') {
-            notify.show("Do'kon nomini kiriting", "error", dark ? 'dark' : 'light')
+            notify.show("Market nomini kiriting", "error", dark ? 'dark' : 'light')
             return
         }
         if (!logo || (logo instanceof File && logo.size === 0) || logo.toString().trim() === '') {
-            notify.show("Do'kon logosini kiriting", "error", dark ? 'dark' : 'light');
+            notify.show("Market logosini kiriting", "error", dark ? 'dark' : 'light');
             return;
         }
         if (mapLat === 0 || mapLng === 0) {
-            notify.show("Do'kon kordinatasini xaritadan belgilang", "error", dark ? 'dark' : 'light')
+            notify.show("Market kordinatasini xaritadan belgilang", "error", dark ? 'dark' : 'light')
             return
         }
-        setShopAdd(false)
+        setMarketAdd(false)
 
         try {
-            const response = await fetch('https://internet-magazin-nest-server.onrender.com/shops', {
+            const response = await fetch('https://internet-magazin-nest-server.onrender.com/markets', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -162,8 +162,8 @@ export default function ProfilePage() {
 
             if (response.ok) {
                 console.log('Do\'kon muvaffaqiyatli ochildi:', data);
-                notify.show("Do'kon muvaffaqiyatli ochildi!", "success", dark ? 'dark' : 'light')
-                handleGetShops(token);
+                notify.show("Market muvaffaqiyatli ochildi!", "success", dark ? 'dark' : 'light')
+                handleGetMarkets(token);
             } else {
                 console.error('Xatolik yuz berdi:', data);
             }
@@ -173,9 +173,9 @@ export default function ProfilePage() {
         }
     };
 
-    const handleDeleteShop = async (shopId: string) => {
+    const handleDeleteMarket = async (marketId: string) => {
         try {
-            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/shops/${shopId}`, {
+            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/markets/${marketId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -185,9 +185,9 @@ export default function ProfilePage() {
             const data = await response.json();
 
             if (response.ok) {
-                notify.show("Do'kon muvaffaqiyatli o'chirildi!", "success", dark ? 'dark' : 'light')
+                notify.show("Market muvaffaqiyatli o'chirildi!", "success", dark ? 'dark' : 'light')
                 console.log('O\'chirildi:', data);
-                handleGetShops(token);
+                handleGetMarkets(token);
             } else {
                 console.error('O\'chirishda xatolik:', data);
             }
@@ -200,10 +200,10 @@ export default function ProfilePage() {
     useEffect(() => {
         if (!token) return
         renderToken(token)
-        handleGetShops(token)
+        handleGetMarkets(token)
     }, [token])
 
-    const [selectedShop, setSelectedShop] = useState('')
+    const [selectedMarket, setSelectedMarket] = useState('')
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
@@ -212,8 +212,8 @@ export default function ProfilePage() {
         router.push(`/${locale}/auth`)
     }
 
-    const handleShopClick = (shopTitle: string) => {
-        router.push(`/${locale}/${encodeURIComponent(shopTitle.replaceAll(' ', '_'))}/dashboard`)
+    const handleMarketClick = (marketTitle: string) => {
+        router.push(`/${locale}/${encodeURIComponent(marketTitle.replaceAll(' ', '_'))}/dashboard`)
     }
 
     return (
@@ -253,39 +253,39 @@ export default function ProfilePage() {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className={`text-lg ${dark ? 'text-white' : 'text-neutral-900'} font-bold tracking-wide uppercase`}>
-                        Mening do'konlarim
+                        Mening marketlarim
                     </h3>
                     <GlassButton
-                        onClick={() => setShopAdd(true)}
+                        onClick={() => setMarketAdd(true)}
                     >
                         add
                     </GlassButton>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {shops.map((shop) => (
-                        <GlassCard hover={true} className='flex items-center justify-between group' key={shop.id}>
+                    {markets.map((market) => (
+                        <GlassCard hover={true} className='flex items-center justify-between group' key={market.id}>
                             <div
-                                onClick={() => { setSelectShop(shop.id); handleShopClick(shop.id); }}
+                                onClick={() => { setSelectMarket(market.id); handleMarketClick(market.id); }}
                                 className="flex items-center gap-4 cursor-pointer flex-1"
                             >
                                 <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-black/10">
-                                    <Image src={shop.logo} alt={shop.title} fill className="object-cover" />
+                                    <Image src={market.logo} alt={market.title} fill className="object-cover" />
                                 </div>
                                 <span className={`font-semibold ${dark ? 'text-white' : 'text-neutral-900'} group-hover:text-sky-500 transition-colors`}>
-                                    {shop.title}
+                                    {market.title}
                                 </span>
                             </div>
 
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => { setSelectedShop(shop.id); setIsEditModalOpen(true); }}
+                                    onClick={() => { setSelectedMarket(market.id); setIsEditModalOpen(true); }}
                                     className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-sky-500/20 hover:text-sky-500 transition-all`}
                                 >
                                     ✏️
                                 </button>
                                 <button
-                                    onClick={() => { setSelectedShop(shop.id); setIsDeleteModalOpen(true); }}
+                                    onClick={() => { setSelectedMarket(market.id); setIsDeleteModalOpen(true); }}
                                     className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-red-500/20 hover:text-red-500 transition-all`}
                                 >
                                     🗑️
@@ -296,11 +296,11 @@ export default function ProfilePage() {
                 </div>
             </div>
 
-            <GlassModal title="Do'kon ochish" onClose={() => setShopAdd(false)} open={shopAdd}>
-                <form onSubmit={handleCreateShop} className="space-y-4">
+            <GlassModal title="Market ochish" onClose={() => setMarketAdd(false)} open={marketAdd}>
+                <form onSubmit={handleCreateMarket} className="space-y-4">
 
                     <p className="text-zinc-400 text-sm">
-                        Yangi do'kon ochish uchun uning nomini kiriting rasmini yuklang va kordinatasini belgilang.
+                        Yangi market ochish uchun uning nomini kiriting rasmini yuklang va kordinatasini belgilang.
                     </p>
 
                     <div className="flex flex-col w-full gap-4">
@@ -313,7 +313,7 @@ export default function ProfilePage() {
                             if (e.key === ' ' && e.currentTarget.value.endsWith(' ')) {
                                 e.preventDefault();
                             }
-                        }} maxLength={26} placeholder="Do'kon nomini yozing" />
+                        }} maxLength={26} placeholder="Market nomini yozing" />
                         <GlassInput name='logo' type='file' />
                     </div>
 
@@ -321,7 +321,7 @@ export default function ProfilePage() {
 
                     <div className="flex justify-end gap-3 mt-6">
                         <button
-                            onClick={() => setShopAdd(false)}
+                            onClick={() => setMarketAdd(false)}
                             type="button"
                             className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
                         >
@@ -331,7 +331,7 @@ export default function ProfilePage() {
                             type="submit"
                             className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
                         >
-                            Do'kon ochish
+                            Market ochish
                         </button>
                     </div>
                 </form>
@@ -378,9 +378,9 @@ export default function ProfilePage() {
                 </GlassButton>
             </GlassModal>
 
-            <GlassModal title="Do'konni o'chirish" onClose={() => setIsDeleteModalOpen(false)} open={isDeleteModalOpen}>
+            <GlassModal title="Marketni o'chirish" onClose={() => setIsDeleteModalOpen(false)} open={isDeleteModalOpen}>
                 <div className="space-y-4">
-                    <p className="text-sm text-neutral-400">Haqiqatan ham bu do'konni o'chirib yubormoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.</p>
+                    <p className="text-sm text-neutral-400">Haqiqatan ham bu marketni o'chirib yubormoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.</p>
                     <div className="flex justify-end gap-3 mt-6">
                         <button
                             onClick={() => setIsDeleteModalOpen(false)}
@@ -390,12 +390,12 @@ export default function ProfilePage() {
                         </button>
                         <button
                             onClick={() => {
-                                handleDeleteShop(selectedShop)
+                                handleDeleteMarket(selectedMarket)
                                 setIsDeleteModalOpen(false)
                             }}
                             className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
                         >
-                            Do'kon ochish
+                            Market ochish
                         </button>
                     </div>
                 </div>

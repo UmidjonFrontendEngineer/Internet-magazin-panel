@@ -11,7 +11,7 @@ import GlassTable from "@/components/admin/GlassTable";
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassMenu from "@/components/GlassNavItem";
 import { useTokenStore } from "../_store/useTokenStore";
-import { useSelectShopStore } from "../_store/useSelectShopStore";
+import { useSelectMarketStore } from "../_store/useSelectMarketStore";
 import { useParams } from "next/navigation";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -32,7 +32,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const [tab, setTab] = useState(-1)
     const [menuType, setMenuType] = useState('')
     const [role, setRole] = useState('')
-    const selectShop = useSelectShopStore(state => state.selectShop)
+    const selectMarket = useSelectMarketStore(state => state.selectMarket)
 
     const params = useParams()
     const locale = params.locale || 'uz'
@@ -65,6 +65,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             console.log(req);
             setAcces(true);
         } catch (err) {
+            alert('error')
             console.log("Fetch xatosi:", err);
             setAcces(false);
         }
@@ -72,10 +73,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     useEffect(() => {
         renderToken(token);
+
+        setInterval(() => console.log(acces, role), 1000)
     }, [token]);
 
     useEffect(() => {
-        if (acces && selectShop) {
+        if (acces && selectMarket) {
             if (role === '' || !role) {
                 setMenuType('owner');
             } else if (role === 'admin') {
@@ -87,10 +90,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             } else {
                 setMenuType('noWork');
             }
-        } else if ((!acces && selectShop) || (!acces)) {
+        } else if ((!acces && selectMarket) || (!acces)) {
             setMenuType('noAcces');
         }
-    }, [acces, selectShop, role]);
+    }, [acces, selectMarket, role]);
 
 
     useEffect(() => { setMenu(window.innerWidth > 500 ? true : false) }, [])
@@ -309,7 +312,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                             <>
 
                                                 <Link
-                                                    href={`/${locale}/${selectShop.replaceAll(' ', '_')}/dashboard`}
+                                                    href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/dashboard`}
                                                     className={`group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
                                                         ? "hover:bg-white/10 text-neutral-300 hover:text-white"
                                                         : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
@@ -335,7 +338,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                 </button>
                                                 
                                                 <Link
-                                                    href={`/${locale}/${selectShop.replaceAll(' ', '_')}/vacancy`}
+                                                    href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/vacancy`}
                                                     className={`group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
                                                         ? "hover:bg-white/10 text-neutral-300 hover:text-white"
                                                         : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
