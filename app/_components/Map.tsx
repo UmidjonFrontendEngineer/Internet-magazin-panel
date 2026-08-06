@@ -56,11 +56,10 @@ export default function Map({ isDarkMode = false, onLocationSelect, markers = []
     const tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
     return (
-        <div className={`w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border transition-all duration-300 relative ${
-            isDarkMode 
-                ? 'border-neutral-800 bg-[#070b14] shadow-blue-950/40' 
-                : 'border-neutral-200 bg-white shadow-neutral-200/50'
-        }`}>
+        <div className={`w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border transition-all duration-300 z-[0] ${isDarkMode
+            ? 'border-neutral-800 bg-[#070b14] shadow-blue-950/40'
+            : 'border-neutral-200 bg-white shadow-neutral-200/50'
+            }`}>
             <MapContainer
                 center={[41.311081, 69.240562]}
                 zoom={7}
@@ -68,7 +67,7 @@ export default function Map({ isDarkMode = false, onLocationSelect, markers = []
                 style={{ width: '100%', height: '100%', background: isDarkMode ? '#070b14' : '#f8fafc' }}
             >
                 <MapResizer />
-                
+
                 <div className={isDarkMode ? "w-full h-full filter invert hue-rotate-180 brightness-75 contrast-125 saturate-150" : "w-full h-full"}>
                     <TileLayer
                         attribution='&copy; <a href="https://carto.com/">CARTO</a>'
@@ -77,14 +76,14 @@ export default function Map({ isDarkMode = false, onLocationSelect, markers = []
                 </div>
 
                 {isDarkMode && (
-                    <div className="absolute inset-0 bg-blue-600/15 pointer-events-none z-[400] mix-blend-overlay" />
+                    <div className="absolute inset-0 bg-blue-600/15 pointer-events-none mix-blend-overlay" />
                 )}
-                
+
                 <LocationClickEvent onSelect={handleMapClick} />
 
                 {selectedPosition && (
                     <Marker position={[selectedPosition.lat, selectedPosition.lng]}>
-                        <Popup>
+                        <Popup className="[&_.leaflet-popup-content-wrapper]:bg-sky-100/10 [&_.leaflet-popup-content-wrapper]:backdrop-blur-md [&_.leaflet-popup-content-wrapper]:shadow-xl [&_.leaflet-popup-content-wrapper]:rounded-3xl [&_.leaflet-popup-tip]:bg-sky-100/80">
                             <div className="text-xs font-sans p-1">
                                 <p className="font-bold text-neutral-900">Tanlangan nuqta:</p>
                                 <p className="text-neutral-600">Lat: {selectedPosition.lat.toFixed(4)}</p>

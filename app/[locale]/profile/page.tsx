@@ -60,6 +60,7 @@ export default function ProfilePage() {
             });
 
             if (!res.ok) {
+                notify.show("Hisobingizga kiring!", "error", dark ? 'dark' : 'light')
                 const errorText = await res.text();
                 console.log("Server xatosi:", errorText);
                 router.push('/auth')
@@ -73,6 +74,7 @@ export default function ProfilePage() {
             setEmail(req.email);
             setImage(req.image);
         } catch (err) {
+            notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
             console.log("Fetch xatosi:", err);
         }
     }
@@ -96,6 +98,7 @@ export default function ProfilePage() {
             } else {
             }
         } catch (error) {
+            notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
             console.error('Server bilan aloqada xatolik:', error);
         }
     };
@@ -115,18 +118,36 @@ export default function ProfilePage() {
             if (response.ok) {
                 setShops(data)
             } else {
+                notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
             }
         } catch (error) {
+            notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
             console.error('Server bilan aloqada xatolik:', error);
         }
     }
 
     const handleCreateShop = async (e: React.FormEvent<HTMLFormElement>) => {
-        setShopAdd(false)
+        e.preventDefault()
         console.log(mapLat, mapLng)
         const formData = new FormData(e.currentTarget);
         formData.append('lat', mapLat.toString());
         formData.append('lng', mapLng.toString());
+        const title = formData.get('title');
+        const logo = formData.get('logo');
+
+        if (title === '') {
+            notify.show("Do'kon nomini kiriting", "error", dark ? 'dark' : 'light')
+            return
+        }
+        if (!logo || (logo instanceof File && logo.size === 0) || logo.toString().trim() === '') {
+            notify.show("Do'kon logosini kiriting", "error", dark ? 'dark' : 'light');
+            return;
+        }
+        if (mapLat === 0 || mapLng === 0) {
+            notify.show("Do'kon kordinatasini xaritadan belgilang", "error", dark ? 'dark' : 'light')
+            return
+        }
+        setShopAdd(false)
 
         try {
             const response = await fetch('https://internet-magazin-nest-server.onrender.com/shops', {
@@ -147,6 +168,7 @@ export default function ProfilePage() {
                 console.error('Xatolik yuz berdi:', data);
             }
         } catch (error) {
+            notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
             console.error('Server bilan aloqada xatolik:', error);
         }
     };
@@ -170,6 +192,7 @@ export default function ProfilePage() {
                 console.error('O\'chirishda xatolik:', data);
             }
         } catch (error) {
+            notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
             console.error('Server bilan aloqada xatolik:', error);
         }
     };
@@ -274,15 +297,7 @@ export default function ProfilePage() {
             </div>
 
             <GlassModal title="Do'kon ochish" onClose={() => setShopAdd(false)} open={shopAdd}>
-                <form onSubmit={(e) => {
-                    e.preventDefault()
-                    if (mapLat === 0 || mapLng === 0) {
-                        notify.show("Avval xaritadan kordinatani belgilang!", "error", dark ? 'dark' : 'light')
-                        return;
-                    }
-
-                    handleCreateShop(e)
-                }} className="space-y-4">
+                <form onSubmit={handleCreateShop} className="space-y-4">
 
                     <p className="text-zinc-400 text-sm">
                         Yangi do'kon ochish uchun uning nomini kiriting rasmini yuklang va kordinatasini belgilang.
@@ -345,7 +360,7 @@ export default function ProfilePage() {
                 </div>
             </GlassModal>
 
-            <GlassModal size='3xl' open={openMap} onClose={() => setOpenMap(false)} title='Xaritadan belgilang'>
+            <GlassModal size='full' open={openMap} onClose={() => setOpenMap(false)} title='Xaritadan belgilang'>
                 <Map
                     isDarkMode={dark}
                     onLocationSelect={(lat, lng) => {

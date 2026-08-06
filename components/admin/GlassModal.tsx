@@ -10,7 +10,7 @@ interface GlassModalProps {
     onClose: () => void;
     title?: string;
     children: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+    size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full';
 }
 
 export default function GlassModal({ open, onClose, title, children, size = 'md' }: GlassModalProps) {
@@ -24,6 +24,7 @@ export default function GlassModal({ open, onClose, title, children, size = 'md'
         xl: 'max-w-xl',
         '2xl': 'max-w-2xl',
         '3xl': 'max-w-3xl',
+        'full': 'max-w-full'
     };
 
     return (

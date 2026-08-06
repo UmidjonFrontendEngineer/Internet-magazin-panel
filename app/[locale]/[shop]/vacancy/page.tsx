@@ -10,6 +10,7 @@ import { useTokenStore } from '@/app/_store/useTokenStore'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import Map from '@/app/_components/Map'
+import { useNotification } from '@/components/Notification'
 
 interface VacancyType {
     id: string,
@@ -88,6 +89,7 @@ const VacancyCard = ({ item, locale }: VacancyCardProps) => {
 }
 
 const Vacancy = () => {
+    const notify = useNotification()
     const params = useParams();
     const locale = params?.locale as string || 'uz';
 
@@ -127,11 +129,11 @@ const Vacancy = () => {
 
         const result = await response.json();
         if (response.ok) {
-            alert('Vakansiya muvaffaqiyatli qo\'shildi!');
+            notify.show("Vakansiya muvaffaqiyatli qo'shildi!", "success", dark ? 'dark' : 'light')
             setIsOpen(false);
             getVacancions();
         } else {
-            alert(result.message || 'Xatolik yuz berdi');
+            notify.show("Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
         }
     };
 
