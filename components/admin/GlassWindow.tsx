@@ -57,7 +57,7 @@ export default function GlassWindow({
                             <button
                                 onClick={onClose}
                                 className={cn(
-                                    "p-2.5 rounded-full backdrop-blur-xl transition-colors border-b",
+                                    "p-2.5 rounded-full backdrop-blur-xl duration-200 transition-colors border-b",
                                     dark
                                         ? "bg-white/10 hover:bg-white/20 text-white border-white/10"
                                         : "bg-black/5 hover:bg-black/10 text-neutral-800 border-black/10"
@@ -71,7 +71,7 @@ export default function GlassWindow({
                         <div className="min-w-0 flex justify-center">
                             {title && (
                                 <h1 className={cn(
-                                    "text-xl font-bold tracking-tight truncate px-4 py-2.5 rounded-full backdrop-blur-xl transition-colors w-full text-center",
+                                    "text-xl font-bold tracking-tight truncate px-4 py-2.5 rounded-full backdrop-blur-xl duration-200 transition-colors w-full text-center",
                                     dark
                                         ? "bg-white/10 hover:bg-white/20 text-white"
                                         : "bg-black/5 hover:bg-black/10 text-neutral-800"
@@ -85,7 +85,7 @@ export default function GlassWindow({
                             <button
                                 onClick={onMenuClick}
                                 className={cn(
-                                    "p-2.5 rounded-full backdrop-blur-xl transition-colors",
+                                    "p-2.5 rounded-full backdrop-blur-xl duration-200 transition-colors",
                                     dark
                                         ? "bg-white/10 hover:bg-white/20 text-white"
                                         : "bg-black/5 hover:bg-black/10 text-neutral-800"
