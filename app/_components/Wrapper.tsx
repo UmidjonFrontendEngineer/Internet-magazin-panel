@@ -65,7 +65,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             console.log(req);
             setAcces(true);
         } catch (err) {
-            alert('error')
             console.log("Fetch xatosi:", err);
             setAcces(false);
         }

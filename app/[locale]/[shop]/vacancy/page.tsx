@@ -8,17 +8,19 @@ import GlassButton from '@/components/admin/GlassButton'
 import { useSelectMarketStore } from '@/app/_store/useSelectMarketStore'
 import { useTokenStore } from '@/app/_store/useTokenStore'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import Map from '@/app/_components/Map'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useNotification } from '@/components/Notification'
+import Image from 'next/image'
+import GlassWindow from '@/components/admin/GlassWindow'
 
 interface VacancyType {
-    id: string,
-    title: string,
-    image: string,
-    salary: string,
-    description: string,
-    requiredRole: string,
+    id: string;
+    title: string;
+    image: string;
+    salary: string;
+    description: string;
+    requiredRole: string;
+    requiredWorkers: string;
 }
 
 interface VacancyCardProps {
@@ -26,9 +28,8 @@ interface VacancyCardProps {
     locale: string;
 }
 
-const VacancyCard = ({ item, locale }: VacancyCardProps) => {
+const VacancyCard = ({ item }: VacancyCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false)
-
     const isLongDescription = item.description.length > 100
 
     const displayedDescription = isExpanded
@@ -36,10 +37,12 @@ const VacancyCard = ({ item, locale }: VacancyCardProps) => {
         : item.description.slice(0, 100) + (isLongDescription ? '...' : '')
 
     return (
-        <GlassCard className="flex flex-col justify-between h-full overflow-hidden group">
-            <div>
+        <GlassCard className="flex flex-col relative justify-between h-full overflow-hidden group cursor-pointer">
+            <Link href={`?id=${item.id}&isFullScreen=${false}`} scroll={false}>
                 <div className="relative w-full h-48 mb-4 overflow-hidden rounded-2xl">
-                    <img
+                    <Image
+                        width={500}
+                        height={300}
                         src={item.image}
                         alt={item.title}
                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
@@ -64,46 +67,40 @@ const VacancyCard = ({ item, locale }: VacancyCardProps) => {
                     <p className="text-sm opacity-80 leading-relaxed transition-all duration-300">
                         {displayedDescription}
                     </p>
-                    {isLongDescription && (
-                        <button
-                            type="button"
-                            onClick={() => setIsExpanded(!isExpanded)}
-                            className="mt-1 text-xs font-medium text-sky-400 hover:underline focus:outline-none"
-                        >
-                            {isExpanded ? 'Yashirish' : 'Ko\'proq o\'qish'}
-                        </button>
-                    )}
                 </div>
-            </div>
-
-            <div className="pt-4 border-t border-white/10 flex items-center justify-end">
-                <Link
-                    href={`/${locale}/vacancy/${item.id}`}
-                    className="px-4 py-2 text-sm font-medium rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 border border-sky-500/30 transition-colors duration-200 text-center"
-                >
-                    Batafsil
-                </Link>
-            </div>
+            </Link>
         </GlassCard>
     )
 }
 
 const Vacancy = () => {
+    const searchParams = useSearchParams()
+    const router = useRouter()
     const notify = useNotification()
     const params = useParams();
     const locale = params?.locale as string || 'uz';
 
     const [isOpen, setIsOpen] = useState(false)
-    const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
+    const [vacancions, setVacancions] = useState<VacancyType[]>([])
+    const [vacancy, setVacancy] = useState<VacancyType | null>(null)
+
+    const dark = useThemeStore(state => state.theme) === 'dark'
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
     const token = useTokenStore(state => state.token)
-    const [vacancions, setVacancions] = useState<VacancyType[]>([])
+
+    const vacancyId = searchParams.get('id')
+    const isFullScreen = searchParams.get('isFullScreen') === 'true'
 
     const getVacancions = async () => {
         try {
             const res = await fetch('https://internet-magazin-nest-server.onrender.com/vacancies')
             const result = await res.json()
             setVacancions(result)
+
+            if (vacancyId) {
+                const found = result.find((item: VacancyType) => item.id === vacancyId)
+                setVacancy(found || null)
+            }
         } catch (err) {
             console.error(err)
         }
@@ -111,12 +108,16 @@ const Vacancy = () => {
 
     useEffect(() => {
         getVacancions()
-    }, [])
+    }, [vacancyId])
+
+    const handleCloseDetailModal = () => {
+        router.push('vacancy', { scroll: false })
+        setVacancy(null)
+    }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-
         formData.append('marketId', selectMarket);
 
         const response = await fetch('https://internet-magazin-nest-server.onrender.com/vacancies', {
@@ -127,7 +128,6 @@ const Vacancy = () => {
             body: formData
         });
 
-        const result = await response.json();
         if (response.ok) {
             notify.show("Vakansiya muvaffaqiyatli qo'shildi!", "success", dark ? 'dark' : 'light')
             setIsOpen(false);
@@ -146,103 +146,115 @@ const Vacancy = () => {
                 </GlassButton>
             </GlassCard>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
                 {vacancions.map(item => (
                     <VacancyCard key={item.id} item={item} locale={locale} />
                 ))}
             </div>
 
-            <Map
-                isDarkMode={dark}
-                onLocationSelect={(lat, lng) => {
-                    console.log("Tanlangan koordinatalar:", lat, lng);
-                }}
-            />
-
-            {
-                isOpen && (
-                    <GlassModal title="Elon berish" open={isOpen} onClose={() => setIsOpen(false)}>
-                        <form className="space-y-4 overflow-scroll h-full" onSubmit={handleSubmit}>
-                            <div>
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                    Title
-                                </label>
-                                <GlassInput name='title' type='text' placeholder="Qisqacha mavzu" />
+            {vacancy && (
+                <GlassWindow title='Vakansiya tafsilotlari' open={true} size={isFullScreen ? 'full' : 'xl'} onClose={handleCloseDetailModal}>
+                    <div className="flex flex-col relative justify-between h-full overflow-hidden group">
+                        <div className="relative w-full h-[50vh] mb-4 overflow-hidden rounded-2xl">
+                            <Image
+                                width={5000000000000000000}
+                                height={3000000000000000000}
+                                src={vacancy.image}
+                                alt={vacancy.title}
+                                className="object-cover w-full h-full"
+                            />
+                            <div className="absolute top-3 left-3">
+                                <span className="px-3 py-1 text-xs font-medium backdrop-blur-md bg-black/40 text-white rounded-full border border-white/20">
+                                    {vacancy.requiredRole}
+                                </span>
                             </div>
+                        </div>
 
-                            <div>
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                    Oylik maosh
-                                </label>
-                                <GlassInput name='salary' type='number' placeholder="Oylik Maosh" />
-                            </div>
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                            <h3 className="text-xl font-bold tracking-tight">
+                                {vacancy.title}
+                            </h3>
+                            <span className="text-lg font-semibold whitespace-nowrap text-sky-500">
+                                {vacancy.salary} $
+                            </span>
+                        </div>
 
-                            <div>
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                    Rasm yuklang
-                                </label>
-                                <GlassInput name='image' type='file' />
-                            </div>
+                        <div className="mb-6">
+                            <p className="text-sm opacity-80 leading-relaxed">
+                                {vacancy.description}
+                            </p>
+                        </div>
 
-                            <div>
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                    Batafsil
-                                </label>
-                                <div className="space-y-1.5">
-                                    <textarea
-                                        name='description'
-                                        placeholder="Ish haqida to'liq ma'lumot"
-                                        rows={8}
-                                        className={`w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)]
-                                            ${dark
-                                                ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                                : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}
-                                        `}
-                                    ></textarea>
-                                </div>
-                            </div>
+                        <div className="mb-6"><p>ishchilar soni: {vacancy.requiredWorkers}</p></div>
+                    </div>
+                </GlassWindow>
+            )}
 
-                            <div>
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                    Ishchilar soni
-                                </label>
-                                <GlassInput name='requiredWorkers' type='number' placeholder="Ishchilar soni" />
-                            </div>
+            {isOpen && (
+                <GlassModal title="Elon berish" open={isOpen} onClose={() => setIsOpen(false)}>
+                    <form className="space-y-4 max-h-[75vh] overflow-y-auto p-1" onSubmit={handleSubmit}>
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Title</label>
+                            <GlassInput name='title' type='text' placeholder="Qisqacha mavzu" />
+                        </div>
 
-                            <div>
-                                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-                                    Rolni tanlang
-                                </label>
-                                <select
-                                    name='requiredRole'
-                                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-sky-500 focus:outline-none transition-colors text-sm"
-                                >
-                                    <option value="admin">Admin</option>
-                                    <option value="saler">Saler</option>
-                                    <option value="meneger">Meneger</option>
-                                    <option value="wherehouse">Wherehouse</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Oylik maosh</label>
+                            <GlassInput name='salary' type='number' placeholder="Oylik Maosh" />
+                        </div>
 
-                            <div className="flex justify-end gap-3 mt-6">
-                                <button
-                                    onClick={() => setIsOpen(false)}
-                                    type="button"
-                                    className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
-                                >
-                                    Bekor qilish
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
-                                >
-                                    Saqlash
-                                </button>
-                            </div>
-                        </form>
-                    </GlassModal>
-                )
-            }
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Rasm yuklang</label>
+                            <GlassInput name='image' type='file' />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Batafsil</label>
+                            <textarea
+                                name='description'
+                                placeholder="Ish haqida to'liq ma'lumot"
+                                rows={6}
+                                className={`w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200 border focus:border-sky-500/60 ${dark ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500' : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
+                                    }`}
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Ishchilar soni</label>
+                            <GlassInput name='requiredWorkers' type='number' placeholder="Ishchilar soni" />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Rolni tanlang</label>
+                            <select
+                                name='requiredRole'
+                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-sky-500 focus:outline-none transition-colors text-sm"
+                            >
+                                <option value="admin">Admin</option>
+                                <option value="saler">Saler</option>
+                                <option value="meneger">Meneger</option>
+                                <option value="wherehouse">Wherehouse</option>
+                            </select>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-6">
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                type="button"
+                                className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
+                            >
+                                Bekor qilish
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
+                            >
+                                Saqlash
+                            </button>
+                        </div>
+                    </form>
+                </GlassModal>
+            )}
         </div>
     )
 }

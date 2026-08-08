@@ -304,16 +304,23 @@ export default function ProfilePage() {
                     </p>
 
                     <div className="flex flex-col w-full gap-4">
-                        <GlassInput name='title' type='text' onKeyDown={(e) => {
-                            if (e.key === '_') {
-                                e.preventDefault();
-                                return;
-                            }
+                        <GlassInput
+                            name='title'
+                            type='text'
+                            maxLength={26}
+                            placeholder="Market nomini yozing"
+                            onChange={(e) => {
+                                let value = e.target.value;
 
-                            if (e.key === ' ' && e.currentTarget.value.endsWith(' ')) {
-                                e.preventDefault();
-                            }
-                        }} maxLength={26} placeholder="Market nomini yozing" />
+                                value = value.replaceAll('_', '');
+
+                                value = value.replace(/ {2,}/g, ' ');
+
+                                if (e.target.value !== value) {
+                                    e.target.value = value;
+                                }
+                            }}
+                        />
                         <GlassInput name='logo' type='file' />
                     </div>
 
