@@ -11,9 +11,10 @@ interface GlassModalProps {
     title?: string;
     children: React.ReactNode;
     size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full';
+    className?: string;
 }
 
-export default function GlassModal({ open, onClose, title, children, size = 'md' }: GlassModalProps) {
+export default function GlassModal({ open, onClose, title, children, size = 'md', className }: GlassModalProps) {
     const theme = useThemeStore(s => s.theme);
     const dark = theme === 'dark';
 
@@ -51,7 +52,8 @@ export default function GlassModal({ open, onClose, title, children, size = 'md'
                         className={cn(
                             'relative w-full rounded-[28px] p-6 z-10',
                             dark ? 'glass-panel' : 'glass-panel-light',
-                            sizes[size]
+                            sizes[size],
+                            className
                         )}
                         onClick={e => e.stopPropagation()}
                     >

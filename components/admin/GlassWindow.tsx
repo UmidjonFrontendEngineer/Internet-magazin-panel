@@ -51,16 +51,16 @@ export default function GlassWindow({
                     )}
                 >
                     <header className={cn(
-                        'grid grid-cols-[auto_1fr_auto] items-center shrink-0 gap-4 w-19/20 mx-auto rounded-full sticky top-3 left-1/40'
+                        'grid grid-cols-[auto_1fr_auto] z-9999999 items-center shrink-0 gap-4 w-19/20 mx-auto rounded-full fixed top-3 left-1/40'
                     )}>
                         <div className="flex items-center">
                             <button
                                 onClick={onClose}
                                 className={cn(
                                     "p-2.5 rounded-full backdrop-blur-xl duration-200 transition-colors border-b",
-                                    dark
-                                        ? "bg-white/10 hover:bg-white/20 text-white border-white/10"
-                                        : "bg-black/5 hover:bg-black/10 text-neutral-800 border-black/10"
+                                    !dark
+                                        ? "bg-white/40 hover:bg-white/55  text-neutral-800 border-white/10"
+                                        : "bg-black/20 hover:bg-black/30 text-white border-black/10"
                                 )}
                                 title="Ortga"
                             >
@@ -72,9 +72,9 @@ export default function GlassWindow({
                             {title && (
                                 <h1 className={cn(
                                     "text-xl font-bold tracking-tight truncate px-4 py-2.5 rounded-full backdrop-blur-xl duration-200 transition-colors w-full text-center",
-                                    dark
-                                        ? "bg-white/10 hover:bg-white/20 text-white"
-                                        : "bg-black/5 hover:bg-black/10 text-neutral-800"
+                                    !dark
+                                        ? "bg-white/40 hover:bg-white/55 text-neutral-800 border-white/10"
+                                        : "bg-black/20 hover:bg-black/30 text-white border-black/10"
                                 )}>
                                     {title}
                                 </h1>
@@ -86,9 +86,9 @@ export default function GlassWindow({
                                 onClick={onMenuClick}
                                 className={cn(
                                     "p-2.5 rounded-full backdrop-blur-xl duration-200 transition-colors",
-                                    dark
-                                        ? "bg-white/10 hover:bg-white/20 text-white"
-                                        : "bg-black/5 hover:bg-black/10 text-neutral-800"
+                                    !dark
+                                        ? "bg-white/40 hover:bg-white/55 text-neutral-800 border-white/10"
+                                        : "bg-black/20 hover:bg-black/30 text-white border-black/10"
                                 )}
                                 title="Menyu"
                             >
@@ -97,7 +97,7 @@ export default function GlassWindow({
                         </div>
                     </header>
 
-                    <main className="flex-1 overflow-y-auto p-4 sm:p-8">
+                    <main className="flex-1 overflow-y-auto p-4 sm:p-8 mt-16">
                         <div className={cn('w-full mx-auto flex flex-col', sizes[size])}>
                             {children}
                         </div>
