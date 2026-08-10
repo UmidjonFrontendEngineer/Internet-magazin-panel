@@ -54,7 +54,7 @@ const VacancyCard = ({ item, getVacancions }: VacancyCardProps) => {
 
     const handleDeleteVacancy = async (id: string) => {
         try {
-            const req = await fetch(`http://localhost:4000/vacancies/${id}`, {
+            const req = await fetch(`https://internet-magazin-nest-server.onrender.com/vacancies/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -167,7 +167,7 @@ const Vacancy = () => {
 
     const getVacancions = async () => {
         try {
-            const res = await fetch('http://localhost:4000/vacancies')
+            const res = await fetch('https://internet-magazin-nest-server.onrender.com/vacancies')
             const result = await res.json()
             const dataArray = Array.isArray(result) ? result : (result.data || [])
             setVacancions(dataArray)
@@ -199,7 +199,7 @@ const Vacancy = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:4000/vacancies', {
+            const response = await fetch('https://internet-magazin-nest-server.onrender.com/vacancies', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
