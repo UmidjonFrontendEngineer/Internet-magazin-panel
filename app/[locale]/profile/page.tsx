@@ -402,7 +402,7 @@ export default function ProfilePage() {
                             }}
                             className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
                         >
-                            Market ochish
+                            O'chirish
                         </button>
                     </div>
                 </div>

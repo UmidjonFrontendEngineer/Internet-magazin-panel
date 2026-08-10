@@ -157,6 +157,7 @@ const Vacancy = () => {
     const [vacancy, setVacancy] = useState<VacancyType | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [roleFilter, setRoleFilter] = useState('all')
+    const [applyModal, setApplyModal] = useState(false)
 
     const dark = useThemeStore(state => state.theme) === 'dark'
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
@@ -221,6 +222,33 @@ const Vacancy = () => {
             notify.show("So'rov yuborilmadi!", "error", dark ? 'dark' : 'light')
         }
     };
+
+    const handleApply = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData(e.currentTarget);
+
+            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/vacancies/${vacancy?.id}/apply`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                notify.show("Ariza muvaffaqiyatli yuborildi!", "success", dark ? 'dark' : 'light');
+                setApplyModal(false);
+            } else {
+                notify.show(data.message || "Xatolik yuz berdi!", "error", dark ? 'dark' : 'light');
+            }
+        } catch (err) {
+            notify.show("So'rov yuborilmadi!", "error", dark ? 'dark' : 'light');
+            console.log(err);
+        }
+    }
 
     const filteredVacancies = Array.isArray(vacancions)
         ? vacancions.filter(item => {
@@ -365,18 +393,19 @@ const Vacancy = () => {
                         </div>
 
                         <div className="pt-3 border-t border-white/10 flex items-center gap-3 mt-auto">
-                            <button
+                            <GlassButton
                                 onClick={handleCloseDetailModal}
-                                className="w-1/3 py-3 px-4 rounded-xl font-medium text-sm border border-white/10 hover:bg-white/5 transition-all duration-200 active:scale-95"
+                                variant='ghost'
+                                className="w-1/3"
                             >
                                 Yopish
-                            </button>
-                            <Link
-                                href={`vacancy/applications?id=${vacancy.id}`}
-                                className="w-2/3 py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-sky-500 to-emerald-500 text-white shadow-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-2"
+                            </GlassButton>
+                            <GlassButton
+                                onClick={() => { selectMarket === vacancy.marketId ? router.push(`vacancy/applications?id=${vacancy.id}`) : setApplyModal(true) }}
+                                className="w-2/3"
                             >
                                 {selectMarket === vacancy.marketId ? "Arizalarni ko'rish" : 'Ariza topshirish'}
-                            </Link>
+                            </GlassButton>
                         </div>
                     </div>
                 </GlassWindow>
@@ -547,6 +576,29 @@ const Vacancy = () => {
                                 )}
                             </GlassButton>
                         </div>
+                    </form>
+                </GlassModal>
+            )}
+
+            {applyModal && (
+                <GlassModal title='Ariza topshirish' open={applyModal} onClose={() => setApplyModal(false)} size='3xl'>
+                    <form className="relative space-y-4 max-h-[80vh] w-full overflow-hidden" onSubmit={handleApply}>
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Xabar (Message)</label>
+                            <textarea
+                                name='message'
+                                placeholder="Message..."
+                                rows={3}
+                                className="w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200 border border-white/10 bg-white/5 text-white placeholder:text-neutral-500 focus:border-sky-500/80 focus:bg-white/10 backdrop-blur-md resize-none"
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Rasm yuklang (ixtiyoriy)</label>
+                            <GlassInput name='image' type='file' className="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-500/20 file:text-sky-300 hover:file:bg-sky-500/30" />
+                        </div>
+
+                        <GlassButton type="submit">Yuborish</GlassButton>
                     </form>
                 </GlassModal>
             )}
