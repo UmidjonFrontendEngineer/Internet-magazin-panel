@@ -326,20 +326,22 @@ export default function ProfilePage() {
 
                     <GlassButton type='button' className='w-full' onClick={() => setOpenMap(true)}>xaritadan belgilash</GlassButton>
 
-                    <div className="flex justify-end gap-3 mt-6">
+                    <div className="p-6"></div>
+
+                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
                             onClick={() => setMarketAdd(false)}
                             type="button"
-                            className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                         >
                             Bekor qilish
                         </button>
-                        <button
+                        <GlassButton
                             type="submit"
-                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                         >
-                            Market ochish
-                        </button>
+                            Yuborish
+                        </GlassButton>
                     </div>
                 </form>
             </GlassModal>
@@ -347,7 +349,10 @@ export default function ProfilePage() {
             <GlassModal title="Akkauntni o'chirish" onClose={() => setDeleteAkkModalOpen(false)} open={deleteAkkModalOpen}>
                 <div className="space-y-4">
                     <p className="text-sm text-neutral-400">Haqiqatan ham akkauntingizni o'chirib yubormoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.</p>
-                    <div className="flex justify-end gap-3 mt-6">
+
+                    <div className="p-6"></div>
+
+                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
                             onClick={() => setDeleteAkkModalOpen(false)}
                             className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
@@ -388,7 +393,10 @@ export default function ProfilePage() {
             <GlassModal title="Marketni o'chirish" onClose={() => setIsDeleteModalOpen(false)} open={isDeleteModalOpen}>
                 <div className="space-y-4">
                     <p className="text-sm text-neutral-400">Haqiqatan ham bu marketni o'chirib yubormoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.</p>
-                    <div className="flex justify-end gap-3 mt-6">
+
+                    <div className="p-6"></div>
+
+                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
                             onClick={() => setIsDeleteModalOpen(false)}
                             className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"

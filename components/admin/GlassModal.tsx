@@ -50,14 +50,14 @@ export default function GlassModal({ open, onClose, title, children, size = 'md'
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className={cn(
-                            'relative w-full rounded-[28px] p-6 z-10',
+                            'relative w-full rounded-[28px] flex flex-col max-h-[90vh] overflow-hidden shadow-2xl z-10',
                             dark ? 'glass-panel' : 'glass-panel-light',
                             sizes[size],
                             className
                         )}
                         onClick={e => e.stopPropagation()}
                     >
-                        <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center justify-between mb-5 absolute top-0 left-0 w-full p-6 backdrop-blur-sm rounded-t-[28px]">
                             {title && (
                                 <h2 className={cn('text-xl font-bold', dark ? 'text-white' : 'text-neutral-900')}>
                                     {title}
@@ -70,7 +70,10 @@ export default function GlassModal({ open, onClose, title, children, size = 'md'
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        {children}
+                        <div className="p-6 overflow-y-auto flex-1">
+                            <div className="py-8 w-full"></div>
+                            {children}
+                        </div>
                     </motion.div>
                 </motion.div>
             )}

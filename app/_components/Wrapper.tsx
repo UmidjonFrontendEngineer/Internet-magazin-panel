@@ -72,8 +72,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     useEffect(() => {
         renderToken(token);
-
-        setInterval(() => console.log(acces, role), 1000)
     }, [token]);
 
     useEffect(() => {

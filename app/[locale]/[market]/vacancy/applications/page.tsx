@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { useState, useEffect, Suspense } from "react";
 import { useThemeStore } from "@/app/_store/useThemeStore";
 import GlassTable from "@/components/admin/GlassTable";
@@ -9,6 +10,7 @@ import GlassCard from "@/components/admin/GlassCard";
 import GlassButton from "@/components/admin/GlassButton";
 import { useTokenStore } from "@/app/_store/useTokenStore";
 import { useNotification } from "@/components/Notification";
+import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 
 interface ApplicantItem {
     rate: number | null;
@@ -34,6 +36,8 @@ interface UserProfile {
     bio: string;
     name: string;
     message?: string;
+    rate: number | null | string;
+    applicantImage: string | null;
     [key: string]: unknown;
 }
 
@@ -48,8 +52,11 @@ function ApplicationsContent() {
     const [rateModal, setRateModal] = useState(false)
     const [rateCount, setRateCount] = useState(0)
     const [selectEmail, setSelectEmail] = useState('')
+    const [messageModal, setMessageModal] = useState<null | string>(null)
+    const [imageModal, setImageModal] = useState(false)
     const token = useTokenStore(state => state.token)
     const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
+    const selectMarket = useSelectMarketStore(state => state.selectMarket)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -78,6 +85,8 @@ function ApplicationsContent() {
                                 phone: u.phone || "Kiritilmagan",
                                 bio: u.bio || "Kiritilmagan",
                                 message: applicantData?.message || "Xabar yo'q",
+                                rate: applicantData?.rate ?? null,
+                                applicantImage: applicantData?.image || u.image,
                             };
                         });
 
@@ -91,10 +100,6 @@ function ApplicationsContent() {
         };
         fetchData();
     }, [queryId]);
-
-    const handleAccept = (email: string) => {
-        alert(`Nomzod (${email}) intervyuga chaqirildi!`);
-    };
 
     const handleDelete = (email: string) => {
         if (confirm("Bu nomzodni ro'yxatdan o'chirmoqchimisiz?")) {
@@ -125,6 +130,34 @@ function ApplicationsContent() {
             }
         } catch (err) {
             notify.show("So'rov yuborilmadi", "error", dark ? 'dark' : 'light')
+        }
+    }
+
+    const handleAccept = async (applicantEmail: string, marketId: string, vacancyId: string) => {
+        try {
+            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    userEmail: applicantEmail, 
+                    marketId: marketId,
+                    VacancyId: vacancyId 
+                })
+            });
+            
+            const req = await res.json();
+    
+            if (res.ok) {
+                notify.show("Ishga olindi", "success", dark ? 'dark' : 'light');
+            } else {
+                notify.show(req.message || 'Xatolik yuz berdi', "error", dark ? 'dark' : 'light');
+            }
+        } catch (err) {
+            notify.show("So'rov yuborilmadi", "error", dark ? 'dark' : 'light');
+            console.log(err);
         }
     }
 
@@ -166,7 +199,7 @@ function ApplicationsContent() {
                                     Profil
                                 </button>
                                 <button
-                                    onClick={() => handleAccept(user.email)}
+                                    onClick={() => handleAccept(user.id, selectMarket, queryId)}
                                     className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition"
                                 >
                                     Qabul
@@ -178,13 +211,13 @@ function ApplicationsContent() {
                                     O'chirish
                                 </button>
                                 <button
-                                    onClick={() => alert(`Xabar: ${user.message}`)}
+                                    onClick={() => setMessageModal(user.email)}
                                     className="px-3 py-1.5 rounded-lg text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition"
                                 >
                                     Xabar
                                 </button>
                                 <button
-                                    onClick={() => {setRateModal(true); setSelectEmail(user.email)}}
+                                    onClick={() => { setRateModal(true); setSelectEmail(user.email) }}
                                     className="px-3 py-1.5 rounded-lg text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition"
                                 >
                                     Baholash
@@ -196,8 +229,8 @@ function ApplicationsContent() {
             )}
 
             {selectedUser && (
-                <GlassModal title="To'liq Nomzod Ma'lumotlari" open={!!selectedUser} onClose={() => setSelectedUser(null)}>
-                    <div className="p-4 space-y-6">
+                <GlassModal title="Profile" open={!!selectedUser} size="3xl" onClose={() => setSelectedUser(null)}>
+                    <div className="space-y-6">
                         <div className="flex items-center gap-6">
                             <img
                                 src={selectedUser.image || "https://i.ibb.co/nNZrjBSD/user.png"}
@@ -231,16 +264,21 @@ function ApplicationsContent() {
                             <p className="leading-relaxed text-sm opacity-90">{selectedUser.message}</p>
                         </GlassCard>
 
-                        <div className="flex justify-end gap-4 pt-6 border-t border-white/5">
+                        <div className="p-6"></div>
+
+                        <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                             <button
                                 onClick={() => setSelectedUser(null)}
-                                className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition text-gray-200"
+                                className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                             >
                                 Yopish
                             </button>
-                            <GlassButton onClick={() => handleAccept(selectedUser.email)}>
-                                Intervyuga chaqirish
-                            </GlassButton>
+                            <button
+                                onClick={() => handleAccept(selectedUser.email)}
+                                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                            >
+                                Qabul qilish
+                            </button>
                         </div>
                     </div>
                 </GlassModal>
@@ -264,8 +302,9 @@ function ApplicationsContent() {
                                 </button>
                             ))}
                         </div>
+                        <div className="p-6"></div>
 
-                        <div className="flex items-center justify-end gap-3 pt-2">
+                        <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                             <button
                                 onClick={() => setRateModal(false)}
                                 type="button"
@@ -281,6 +320,51 @@ function ApplicationsContent() {
                             </button>
                         </div>
                     </form>
+                </GlassModal>
+            )}
+
+            {messageModal && (
+                <GlassModal title="Message" open={!!messageModal} size="3xl" onClose={() => setMessageModal(null)} className="relative">
+                    <div className="space-y-4 max-h-[70vh]">
+                        <h1>{matchedUsers.find(item => item.email === messageModal)?.message}</h1>
+
+                        <p className="text-zinc-300">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero eaque, totam repellat error vitae consectetur impedit, earum suscipit autem quia corporis voluptate unde veritatis sapiente qui quasi odit illo assumenda?
+                            Fugit amet sapiente velit labore sequi tempora, voluptates accusamus architecto minima aperiam voluptate optio asperiores beatae repellat odit dolores magni nobis porro atque fuga adipisci sit. Molestias adipisci ratione soluta.
+                            Quasi ipsum pariatur vitae a deleniti dolor assumenda tempore nobis atque consequatur et natus odio cupiditate, ea esse enim tempora qui odit quod fugit soluta at veritatis aliquid mollitia? Quis.
+                            Praesentium, perspiciatis dicta? Et, ea animi? Maxime quam, iusto nostrum consequuntur doloribus rem incidunt odit illum totam aspernatur delectus numquam eaque quibusdam distinctio dolorum sunt, ea, ullam eligendi. Laborum, autem.
+                            Nostrum eaque maxime veritatis aliquam odit dolor obcaecati, saepe fugit, tempora delectus id, sunt amet ab inventore ratione cupiditate vitae ut veniam in distinctio nulla accusamus illo. Praesentium, inventore enim!
+                            Tempora repellat porro animi nulla ea optio veniam, magni explicabo in necessitatibus sunt excepturi cumque doloribus, debitis qui ipsa aperiam eaque magnam labore natus vitae sapiente. Quia doloremque eaque culpa?
+                            Dignissimos saepe laudantium ex officiis eos fugit fuga facere. Dolorem pariatur esse, accusamus, dolores vel voluptate ipsum mollitia culpa quisquam at ad odit dicta non rem ullam magni recusandae voluptatem?
+                            Voluptate magni consectetur culpa dignissimos accusamus est expedita minus, accusantium aperiam repellat atque ducimus praesentium numquam ad odit, deleniti animi tempore! Ab explicabo ut amet, molestias tempora qui officia deleniti.
+                            Totam recusandae quo fugit eum quaerat impedit, nisi maxime ullam eius laboriosam consequuntur culpa suscipit sunt aliquam tempora, distinctio vitae quae quibusdam exercitationem neque saepe voluptas minus minima dolorum? Autem?
+                            Nostrum vero qui eaque quidem distinctio omnis, ipsum fugit, provident a voluptatum et accusamus. Pariatur eos, veniam doloribus maxime omnis, nisi dolores et nobis sint ipsa sequi hic, temporibus saepe?
+                        </p>
+
+                        {matchedUsers.find(item => item.email === messageModal)?.applicantImage && (
+                            <Image
+                                src={`${matchedUsers.find(item => item.email === messageModal)?.applicantImage!}`}
+                                alt="Applicant"
+                                className="rounded-2xl"
+                                width={1000}
+                                height={300}
+                            />
+                        )}
+
+                        <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                            <button
+                                onClick={() => setMessageModal(null)}
+                                className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                            >
+                                Yopish
+                            </button>
+                            <button
+                                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                            >
+                                Chat boshlash
+                            </button>
+                        </div>
+                    </div>
                 </GlassModal>
             )}
         </div>

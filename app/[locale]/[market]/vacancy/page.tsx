@@ -194,7 +194,10 @@ const Vacancy = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+
+        const formElement = e.currentTarget;
+
+        const formData = new FormData(formElement);
         if (selectMarket) {
             formData.append('marketId', selectMarket);
         }
@@ -209,17 +212,20 @@ const Vacancy = () => {
             });
 
             if (response.ok) {
-                notify.show("Vakansiya muvaffaqiyatli qo'shildi!", "success", dark ? 'dark' : 'light')
+                notify.show("Vakansiya muvaffaqiyatli qo'shildi!", "success", dark ? 'dark' : 'light');
                 setIsOpen(false);
                 setSliderCount(0);
-                e.currentTarget.reset();
+
+                formElement.reset();
+
                 getVacancions();
             } else {
                 const errData = await response.json().catch(() => ({}));
-                notify.show(errData.message || "Xatolik yuz berdi", "error", dark ? 'dark' : 'light')
+                notify.show(errData.message || "Xatolik yuz berdi", "error", dark ? 'dark' : 'light');
             }
         } catch (err) {
-            notify.show("So'rov yuborilmadi!", "error", dark ? 'dark' : 'light')
+            console.error("Fetch xatosi:", err);
+            notify.show("So'rov yuborilmadi!", "error", dark ? 'dark' : 'light');
         }
     };
 
@@ -359,7 +365,7 @@ const Vacancy = () => {
                             <h4 className="text-sm font-semibold text-white mb-1.5 flex items-center gap-2">
                                 Vakansiya haqida batafsil
                             </h4>
-                            <div className="p-3.5 rounded-xl bg-black/20 border border-white/5 max-h-36 overflow-y-auto custom-scrollbar">
+                            <div className="p-3.5 rounded-xl bg-white/5 backdrop-blur-sm border border-white/5 max-h-70 overflow-y-auto custom-scrollbar">
                                 <p className="text-sm opacity-85 leading-relaxed whitespace-pre-line">
                                     {vacancy.description}
                                 </p>
@@ -369,13 +375,13 @@ const Vacancy = () => {
                         {vacancy.benefits && (
                             <div className="mb-4">
                                 <h4 className="text-sm font-semibold text-white mb-1.5">Qulayliklar va Imtiyozlar</h4>
-                                <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs opacity-85">
+                                <div className="p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 text-xs opacity-85">
                                     {vacancy.benefits}
                                 </div>
                             </div>
                         )}
 
-                        <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-4 flex flex-col gap-2">
+                        <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 mb-4 flex flex-col gap-2">
                             <div className="flex justify-between items-center text-xs">
                                 <span className="opacity-60">Mas'ul shaxs (HR):</span>
                                 <span className="font-bold text-white">{vacancy.hrName || "Ko'rsatilmagan"}</span>
@@ -404,7 +410,7 @@ const Vacancy = () => {
                                 onClick={() => { selectMarket === vacancy.marketId ? router.push(`vacancy/applications?id=${vacancy.id}`) : setApplyModal(true) }}
                                 className="w-2/3"
                             >
-                                {selectMarket === vacancy.marketId ? "Arizalarni ko'rish" : 'Ariza topshirish'}
+                                {selectMarket === vacancy.marketId ? `Arizalarni ko'rish` : 'Ariza topshirish'}
                             </GlassButton>
                         </div>
                     </div>
@@ -422,7 +428,7 @@ const Vacancy = () => {
                             <div className="w-[100%] space-y-4 pb-20 overflow-y-auto max-h-[65vh] px-2">
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Vakansiya Nomi (Title)</label>
-                                    <GlassInput name='title' type='text' placeholder="Mavzu" required />
+                                    <GlassInput name='title' type='text' placeholder="Mavzu" />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -456,18 +462,18 @@ const Vacancy = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Ishchilar soni</label>
-                                        <GlassInput name='requiredWorkers' type='number' placeholder="Masalan: 3" min="1" required />
+                                        <GlassInput name='requiredWorkers' type='number' placeholder="Masalan: 3" min="1" />
                                     </div>
 
                                     <div>
                                         <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Oylik Maosh ($ / so'm)</label>
-                                        <GlassInput name='salary' type='text' placeholder="Masalan: $500 - $800" required />
+                                        <GlassInput name='salary' type='text' placeholder="Masalan: $500 - $800" />
                                     </div>
                                 </div>
 
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Banner / Rasm yuklang</label>
-                                    <GlassInput name='image' type='file' className="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-500/20 file:text-sky-300 hover:file:bg-sky-500/30" required />
+                                    <GlassInput name='image' type='file' className="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-500/20 file:text-sky-300 hover:file:bg-sky-500/30" />
                                 </div>
                             </div>
 
@@ -588,7 +594,7 @@ const Vacancy = () => {
                             <textarea
                                 name='message'
                                 placeholder="Message..."
-                                rows={3}
+                                rows={6}
                                 className="w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200 border border-white/10 bg-white/5 text-white placeholder:text-neutral-500 focus:border-sky-500/80 focus:bg-white/10 backdrop-blur-md resize-none"
                             ></textarea>
                         </div>
@@ -598,7 +604,23 @@ const Vacancy = () => {
                             <GlassInput name='image' type='file' className="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-500/20 file:text-sky-300 hover:file:bg-sky-500/30" />
                         </div>
 
-                        <GlassButton type="submit">Yuborish</GlassButton>
+                        <div className="p-6"></div>
+
+                        <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                            <button
+                                onClick={() => setApplyModal(false)}
+                                type="button"
+                                className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                            >
+                                Bekor qilish
+                            </button>
+                            <GlassButton
+                                type="submit"
+                                className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                            >
+                                Yuborish
+                            </GlassButton>
+                        </div>
                     </form>
                 </GlassModal>
             )}
