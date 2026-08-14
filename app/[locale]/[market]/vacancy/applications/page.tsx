@@ -149,7 +149,10 @@ function ApplicationsContent() {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ rateCount, selectEmail })
+                body: JSON.stringify({
+                    rateCount,
+                    targetEmail: selectEmail
+                })
             })
 
             if (res.ok) {
