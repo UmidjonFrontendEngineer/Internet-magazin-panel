@@ -69,7 +69,7 @@ function ApplicationsContent() {
 
     const getWorkers = async () => {
         try {
-            const res = await fetch('http://localhost:4000/workers')
+            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers')
 
             const req = await res.json();
 
@@ -166,7 +166,7 @@ function ApplicationsContent() {
 
     const handleAccept = async (applicantId: string, marketId: string, vacancyId: string) => {
         try {
-            const res = await fetch('http://localhost:4000/workers', {
+            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
