@@ -41,6 +41,14 @@ interface UserProfile {
     [key: string]: unknown;
 }
 
+interface Workers {
+    id: string;
+    userId: string;
+    role: string;
+    salary: string;
+    vacancyId: string;
+}
+
 function ApplicationsContent() {
     const searchParams = useSearchParams();
     const queryId = searchParams.get("id") as string;
@@ -53,10 +61,33 @@ function ApplicationsContent() {
     const [rateCount, setRateCount] = useState(0)
     const [selectEmail, setSelectEmail] = useState('')
     const [messageModal, setMessageModal] = useState<null | string>(null)
+    const [workers, setWorkers] = useState<Workers[]>([])
     const [imageModal, setImageModal] = useState(false)
     const token = useTokenStore(state => state.token)
     const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
+
+    const getWorkers = async () => {
+        try {
+            const res = await fetch('http://localhost:4000/workers')
+
+            const req = await res.json();
+
+            if (res.ok) {
+                setWorkers(req)
+                console.log(req)
+            } else {
+                notify.show(req.message || 'Xatolik yuz berdi', "error", dark ? 'dark' : 'light');
+            }
+        } catch (err) {
+            notify.show("So'rov yuborilmadi", "error", dark ? 'dark' : 'light');
+            console.log(err);
+        }
+    }
+
+    useEffect(() => {
+        getWorkers()
+    }, [])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -101,9 +132,9 @@ function ApplicationsContent() {
         fetchData();
     }, [queryId]);
 
-    const handleDelete = (email: string) => {
+    const handleDelete = (id: string) => {
         if (confirm("Bu nomzodni ro'yxatdan o'chirmoqchimisiz?")) {
-            setMatchedUsers((prev) => prev.filter((user) => user.email !== email));
+            setMatchedUsers((prev) => prev.filter((user) => user.id !== id));
         }
     };
 
@@ -133,23 +164,23 @@ function ApplicationsContent() {
         }
     }
 
-    const handleAccept = async (applicantEmail: string, marketId: string, vacancyId: string) => {
+    const handleAccept = async (applicantId: string, marketId: string, vacancyId: string) => {
         try {
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers', {
+            const res = await fetch('http://localhost:4000/workers', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    userEmail: applicantEmail, 
+                body: JSON.stringify({
+                    userId: applicantId,
                     marketId: marketId,
-                    vacancyId: vacancyId 
+                    vacancyId: vacancyId
                 })
             });
-            
+
             const req = await res.json();
-    
+
             if (res.ok) {
                 notify.show("Ishga olindi", "success", dark ? 'dark' : 'light');
             } else {
@@ -198,14 +229,22 @@ function ApplicationsContent() {
                                 >
                                     Profil
                                 </button>
+                                {workers.some(item => item.vacancyId === queryId && item.userId === user.id) ? (
+                                    <button
+                                        className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition"
+                                    >
+                                        Accepted
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => handleAccept(user.id, selectMarket, queryId)}
+                                        className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition"
+                                    >
+                                        Qabul
+                                    </button>
+                                )}
                                 <button
-                                    onClick={() => handleAccept(user.id, selectMarket, queryId)}
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition"
-                                >
-                                    Qabul
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(user.email)}
+                                    onClick={() => handleDelete(user.id)}
                                     className="px-3 py-1.5 rounded-lg text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 transition"
                                 >
                                     O'chirish
@@ -232,10 +271,12 @@ function ApplicationsContent() {
                 <GlassModal title="Profile" open={!!selectedUser} size="3xl" onClose={() => setSelectedUser(null)}>
                     <div className="space-y-6">
                         <div className="flex items-center gap-6">
-                            <img
+                            <Image
+                                width={100000}
+                                height={100000}
                                 src={selectedUser.image || "https://i.ibb.co/nNZrjBSD/user.png"}
                                 alt={selectedUser.name}
-                                className="w-24 h-24 rounded-2xl object-cover border border-white/10 shadow-xl"
+                                className="w-24 h-24 rounded-full object-cover border border-white/10 shadow-xl"
                             />
                             <div>
                                 <h2 className="text-3xl font-bold">{selectedUser.name}</h2>

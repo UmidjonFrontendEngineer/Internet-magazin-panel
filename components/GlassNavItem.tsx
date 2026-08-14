@@ -6,6 +6,7 @@ import { useThemeStore } from '@/app/_store/useThemeStore';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useSelectMarketStore } from '@/app/_store/useSelectMarketStore';
 
 interface MenuItem {
     label: string;
@@ -23,18 +24,19 @@ export default function GlassMenu({ title, items, defaultOpen = true }: GlassMen
     const dark = theme === 'dark';
     const [isOpen, setIsOpen] = useState(defaultOpen);
     const pathname = usePathname();
+    const selectMarket = useSelectMarketStore(state => state.selectMarket)
 
     return (
         <div className={cn(
             'rounded-3xl overflow-scroll border backdrop-blur-xl transition-all duration-300 relative',
-            dark ? 'border-white/10 bg-[#0c1322]/80 text-white' : 'border-sky-200/60 bg-white/70 text-slate-800'
+            dark ? 'border-white/10 bg-[#0c1322]/5 text-white' : 'border-sky-200/60 bg-white/70 text-slate-800'
         )}>
             
             <div 
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
                     'px-4 py-3.5 font-semibold uppercase tracking-wider text-xs flex items-center justify-between cursor-pointer select-none transition-colors relative z-20',
-                    dark ? 'bg-white/[0.04] text-neutral-300 hover:bg-white/[0.08]' : 'bg-sky-50/90 text-slate-700 hover:bg-sky-100/80'
+                    dark ? 'bg-white/5 text-neutral-300 hover:bg-white/8' : 'bg-sky-50/5 text-slate-700 hover:bg-sky-100/10'
                 )}
             >
                 <div className="flex items-center gap-2">
@@ -76,12 +78,12 @@ export default function GlassMenu({ title, items, defaultOpen = true }: GlassMen
 
                         <div className="flex flex-col pl-7 pr-2 space-y-1 relative z-10">
                             {items.map((item, i) => {
-                                const isActive = `/${pathname.split('/')[2]}` === item.href;
+                                const isActive = `/${pathname.split('/')[2]}/${pathname.split('/')[3]}` === `/${selectMarket}${item.href}`;
 
                                 return (
                                     <Link
                                         key={i}
-                                        href={`${item.href}/dashboard`}
+                                        href={`/${selectMarket}${item.href}/`}
                                         className={cn(
                                             'relative z-10 flex items-center py-2.5 px-3.5 text-sm rounded-xl transition-all duration-200 group ml-3',
                                             dark 

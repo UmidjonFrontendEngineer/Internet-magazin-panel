@@ -1,6 +1,7 @@
 'use client'
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
+import { useThemeStore } from "@/app/_store/useThemeStore";
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 interface ProductOption {
@@ -34,6 +35,7 @@ interface Product {
 const ProductsGet = () => {
     const [data, setData] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const theme = useThemeStore(state => state.theme)
 
     const [activeImageIndices, setActiveImageIndices] = useState<{ [key: number]: number }>({});
 

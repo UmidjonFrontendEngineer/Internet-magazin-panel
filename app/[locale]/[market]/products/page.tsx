@@ -1,124 +1,746 @@
 'use client'
-import React, { useState } from 'react'
-import Image from 'next/image'
-import { useParams, useRouter } from 'next/navigation'
+import Image from "next/image";
+import React, { useState, useEffect } from "react";
+import { useThemeStore } from "@/app/_store/useThemeStore";
+import GlassCard from "@/components/admin/GlassCard";
+import GlassInput from "@/components/admin/GlassInput";
+import GlassButton from "@/components/admin/GlassButton";
+import GlassModal from "@/components/admin/GlassModal";
+import { useNotification } from "@/components/Notification";
+import { useTokenStore } from "@/app/_store/useTokenStore";
+import { cn } from "@/lib/utils/cn";
 
-interface Product {
-    id: string
-    title: string
-    price: number
-    quantity: number
-    image: string
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+interface ProductOption {
+    name: string;
+    value: number;
 }
 
-export default function WarehouseProductsPage() {
-    const router = useRouter()
-    const params = useParams()
-    const locale = params.locale || 'uz'
+interface ProductOptionGroup {
+    name: string;
+    options: ProductOption[];
+}
 
-    const [products, setProducts] = useState<Product[]>([
-        { id: '1', title: 'iPhone 15 Pro Max', price: 1200, quantity: 15, image: 'https://i.ibb.co/nNZrjBSD/user.png' },
-        { id: '2', title: 'MacBook Pro M3', price: 2100, quantity: 8, image: 'https://i.ibb.co/nNZrjBSD/user.png' },
-        { id: '3', title: 'AirPods Pro 2', price: 250, quantity: 40, image: 'https://i.ibb.co/nNZrjBSD/user.png' },
-    ])
+interface Product {
+    id: number;
+    title: string;
+    description: {
+        uz: string;
+        en: string;
+        ru: string;
+    };
+    foiz: number;
+    tab: string;
+    gradient_select: string;
+    gradient: string[];
+    chegirma_select: string;
+    options: ProductOptionGroup[];
+    images: string[];
+    created_at: string;
+}
 
-    const [deleteId, setDeleteId] = useState<string | null>(null)
+const ProductsGet = () => {
+    const theme = useThemeStore(state => state.theme);
+    const notify = useNotification()
+    const token = useTokenStore(state => state.token)
 
-    const handleDelete = (id: string) => {
-        setProducts(products.filter(p => p.id !== id))
-        setDeleteId(null)
+    const bigData = [
+        {
+            id: 1,
+            title: "MacBook Pro 16\" M3 Max",
+            description: {
+                "uz": "Yuqori unumdorlikka ega professional noutbuk, dasturchilar va dizaynerlar uchun mukammal tanlov.",
+                "en": "High-performance professional laptop, the perfect choice for developers and designers.",
+                "ru": "Высокопроизводительный профессиональный ноутбук, идеальный выбор для разработчиков и дизайнеров."
+            },
+            foiz: 10,
+            tab: "laptop",
+            gradient_select: "custom",
+            gradient: ["#3b82f6", "#1d4ed8", "#9333ea"],
+            chegirma_select: "active",
+            options: [
+                {
+                    name: "Xotira (RAM)",
+                    options: [
+                        { name: "32 GB", value: 2500000 },
+                        { name: "64 GB", value: 5000000 },
+                        { name: "128 GB", value: 9000000 }
+                    ]
+                },
+                {
+                    name: "SSD hajmi",
+                    options: [
+                        { name: "1 TB", value: 1500000 },
+                        { name: "2 TB", value: 3500000 },
+                        { name: "4 TB", value: 7000000 }
+                    ]
+                }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&auto=format&fit=crop&q=60"
+            ],
+            created_at: "2026-01-10T10:00:00Z"
+        },
+        {
+            id: 2,
+            title: "iPhone 15 Pro Max",
+            description: {
+                "uz": "Eng so'nggi avlod flagman smartfoni, kuchli kamera va titan korpus bilan jihozlangan.",
+                "en": "The latest generation flagship smartphone, equipped with a powerful camera and titanium body.",
+                "ru": "Флагманский смартфон последнего поколения, оснащенный мощной камерой и титановым корпусом."
+            },
+            foiz: 5,
+            tab: "smartphone",
+            gradient_select: "custom",
+            gradient: ["#64748b", "#334155", "#0f172a"],
+            chegirma_select: "active",
+            options: [
+                {
+                    name: "Ichki xotira",
+                    options: [
+                        { name: "256 GB", value: 12000000 },
+                        { name: "512 GB", value: 14500000 },
+                        { name: "1 TB", value: 17000000 }
+                    ]
+                }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1695048065448-439589d83dfa?w=800&auto=format&fit=crop&q=60"
+            ],
+            created_at: "2026-01-12T14:30:00Z"
+        },
+        {
+            id: 3,
+            title: "AirPods Max Wireless",
+            description: {
+                "uz": "Yuqori sifatli ovoz va faol shovqinni bostirish texnologiyasiga ega quloqchin.",
+                "en": "Over-ear headphones with high-fidelity audio and active noise cancellation.",
+                "ru": "Полноразмерные наушники с высококачественным звуком и активным шумоподавлением."
+            },
+            foiz: 0,
+            tab: "audio",
+            gradient_select: "custom",
+            gradient: ["#ec4899", "#8b5cf6", "#3b82f6"],
+            chegirma_select: "none",
+            options: [
+                {
+                    name: "Rang",
+                    options: [
+                        { name: "Kosmik kulrang", value: 6500000 },
+                        { name: "Kumushrang", value: 6500000 },
+                        { name: "Ko'k", value: 6700000 }
+                    ]
+                }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=60"
+            ],
+            created_at: "2026-01-15T09:15:00Z"
+        },
+        {
+            id: 4,
+            title: "Apple Watch Series 9",
+            description: {
+                "uz": "Sog'ligingizni nazorat qiluvchi va kunlik faolligingizni kuzatib boruvchi aqlli soat.",
+                "en": "Smartwatch that monitors your health and tracks your daily activity.",
+                "ru": "Умные часы, которые следят за вашим здоровьем и отслеживают ежедневную активность."
+            },
+            foiz: 15,
+            tab: "watch",
+            gradient_select: "custom",
+            gradient: ["#ef4444", "#f97316", "#eab308"],
+            chegirma_select: "active",
+            options: [
+                {
+                    name: "Kassa o'lchami",
+                    options: [
+                        { name: "41 mm", value: 4500000 },
+                        { name: "45 mm", value: 5100000 }
+                    ]
+                }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=800&auto=format&fit=crop&q=60"
+            ],
+            created_at: "2026-01-18T16:20:00Z"
+        },
+        {
+            id: 5,
+            title: "iPad Pro 12.9\" M2",
+            description: {
+                "uz": "Liquid Retina XDR displey va o'ta kuchli M2 chipiga ega planshet.",
+                "en": "Tablet featuring a Liquid Retina XDR display and the ultra-powerful M2 chip.",
+                "ru": "Планшет с дисплеем Liquid Retina XDR и сверхмощным чипом M2."
+            },
+            foiz: 0,
+            tab: "tablet",
+            gradient_select: "custom",
+            gradient: ["#10b981", "#06b6d4", "#3b82f6"],
+            chegirma_select: "none",
+            options: [
+                {
+                    name: "Xotira",
+                    options: [
+                        { name: "128 GB", value: 11000000 },
+                        { name: "256 GB", value: 13000000 },
+                        { name: "512 GB", value: 15500000 }
+                    ]
+                }
+            ],
+            images: [
+                "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=800&auto=format&fit=crop&q=60"
+            ],
+            created_at: "2026-01-20T11:00:00Z"
+        }
+    ]
+
+    const [data, setData] = useState<Product[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [isOpen, setIsOpen] = useState(false)
+
+    const [activeImageIndices, setActiveImageIndices] = useState<{ [key: number]: number }>({});
+    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: { [groupName: string]: number } }>({});
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`http://localhost:4000/products`);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const result: Product[] = await response.json();
+                setData(bigData);
+
+                const initialIndices: { [key: number]: number } = {};
+                const initialSelectedOpts: typeof selectedOptions = {};
+
+                result.forEach(item => {
+                    initialIndices[item.id] = 0;
+                    initialSelectedOpts[item.id] = {};
+                    item.options?.forEach(group => {
+                        if (group.options && group.options.length > 0) {
+                            initialSelectedOpts[item.id][group.name] = group.options[0].value;
+                        }
+                    });
+                });
+
+                setActiveImageIndices(initialIndices);
+                setSelectedOptions(initialSelectedOpts);
+            } catch (error) {
+                console.error('Xatolik:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const handleOptionSelect = (productId: number, groupName: string, value: number) => {
+        setSelectedOptions(prev => ({
+            ...prev,
+            [productId]: {
+                ...(prev[productId] || {}),
+                [groupName]: value
+            }
+        }));
+    };
+
+    const handleNextImage = (productId: number, totalImages: number) => {
+        setActiveImageIndices(prev => {
+            const currentIndex = prev[productId] ?? 0;
+            return { ...prev, [productId]: (currentIndex + 1) % totalImages };
+        });
+    };
+
+    const handlePrevImage = (productId: number, totalImages: number) => {
+        setActiveImageIndices(prev => {
+            const currentIndex = prev[productId] ?? 0;
+            return { ...prev, [productId]: (currentIndex - 1 + totalImages) % totalImages };
+        });
+    };
+
+    const calculateTotalPrice = (product: Product) => {
+        const productSelections = selectedOptions[product.id] || {};
+        let optionsSum = 0;
+
+        Object.values(productSelections).forEach(value => {
+            optionsSum += value;
+        });
+
+        if (product.foiz > 0) {
+            const discountAmount = (optionsSum * product.foiz) / 100;
+            return optionsSum - discountAmount;
+        }
+
+        return optionsSum;
+    };
+
+    const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        try {
+            const formData = new FormData(e.currentTarget);
+
+            const res = await fetch('http://localhost:4000/products', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            })
+
+            const req = await res.json()
+
+            if (res.ok) {
+                notify.show("Mahsulot muaffaqiyatli yaratildi.", 'success', theme === 'dark' ? 'dark' : 'light')
+                setIsOpen(false)
+            } else {
+                notify.show(`${req.message || 'xatolik yuz berdi'}`, 'error', theme === 'dark' ? 'dark' : 'light')
+            }
+        } catch (err) {
+            notify.show("So'rov yuborilmadi", 'error', theme === 'dark' ? 'dark' : 'light')
+        }
     }
 
     return (
-        <div className="max-w-6xl mx-auto py-8 px-4 relative min-h-[80vh] animate-fade-in">
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                        Ombor Mahsulotlari
-                    </h1>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                        Barcha mahsulotlarni kuzatish, tahrirlash va boshqarish oynasi
-                    </p>
-                </div>
-            </div>
+        <div className={`min-h-screen transition-colors duration-300 py-12 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>
+            <div className="space-y-10 mx-auto">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-                {products.map((product) => (
-                    <div
-                        key={product.id}
-                        className="p-5 rounded-[28px] bg-white/10 dark:bg-[#121214]/40 backdrop-blur-3xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:border-sky-500/40 transition-all duration-300 group flex flex-col justify-between"
-                    >
-                        <div>
-                            <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-black/10 mb-4">
-                                <Image 
-                                    src={product.image} 
-                                    alt={product.title} 
-                                    fill 
-                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-xs font-semibold border border-white/10">
-                                    {product.quantity} dona
+                <GlassCard className='flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10 w-full p-4'>
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <h1 className='text-2xl font-bold'>Products</h1>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                        <div className="relative flex items-center flex-1 sm:flex-initial">
+                            <GlassInput
+                                type="text"
+                                placeholder="Search..."
+                                // value={searchTerm}
+                                // onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full sm:w-48 sm:focus:w-72 transition-all duration-300 text-xs py-2"
+                            />
+                        </div>
+                        <GlassButton className="whitespace-nowrap" onClick={() => setIsOpen(true)}>
+                            Create Product
+                        </GlassButton>
+                    </div>
+                </GlassCard>
+
+                {loading || data.length === 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Array(12).fill(null).map((_, index) => (
+                            <GlassCard key={index} className={`space-y-4 animate-pulse`}>
+                                <div className={`aspect-square w-full rounded-2xl ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
+                                <div className={`h-3 rounded w-1/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
+                                <div className={`h-6 rounded w-3/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
+                                <div className="space-y-2">
+                                    <div className={`h-4 rounded w-full ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
+                                    <div className={`h-4 rounded w-5/6 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
                                 </div>
-                            </div>
-
-                            <h3 className="font-bold text-neutral-900 dark:text-white text-lg mb-1 truncate">
-                                {product.title}
-                            </h3>
-                            <p className="text-sky-500 font-semibold text-sm mb-4">
-                                ${product.price}
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                            <button
-                                onClick={() => router.push(`/${locale}/warehouse/products/edit?id=${product.id}`)}
-                                className="flex-1 py-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 font-medium text-sm transition-all active:scale-95 flex items-center justify-center gap-2 border border-sky-500/20"
-                            >
-                                <span>Tahrirlash (Edit)</span>
-                            </button>
-                            <button
-                                onClick={() => setDeleteId(product.id)}
-                                className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all active:scale-95 border border-red-500/20"
-                            >
-                                🗑️
-                            </button>
-                        </div>
+                                <div className="flex justify-between items-center pt-2">
+                                    <div className={`h-5 rounded w-1/3 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
+                                    <div className={`h-5 rounded w-1/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
+                                </div>
+                            </GlassCard>
+                        ))}
                     </div>
-                ))}
+                ) : (
+                    <div className="space-y-10">
+                        {data.map((item) => {
+                            const activeIndex = activeImageIndices[item.id] ?? 0;
+                            const hasImages = item.images && item.images.length > 0;
+                            const currentImageUrl = hasImages ? item.images[activeIndex] : "https://dummyimage.com/600x600/18181b/a1a1aa";
+                            const totalPrice = calculateTotalPrice(item);
+
+                            const gradientStyle = item.gradient_select === 'custom' && item.gradient?.length > 0
+                                ? {
+                                    background: `linear-gradient(45deg, ${item.gradient.join(', ')})`,
+                                }
+                                : undefined;
+
+                            return (
+                                <GlassCard
+                                    key={item.id}
+                                    className={`relative grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden transition-colors duration-300`}
+                                >
+
+                                    {gradientStyle && (
+                                        <div
+                                            className="absolute inset-0 opacity-15 pointer-events-none blur-[100px] animate-spin-slow"
+                                            style={gradientStyle}
+                                        />
+                                    )}
+
+                                    <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
+
+                                        <div className="col-span-2 flex flex-col gap-2.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
+                                            {item.images?.map((img, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setActiveImageIndices(prev => ({ ...prev, [item.id]: index }))}
+                                                    className={`relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${index === activeIndex
+                                                        ? "border-sky-500 scale-95 shadow-lg shadow-sky-500/20"
+                                                        : theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
+                                                        }`}
+                                                >
+                                                    <Image src={img} alt={`thumb-${index}`} fill className="object-cover" sizes="80px" />
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <div className={`col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800/60' : 'bg-gray-50 border-zinc-200'
+                                            }`}>
+
+                                            <div className="relative w-full h-full p-4 transition-transform duration-500 ease-out group-hover/slider:scale-105">
+                                                <Image
+                                                    src={currentImageUrl}
+                                                    alt={item.title}
+                                                    fill
+                                                    className="object-contain p-4"
+                                                    sizes="500px"
+                                                />
+                                            </div>
+
+                                            {item.images && item.images.length > 1 && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handlePrevImage(item.id, item.images.length)}
+                                                        className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
+                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
+                                                            }`}
+                                                        aria-label="Oldingi rasm"
+                                                    >
+                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => handleNextImage(item.id, item.images.length)}
+                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
+                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
+                                                            }`}
+                                                        aria-label="Keyingi rasm"
+                                                    >
+                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    </button>
+                                                </>
+                                            )}
+
+                                            {item.foiz > 0 && (
+                                                <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
+                                                    -{item.foiz}% Chegirma
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
+                                        <div>
+                                            <span className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                                ID: {item.id} • Turi: <span className={`capitalize ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{item.tab}</span>
+                                            </span>
+                                            <h2 className={`text-2xl font-bold mt-1 mb-3 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>{item.title}</h2>
+
+                                            <div className={`mb-4 p-4 rounded-2xl border ${theme === 'dark' ? 'bg-sky-400/10 border-zinc-800/50' : 'bg-sky-50 border-sky-100'
+                                                }`}>
+                                                <span className={`text-xs block mb-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>Tanlangan Konfiguratsiya Narxi:</span>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                        {totalPrice.toLocaleString()} UZS
+                                                    </span>
+                                                    {item.foiz > 0 && (
+                                                        <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                                            {(totalPrice / (1 - item.foiz / 100)).toLocaleString()} UZS
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <p className={`text-sm leading-relaxed p-4 rounded-xl border ${theme === 'dark' ? 'text-zinc-400 bg-sky-400/10 border-zinc-800/40' : 'text-zinc-600 bg-gray-50 border-gray-200'
+                                                }`}>
+                                                {item.description.uz}
+                                            </p>
+                                        </div>
+
+                                        {item.options && item.options.length > 0 && (
+                                            <div className="space-y-4">
+                                                <h3 className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>Konfiguratsiyani o'zgartirish:</h3>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {item.options.map((optGroup, optIdx) => {
+                                                        const activeVal = selectedOptions[item.id]?.[optGroup.name];
+                                                        return (
+                                                            <div key={optIdx} className={`p-4 rounded-xl border ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800' : 'bg-gray-50 border-zinc-200'
+                                                                }`}>
+                                                                <span className={`text-xs font-semibold block capitalize mb-3 tracking-wider ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
+                                                                    }`}>
+                                                                    {optGroup.name}
+                                                                </span>
+                                                                <div className="flex flex-col gap-2">
+                                                                    {optGroup.options.map((opt, valIdx) => {
+                                                                        const isSelected = activeVal === opt.value;
+                                                                        return (
+                                                                            <button
+                                                                                key={valIdx}
+                                                                                onClick={() => handleOptionSelect(item.id, optGroup.name, opt.value)}
+                                                                                className={`flex justify-between items-center text-xs font-medium px-4 py-3 rounded-lg border transition-all duration-200 ${isSelected
+                                                                                    ? "bg-sky-500/10 text-sky-500 border-sky-500/50 shadow-[0_0_12px_rgba(14,165,233,0.1)]"
+                                                                                    : theme === 'dark'
+                                                                                        ? "bg-zinc-800/20 text-zinc-300 border-zinc-800 hover:bg-zinc-800/40 hover:border-zinc-700"
+                                                                                        : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300"
+                                                                                    }`}
+                                                                            >
+                                                                                <span className="capitalize">{opt.name}</span>
+                                                                                <span className={`font-semibold ${isSelected ? "text-sky-500" : theme === 'dark' ? "text-zinc-500" : "text-zinc-400"}`}>
+                                                                                    +{opt.value.toLocaleString()} UZS
+                                                                                </span>
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                </GlassCard>
+                            );
+                        })}
+                    </div>
+                )}
+
             </div>
 
-            <button
-                onClick={() => router.push(`/${locale}/warehouse/products/create`)}
-                className="fixed bottom-8 right-8 z-40 w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-sky-500 text-white flex items-center justify-center shadow-2xl shadow-sky-500/50 hover:scale-110 active:scale-95 transition-all duration-300 border border-white/30"
-                title="Yangi mahsulot qo'shish"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-            </button>
+            <style jsx global>{`
+                @keyframes spin-slow {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+                .animate-spin-slow {
+                  animation: spin-slow 22s linear infinite;
+                }
+            `}</style>
 
-            {deleteId && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-                    <div className="w-full max-w-sm p-6 rounded-3xl bg-[#121214] border border-white/10 shadow-2xl space-y-4">
-                        <h4 className="text-lg font-bold text-white">Mahsulotni o'chirish</h4>
-                        <p className="text-sm text-neutral-400">Rostdan ham ushbu mahsulotni ombordan o'chirib tashlamoqchimisiz?</p>
-                        <div className="flex justify-end gap-3 pt-2">
-                            <button
-                                onClick={() => setDeleteId(null)}
-                                className="px-4 py-2 rounded-xl text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-all"
-                            >
-                                Bekor qilish
-                            </button>
-                            <button
-                                onClick={() => handleDelete(deleteId)}
-                                className="px-4 py-2 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-all"
-                            >
-                                O'chirish
-                            </button>
-                        </div>
+            <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title='Create Product' size="full">
+                <form onSubmit={handleCreateProduct}>
+                    {/* ________________________ */}
+
+                    <div className="space-y-10">
+                        {data.map((item) => {
+                            const activeIndex = activeImageIndices[item.id] ?? 0;
+                            const hasImages = item.images && item.images.length > 0;
+                            const currentImageUrl = hasImages ? item.images[activeIndex] : "https://dummyimage.com/600x600/18181b/a1a1aa";
+                            const totalPrice = calculateTotalPrice(item);
+
+                            const gradientStyle = item.gradient_select === 'custom' && item.gradient?.length > 0
+                                ? {
+                                    background: `linear-gradient(45deg, ${item.gradient.join(', ')})`,
+                                }
+                                : undefined;
+
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={`relative grid p-4 rounded-2xl grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden transition-colors duration-300`}
+                                >
+
+                                    {gradientStyle && (
+                                        <div
+                                            className="absolute inset-0 opacity-15 pointer-events-none blur-[100px] animate-spin-slow"
+                                            style={gradientStyle}
+                                        />
+                                    )}
+
+                                    <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
+
+                                        <div className="col-span-2 flex flex-col gap-2.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
+                                            {item.images?.map((img, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setActiveImageIndices(prev => ({ ...prev, [item.id]: index }))}
+                                                    className={`relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${index === activeIndex
+                                                        ? "border-sky-500 scale-95 shadow-lg shadow-sky-500/20"
+                                                        : theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
+                                                        }`}
+                                                >
+                                                    <Image src={img} alt={`thumb-${index}`} fill className="object-cover" sizes="80px" />
+                                                </button>
+                                            ))}
+
+                                            <button className={`text-4xl relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
+                                                }`}>
+                                                +
+                                            </button>
+                                        </div>
+
+                                        <div className={`col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${(theme === 'dark' ? true : false)
+                                            ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                            : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
+                                            }`}>
+
+                                            <div className="relative w-full h-full p-4 transition-transform duration-500 ease-out group-hover/slider:scale-105">
+                                                <Image
+                                                    src={currentImageUrl}
+                                                    alt={item.title}
+                                                    fill
+                                                    className="object-contain p-4"
+                                                    sizes="500px"
+                                                />
+                                            </div>
+
+                                            {item.images && item.images.length > 1 && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handlePrevImage(item.id, item.images.length)}
+                                                        className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
+                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
+                                                            }`}
+                                                        aria-label="Oldingi rasm"
+                                                    >
+                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => handleNextImage(item.id, item.images.length)}
+                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
+                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
+                                                            }`}
+                                                        aria-label="Keyingi rasm"
+                                                    >
+                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    </button>
+                                                </>
+                                            )}
+
+                                            {item.foiz > 0 && (
+                                                <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
+                                                    -{item.foiz}% Chegirma
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
+                                        <div className="flex flex-col gap-4">
+
+                                            <GlassInput placeholder='mahsulot titlesini yozing...' />
+
+                                            <div className={`p-4 rounded-2xl border ${(theme === 'dark' ? true : false)
+                                                ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                                : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
+                                                }`}>
+                                                <span className={`text-xs block mb-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>Tanlangan Konfiguratsiya Narxi:</span>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                        {totalPrice.toLocaleString()} UZS
+                                                    </span>
+                                                    {item.foiz > 0 && (
+                                                        <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                                            {(totalPrice / (1 - item.foiz / 100)).toLocaleString()} UZS
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <textarea placeholder='Mahsulot tafsifini yozing' rows={4} className={cn(
+                                                'w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200',
+                                                'border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)]',
+                                                (theme === 'dark' ? true : false)
+                                                    ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                                    : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400')} name="description"></textarea>
+                                        </div>
+
+                                        {item.options && item.options.length > 0 && (
+                                            <div className="space-y-4">
+                                                <h3 className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>Konfiguratsiyani o'zgartirish:</h3>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {item.options.map((optGroup, optIdx) => {
+                                                        const activeVal = selectedOptions[item.id]?.[optGroup.name];
+                                                        return (
+                                                            <div key={optIdx} className={`p-4 rounded-xl border ${(theme === 'dark' ? true : false)
+                                                                ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                                                : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
+                                                                }`}>
+                                                                <span className={`text-xs font-semibold block capitalize mb-3 tracking-wider ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
+                                                                    }`}>
+                                                                    {optGroup.name}
+                                                                </span>
+                                                                <div className="flex flex-col gap-2">
+                                                                    {optGroup.options.map((opt, valIdx) => {
+                                                                        const isSelected = activeVal === opt.value;
+                                                                        return (
+                                                                            <button
+                                                                                key={valIdx}
+                                                                                onClick={() => handleOptionSelect(item.id, optGroup.name, opt.value)}
+                                                                                className={`flex justify-between items-center text-xs font-medium px-4 py-3 rounded-lg border transition-all duration-200 ${isSelected
+                                                                                    ? "bg-sky-500/10 text-sky-500 border-sky-500/50 shadow-[0_0_12px_rgba(14,165,233,0.1)]"
+                                                                                    : (theme === 'dark' ? true : false)
+                                                                                        ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                                                                        : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}`}
+                                                                            >
+                                                                                <span className="capitalize">{opt.name}</span>
+                                                                                <span className={`font-semibold ${isSelected ? "text-sky-500" : theme === 'dark' ? "text-zinc-500" : "text-zinc-400"}`}>
+                                                                                    +{opt.value.toLocaleString()} UZS
+                                                                                </span>
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                </div>
+                            );
+                        })}
                     </div>
-                </div>
-            )}
+
+                    {/* _________________________________ */}
+
+                    <div className="p-6"></div>
+
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            type="button"
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                        >
+                            Bekor qilish
+                        </button>
+                        <GlassButton
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                        >
+                            Yuborish
+                        </GlassButton>
+                    </div>
+                </form>
+            </GlassModal>
         </div>
-    )
-}
+    );
+};
+
+export default ProductsGet;

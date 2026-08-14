@@ -231,6 +231,7 @@ const Vacancy = () => {
 
     const handleApply = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        
         try {
             const formData = new FormData(e.currentTarget);
 
@@ -269,7 +270,7 @@ const Vacancy = () => {
         <div className='w-full min-h-screen flex flex-col gap-4 p-4'>
             <GlassCard className='flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10 w-full p-4'>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <h1 className='text-2xl font-bold'>Vacancy</h1>
+                    <h1 className='text-2xl font-bold'>Vacancies</h1>
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
@@ -287,7 +288,7 @@ const Vacancy = () => {
                     <div className="relative flex items-center flex-1 sm:flex-initial">
                         <GlassInput
                             type="text"
-                            placeholder="Qidirish..."
+                            placeholder="Search..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full sm:w-48 sm:focus:w-72 transition-all duration-300 text-xs py-2"

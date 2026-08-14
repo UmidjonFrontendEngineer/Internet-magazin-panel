@@ -57,7 +57,7 @@ export default function GlassModal({ open, onClose, title, children, size = 'md'
                         )}
                         onClick={e => e.stopPropagation()}
                     >
-                        <div className="flex items-center justify-between mb-5 absolute top-0 left-0 w-full p-6 backdrop-blur-sm rounded-t-[28px]">
+                        <div className="flex items-center justify-between mb-5 absolute top-0 left-0 w-full p-6 backdrop-blur-sm rounded-t-[28px] z-9999">
                             {title && (
                                 <h2 className={cn('text-xl font-bold', dark ? 'text-white' : 'text-neutral-900')}>
                                     {title}

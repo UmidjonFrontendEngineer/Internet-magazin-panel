@@ -253,8 +253,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 <div className={`absolute top-[30%] right-[-5%] w-[35vw] h-[35vw] rounded-full ${dark ? 'bg-sky-500/10' : 'bg-sky-500/20'} blur-[100px] pointer-events-none z-0`} />
 
                 <div className="relative z-1000000000 flex h-screen p-2 gap-5 max-w-[1700px] mx-auto sm-hide justify-center">
-                    <div className="fixed inset-0 pointer-events-none z-50 p-4 md:p-6 flex items-center justify-start gap-4">
-
+                    <div className={`fixed inset-0 pointer-events-none z-50 p-4 md:p-6 flex items-center justify-start gap-4`}>
+{/* ${(pathname === '/uz' || '/en' || '/ru') ? 'hidden' : ''}  */}
                         <div className={`w-full h-[10vh] z-9999 fixed top-0 duration-300 left-0 bg-gradient-to-b ${dark ? 'from-[#18181b] to-transparent' : 'from-white to-transparent'}`}></div>
                         <div className={`w-full h-[10vh] z-9999 fixed bottom-0 duration-300 left-0 bg-gradient-to-t ${dark ? 'from-[#18181b] to-transparent' : 'from-white to-transparent'}`}></div>
 
@@ -290,6 +290,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                     </>
                                 )}
                             </svg>
+
+                            {/* <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-grape"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M13 3a14.5 14.5 0 0 0 -1 6" /><path d="M12 8.9s-2.77 .52 -4.1 -.8s-.8 -4 -.8 -4s2.57 -.53 3.88 .8s1.02 4 1.02 4" /><path d="M14 19a2 2 0 1 0 -4 0a2 2 0 0 0 4 0" /><path d="M14 17a2 2 0 1 1 0 -4a2 2 0 0 1 0 4" /><path d="M10 17a2 2 0 1 1 0 -4a2 2 0 0 1 0 4" /><path d="M12 13a2 2 0 1 1 0 -4a2 2 0 0 1 0 4" /><path d="M16 13a2 2 0 1 1 0 -4a2 2 0 0 1 0 4" /><path d="M8 13a2 2 0 1 1 0 -4a2 2 0 0 1 0 4" /></svg> */}
                         </button>
 
                         <AnimatePresence>
@@ -310,7 +312,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
                                                 <Link
                                                     href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/dashboard`}
-                                                    className={`group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
                                                         ? "hover:bg-white/10 text-neutral-300 hover:text-white"
                                                         : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
                                                         }`}
@@ -336,7 +338,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                 
                                                 <Link
                                                     href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/vacancy`}
-                                                    className={`group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
                                                         ? "hover:bg-white/10 text-neutral-300 hover:text-white"
                                                         : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
                                                         }`}
@@ -361,8 +363,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                 </button>
 
                                                 <Link
-                                                    href='/profile'
-                                                    className={`group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                    href={`/${locale}`}
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
                                                         ? "hover:bg-white/10 text-neutral-300 hover:text-white"
                                                         : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
                                                         }`}
@@ -375,7 +377,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                             <>
                                                 <Link
                                                     href={`/${locale}/vacancy/vacancy`}
-                                                    className={`group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
                                                         ? "hover:bg-white/10 text-neutral-300 hover:text-white"
                                                         : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
                                                         }`}
@@ -390,8 +392,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                 </button>
 
                                                 <Link
-                                                    href='/profile'
-                                                    className={`group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                    href={`/${locale}`}
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
                                                         ? "hover:bg-white/10 text-neutral-300 hover:text-white"
                                                         : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
                                                         }`}
