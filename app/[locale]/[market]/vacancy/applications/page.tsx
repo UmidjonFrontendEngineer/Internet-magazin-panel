@@ -372,19 +372,6 @@ function ApplicationsContent() {
                     <div className="space-y-4 max-h-[70vh]">
                         <h1>{matchedUsers.find(item => item.email === messageModal)?.message}</h1>
 
-                        <p className="text-zinc-300">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero eaque, totam repellat error vitae consectetur impedit, earum suscipit autem quia corporis voluptate unde veritatis sapiente qui quasi odit illo assumenda?
-                            Fugit amet sapiente velit labore sequi tempora, voluptates accusamus architecto minima aperiam voluptate optio asperiores beatae repellat odit dolores magni nobis porro atque fuga adipisci sit. Molestias adipisci ratione soluta.
-                            Quasi ipsum pariatur vitae a deleniti dolor assumenda tempore nobis atque consequatur et natus odio cupiditate, ea esse enim tempora qui odit quod fugit soluta at veritatis aliquid mollitia? Quis.
-                            Praesentium, perspiciatis dicta? Et, ea animi? Maxime quam, iusto nostrum consequuntur doloribus rem incidunt odit illum totam aspernatur delectus numquam eaque quibusdam distinctio dolorum sunt, ea, ullam eligendi. Laborum, autem.
-                            Nostrum eaque maxime veritatis aliquam odit dolor obcaecati, saepe fugit, tempora delectus id, sunt amet ab inventore ratione cupiditate vitae ut veniam in distinctio nulla accusamus illo. Praesentium, inventore enim!
-                            Tempora repellat porro animi nulla ea optio veniam, magni explicabo in necessitatibus sunt excepturi cumque doloribus, debitis qui ipsa aperiam eaque magnam labore natus vitae sapiente. Quia doloremque eaque culpa?
-                            Dignissimos saepe laudantium ex officiis eos fugit fuga facere. Dolorem pariatur esse, accusamus, dolores vel voluptate ipsum mollitia culpa quisquam at ad odit dicta non rem ullam magni recusandae voluptatem?
-                            Voluptate magni consectetur culpa dignissimos accusamus est expedita minus, accusantium aperiam repellat atque ducimus praesentium numquam ad odit, deleniti animi tempore! Ab explicabo ut amet, molestias tempora qui officia deleniti.
-                            Totam recusandae quo fugit eum quaerat impedit, nisi maxime ullam eius laboriosam consequuntur culpa suscipit sunt aliquam tempora, distinctio vitae quae quibusdam exercitationem neque saepe voluptas minus minima dolorum? Autem?
-                            Nostrum vero qui eaque quidem distinctio omnis, ipsum fugit, provident a voluptatum et accusamus. Pariatur eos, veniam doloribus maxime omnis, nisi dolores et nobis sint ipsa sequi hic, temporibus saepe?
-                        </p>
-
                         {matchedUsers.find(item => item.email === messageModal)?.applicantImage && (
                             <Image
                                 src={`${matchedUsers.find(item => item.email === messageModal)?.applicantImage!}`}

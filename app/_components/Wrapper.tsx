@@ -13,6 +13,8 @@ import GlassMenu from "@/components/GlassNavItem";
 import { useTokenStore } from "../_store/useTokenStore";
 import { useSelectMarketStore } from "../_store/useSelectMarketStore";
 import { useParams } from "next/navigation";
+import { Import } from "lucide-react";
+import { useRoleStore } from "../_store/useRoleStore";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -31,7 +33,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const [acces, setAcces] = useState(false)
     const [tab, setTab] = useState(-1)
     const [menuType, setMenuType] = useState('')
-    const [role, setRole] = useState('')
+    const role = useRoleStore(state => state.role)
+    const setRole = useRoleStore(state => state.setRole)
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
 
     const params = useParams()
@@ -67,6 +70,28 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         } catch (err) {
             console.log("Fetch xatosi:", err);
             setAcces(false);
+        }
+    }
+
+    const hadleRole = async () => {
+        try {
+            const res = await fetch('http://internet-magazin-nest-server.onrender.com/role', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            const req = await res.json()
+
+            if (res.ok) {
+                console.log(req)
+                setRole(req.role)
+            } else {
+                console.log('ERROR')
+            }
+        } catch (err) {
+            console.log(err)
         }
     }
 

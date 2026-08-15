@@ -48,7 +48,7 @@ export default function AuthPage() {
                 notify.show("Kod muvaffaqiyatli yuborildi!", "success", dark ? 'dark' : 'light')
             } else {
                 setToken(data.token)
-                router.push('/profile');
+                router.push('/');
                 notify.show("Akkaunt muaffaqiyatli ochildi!", "success", dark ? 'dark' : 'light')
             }
         } else {

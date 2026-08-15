@@ -18,6 +18,13 @@ interface Market {
     logo: string
 }
 
+interface Worker {
+    id: string
+    title: string
+    logo: string
+    role: string
+}
+
 export default function ProfilePage() {
     const notify = useNotification()
     const token = useTokenStore(state => state.token)
@@ -29,6 +36,7 @@ export default function ProfilePage() {
     const [firstName, setFirstName] = useState('firstName')
     const [lastName, setLastName] = useState('lastName')
     const [email, setEmail] = useState('example@gmail.com')
+    const [workers, setWorkers] = useState<Worker[]>([])
     const [image, setImage] = useState('https://i.ibb.co/nNZrjBSD/user.png')
     const [marketAdd, setMarketAdd] = useState(false)
     const [deleteAkkModalOpen, setDeleteAkkModalOpen] = useState(false)
@@ -44,6 +52,27 @@ export default function ProfilePage() {
             setMapLng(0)
         }
     }, [marketAdd])
+
+    const getWorkers = async () => {
+        try {
+            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers/get', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            const req = await res.json()
+
+            if (res.ok) {
+                console.log(req)
+                setWorkers(req)
+            } else {
+                console.log(req.message)
+            }
+        } catch (err) {
+            console.log(err)
+        }
+    }
 
     const renderToken = async (token: string) => {
         console.log("Yuborilayotgan token:", token);
@@ -203,6 +232,10 @@ export default function ProfilePage() {
         handleGetMarkets(token)
     }, [token])
 
+    useEffect(() => {
+        getWorkers()
+    })
+
     const [selectedMarket, setSelectedMarket] = useState('')
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -265,32 +298,62 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {markets.map((market) => (
                         <GlassCard hover={true} className='flex items-center justify-between group' key={market.id}>
-                            <div
+                            <GlassButton
+                                variant='ghost'
                                 onClick={() => { setSelectMarket(market.id); handleMarketClick(market.id); }}
-                                className="flex items-center gap-4 cursor-pointer flex-1"
+                                className="flex items-center rounded-3xl p-4 gap-4 cursor-pointer flex-col flex-1"
                             >
-                                <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-black/10">
-                                    <Image src={market.logo} alt={market.title} fill className="object-cover" />
-                                </div>
-                                <span className={`font-semibold ${dark ? 'text-white' : 'text-neutral-900'} group-hover:text-sky-500 transition-colors`}>
-                                    {market.title}
-                                </span>
-                            </div>
+                                <Image src={market.logo} alt={market.title} width={40000} height={40000} className="object-cover rounded-2xl" />
+                                <div className={`font-semibold ${dark ? 'text-white' : 'text-neutral-900'} flex items-center justify-between w-full group-hover:text-sky-500 transition-colors`}>
+                                    <h1 className='text-start'>{market.title}</h1>
 
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => { setSelectedMarket(market.id); setIsEditModalOpen(true); }}
-                                    className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-sky-500/20 hover:text-sky-500 transition-all`}
-                                >
-                                    ✏️
-                                </button>
-                                <button
-                                    onClick={() => { setSelectedMarket(market.id); setIsDeleteModalOpen(true); }}
-                                    className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-red-500/20 hover:text-red-500 transition-all`}
-                                >
-                                    🗑️
-                                </button>
-                            </div>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setSelectedMarket(market.id); setIsEditModalOpen(true); }}
+                                            className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-sky-500/20 hover:text-sky-500 transition-all`}
+                                        >
+                                            ✏️
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setSelectedMarket(market.id); setIsDeleteModalOpen(true); }}
+                                            className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-red-500/20 hover:text-red-500 transition-all`}
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </div>
+                            </GlassButton>
+                        </GlassCard>
+                    ))}
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <h3 className={`text-lg ${dark ? 'text-white' : 'text-neutral-900'} font-bold tracking-wide uppercase`}>
+                        Mening ishlarim
+                    </h3>
+                    <GlassButton
+                        onClick={() => router.push('/vacancy/vacancy')}
+                    >
+                        Ishlar qo'shish
+                    </GlassButton>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {workers.map((worker) => (
+                        <GlassCard hover={true} className='flex items-center justify-between group' key={worker.id}>
+                            <GlassButton
+                                variant='ghost'
+                                onClick={() => { setSelectMarket(worker.id); handleMarketClick(worker.id); }}
+                                className="flex relative items-center rounded-3xl p-4 gap-4 cursor-pointer flex-col flex-1"
+                            >
+                                <div className="absolute top-0 left-0 w-full flex items-center p-2 justify-end rounded-full">
+                                    <div className='p-1 rounded-full bg-white/5 backdrop-blur-sm'>{worker.role}</div>
+                                </div>
+                                <Image src={worker.logo} alt={worker.title} width={40000} height={40000} className="object-cover rounded-2xl" />
+                                <h1 className={`font-semibold ${dark ? 'text-white' : 'text-neutral-900'} text-start w-full group-hover:text-sky-500 transition-colors`}>
+                                    {worker.title}
+                                </h1>
+                            </GlassButton>
                         </GlassCard>
                     ))}
                 </div>
