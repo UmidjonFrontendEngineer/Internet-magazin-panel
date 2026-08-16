@@ -64,15 +64,23 @@ function ApplicationsContent() {
         const form = e.currentTarget
         const formDataObj = new FormData(form)
 
-        formDataObj.append('marketId', selectMarket)
+        const title = formDataObj.get('title')
+        const percentage = Number(formDataObj.get('percentage'))
 
         try {
             const res = await fetch('https://internet-magazin-nest-server.onrender.com/discounts', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 },
-                body: formDataObj
+                body: JSON.stringify({
+                    title,
+                    percentage,
+                    startDate: startDate ? startDate.toISOString() : null,
+                    endDate: endDate ? endDate.toISOString() : null,
+                    market: selectMarket
+                })
             })
 
             const req = await res.json()
@@ -81,6 +89,8 @@ function ApplicationsContent() {
                 setIsOpen(false)
                 notify.show("Yangi chegirma muaffaqiyatli qo'shildi", 'success', dark ? 'dark' : 'light')
                 form.reset()
+                setStartDate(null)
+                setEndDate(null)
             } else {
                 notify.show(req.message || 'Nimadir xato ketdi', 'error', dark ? 'dark' : 'light')
             }
