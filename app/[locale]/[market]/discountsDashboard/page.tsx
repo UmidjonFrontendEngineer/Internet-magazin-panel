@@ -12,6 +12,15 @@ import { useTokenStore } from "@/app/_store/useTokenStore";
 import { useNotification } from "@/components/Notification";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 
+interface Discount {
+    id: string
+    title: string
+    percentage: number
+    startDate: string
+    endDate: string
+    market: string
+}
+
 function ApplicationsContent() {
     const searchParams = useSearchParams();
     const queryId = searchParams.get("id") as string;
