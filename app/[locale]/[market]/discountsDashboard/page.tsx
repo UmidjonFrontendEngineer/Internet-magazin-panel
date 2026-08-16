@@ -37,26 +37,27 @@ function ApplicationsContent() {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const res = await fetch("https://internet-magazin-nest-server.onrender.com/discounts")
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch("https://internet-magazin-nest-server.onrender.com/discounts")
 
-                const req = await res.json()
+            const req = await res.json()
 
-                if (res.ok) {
-                    const filteredData = req.filter((item: Discount) => item.market === selectMarket)
-                    setDiscounts(filteredData)
-                }
-            } catch (err) {
-                console.error("Xatolik:", err);
-            } finally {
-                setLoading(false);
+            if (res.ok) {
+                const filteredData = req.filter((item: Discount) => item.market === selectMarket)
+                setDiscounts(filteredData)
             }
-        };
+        } catch (err) {
+            console.error("Xatolik:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchData();
-    }, []);
+    }, [selectMarket]);
 
     const handleDiscount = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -88,9 +89,9 @@ function ApplicationsContent() {
             if (res.ok) {
                 setIsOpen(false)
                 notify.show("Yangi chegirma muaffaqiyatli qo'shildi", 'success', dark ? 'dark' : 'light')
-                form.reset()
                 setStartDate(null)
                 setEndDate(null)
+                fetchData()
             } else {
                 notify.show(req.message || 'Nimadir xato ketdi', 'error', dark ? 'dark' : 'light')
             }
@@ -127,36 +128,35 @@ function ApplicationsContent() {
                         return (
                             <div className="flex gap-2">
                                 <button
-                                    // onClick={() => setSelectedUser(user)}
                                     className="px-3 py-1.5 rounded-lg text-xs bg-white/5 hover:bg-white/10 transition text-gray-200"
                                 >
-                                    Profil
-                                </button>
-                                {/* {workers.some(item => item.vacancyId === queryId && item.userId === user.id) ? (
-                                    <button
-                                        className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition"
-                                    >
-                                        Accepted
-                                    </button>
-                                ) : ( */}
-                                <button
-                                    // onClick={() => handleAccept(user.id, selectMarket, queryId)}
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition"
-                                >
-                                    Qabul
-                                </button>
-                                {/* )} */}
-                                <button
-                                    // onClick={() => handleDelete(user.id)}
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 transition"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                    .
                                 </button>
                                 <button
-                                    // onClick={() => setMessageModal(user.email)}
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition"
+                                    className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition flex items-center justify-center"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pen-line-icon lucide-pen-line">
+                                        <path d="M13 21h8" />
+                                        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                    </svg>
+                                </button>
+                                <button
+                                    className="px-3 py-1.5 rounded-lg text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 transition flex items-center justify-center"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-icon lucide-trash">
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                        <path d="M3 6h18" />
+                                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                </button>
+                                <button
+                                    className="px-3 py-1.5 rounded-lg text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition flex items-center justify-center"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-cart-icon lucide-shopping-cart">
+                                        <circle cx="8" cy="21" r="1" />
+                                        <circle cx="19" cy="21" r="1" />
+                                        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                                    </svg>
                                 </button>
                             </div>
                         );
