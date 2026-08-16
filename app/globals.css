@@ -188,16 +188,22 @@ input[type=number] {
 }
 
 .react-datepicker__navigation {
-    position: absolute !important;
-    top: 14px !important;
-    width: 16px !important;
-    height: 16px !important;
+    /* position: absolute !important; */
+    /* top: 14px !important; */
+    width: 100% !important;
+    height: 100% !important;
     border-radius: 50%;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     transition: all 0.2s;
+    padding: 4px;
+    background-color: rgba(255, 255, 255, 0.08) !important;
     z-index: 10;
+}
+
+.react-datepicker__navigation:hover {
+    background-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .react-datepicker__navigation--previous {
