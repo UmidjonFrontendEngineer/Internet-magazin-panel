@@ -110,6 +110,7 @@ input[type=number] {
 
 .react-datepicker__header {
     background-color: transparent !important;
+    backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     padding-top: 16px !important;
     position: relative !important;
@@ -150,20 +151,24 @@ input[type=number] {
 
 .react-datepicker__time-container .react-datepicker__time {
     background-color: transparent !important;
+    backdrop-filter: blur(16px);
     border-bottom-right-radius: 24px;
 }
 
 .react-datepicker__time-box {
     background-color: transparent !important;
+    backdrop-filter: blur(16px);
 }
 
 .react-datepicker__time-box ul.react-datepicker__time-list {
     background-color: transparent !important;
+    backdrop-filter: blur(16px);
 }
 
 .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {
     color: #cbd5e1 !important;
     background-color: transparent !important;
+    backdrop-filter: blur(16px);
     transition: all 0.2s;
 }
 
@@ -178,26 +183,21 @@ input[type=number] {
     font-weight: 600;
 }
 
-.react-datepicker__triangle { 
-    display: none !important; 
+.react-datepicker__triangle {
+    display: none !important;
 }
 
 .react-datepicker__navigation {
     position: absolute !important;
     top: 18px !important;
-    width: 32px !important;
-    height: 32px !important;
+    width: 12px !important;
+    height: 12px !important;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.08) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     transition: all 0.2s;
     z-index: 10;
-}
-
-.react-datepicker__navigation:hover {
-    background-color: rgba(14, 165, 233, 0.3) !important;
 }
 
 .react-datepicker__navigation--previous {
