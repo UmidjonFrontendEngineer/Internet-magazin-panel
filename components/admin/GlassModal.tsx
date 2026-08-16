@@ -51,7 +51,7 @@ export default function GlassModal({ open, onClose, title, children, size = 'md'
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className={cn(
-                            'relative w-full rounded-[28px] flex flex-col max-h-[90vh] overflow-hidden shadow-2xl z-10',
+                            `relative w-full rounded-[28px] flex flex-col max-h-[90vh] overflow-${overflow} shadow-2xl z-10`,
                             dark ? 'glass-panel' : 'glass-panel-light',
                             sizes[size],
                             className
