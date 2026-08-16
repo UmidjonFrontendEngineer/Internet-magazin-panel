@@ -71,7 +71,7 @@ export default function GlassModal({ open, onClose, title, children, size = 'md'
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className="p-6 overflow-y-auto flex-1">
+                        <div className={`p-6 overflow-y-${overflow === 'hidden' ? 'auto' : overflow} flex-1`}>
                             <div className="py-8 w-full"></div>
                             {children}
                         </div>
