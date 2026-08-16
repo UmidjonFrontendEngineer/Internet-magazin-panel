@@ -125,7 +125,8 @@ input[type=number] {
 }
 
 .react-datepicker__day:hover {
-    background-color: rgba(14, 165, 233, 0.2) !important;
+    background-color: rgba(14, 165, 233, 0.05) !important;
+    backdrop-filter: blur(16px);
     color: #fff !important;
 }
 
@@ -139,7 +140,7 @@ input[type=number] {
 .react-datepicker__time-container {
     border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(16px) !important;
-    background-color: rgba(15, 23, 42, 0.95) !important;
+    background-color: rgba(15, 23, 42, 0.3) !important;
     border-top-right-radius: 24px;
     border-bottom-right-radius: 24px;
 }
@@ -176,4 +177,37 @@ input[type=number] {
 
 .react-datepicker__navigation-icon::before {
     border-color: #fff !important;
+}
+
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::before,
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::after {
+    border-bottom-color: rgba(15, 23, 42, 0.95) !important;
+}
+
+.react-datepicker__navigation {
+    top: 18px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.2s;
+}
+
+.react-datepicker__navigation:hover {
+    background-color: rgba(14, 165, 233, 0.2) !important;
+}
+
+.react-datepicker__navigation--previous {
+    left: 16px !important;
+}
+
+.react-datepicker__navigation--next {
+    right: 16px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+    border-color: #fff !important;
+    border-width: 2px 2px 0 0 !important;
+    width: 7px !important;
+    height: 7px !important;
 }
