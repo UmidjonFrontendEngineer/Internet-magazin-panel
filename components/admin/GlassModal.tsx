@@ -11,10 +11,11 @@ interface GlassModalProps {
     title?: string;
     children: React.ReactNode;
     size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full';
+    overflow?: string
     className?: string;
 }
 
-export default function GlassModal({ open, onClose, title, children, size = 'md', className }: GlassModalProps) {
+export default function GlassModal({ open, onClose, title, children, size = 'md', overflow = 'hidden', className }: GlassModalProps) {
     const theme = useThemeStore(s => s.theme);
     const dark = theme === 'dark';
 
