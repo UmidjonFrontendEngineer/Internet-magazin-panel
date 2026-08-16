@@ -19,6 +19,7 @@ interface Discount {
     startDate: string
     endDate: string
     market: string
+    [key: string]: unknown
 }
 
 function ApplicationsContent() {
@@ -41,7 +42,8 @@ function ApplicationsContent() {
                 const req = await res.json()
 
                 if (res.ok) {
-                    setDiscounts(req)
+                    const filteredData = req.filter((item: Discount) => item.market === selectMarket)
+                    setDiscounts(filteredData)
                 }
             } catch (err) {
                 console.error("Xatolik:", err);
