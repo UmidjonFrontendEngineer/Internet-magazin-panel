@@ -12,6 +12,7 @@ import { useTokenStore } from "@/app/_store/useTokenStore";
 import { useNotification } from "@/components/Notification";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GlassInput from "@/components/admin/GlassInput";
+import DatePicker from "react-datepicker";
 
 interface Discount {
     id: string
@@ -25,7 +26,6 @@ interface Discount {
 
 function ApplicationsContent() {
     const searchParams = useSearchParams();
-    const queryId = searchParams.get("id") as string;
     const notify = useNotification()
     const [loading, setLoading] = useState<boolean>(true);
     const [imageModal, setImageModal] = useState(false)
@@ -34,6 +34,8 @@ function ApplicationsContent() {
     const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
     const [discounts, setDiscounts] = useState<Discount[]>([])
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,7 +56,7 @@ function ApplicationsContent() {
             }
         };
         fetchData();
-    }, [queryId]);
+    }, []);
 
     const handleDiscount = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -158,30 +160,42 @@ function ApplicationsContent() {
                     <GlassInput placeholder='Discount percentage...' name="percentage" type="number" />
 
                     <div className="relative flex items-center">
-                        <span className="absolute left-4 text-neutral-400 pointer-events-none flex items-center">
+                        <span className="absolute left-4 z-10 text-neutral-400 pointer-events-none flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-arrow-down">
                                 <path d="m14 17 4 4 4-4" /><path d="M16 2v3" /><path d="M18 13v8" /><path d="M21 10.354V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h7.343" /><path d="M3 9h18" /><path d="M8 2v3" />
                             </svg>
                         </span>
-                        <input
-                            type="datetime-local"
-                            name="startDate"
-                            className="w-full rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                        <DatePicker
+                            selected={startDate}
+                            onChange={(date: Date | null) => setStartDate(date)}
+                            showTimeSelect
+                            timeFormat="HH:mm:ss"
+                            timeIntervals={1}
+                            dateFormat="yyyy-MM-dd HH:mm:ss"
+                            placeholderText="Start date & time..."
+                            className="w-full rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500"
                         />
                     </div>
 
                     <div className="relative flex items-center">
-                        <span className="absolute left-4 text-neutral-400 pointer-events-none flex items-center">
+                        <span className="absolute left-4 z-10 text-neutral-400 pointer-events-none flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-arrow-up">
                                 <path d="m14 17 4-4 4 4" /><path d="M16 2v3" /><path d="M18 21v-8" /><path d="M21 10.343V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h9" /><path d="M3 9h18" /><path d="M8 2v3" />
                             </svg>
                         </span>
-                        <input
-                            type="datetime-local"
-                            name="endDate"
-                            className="w-full rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                        <DatePicker
+                            selected={endDate}
+                            onChange={(date: Date | null) => setEndDate(date)}
+                            showTimeSelect
+                            timeFormat="HH:mm:ss"
+                            timeIntervals={1}
+                            dateFormat="yyyy-MM-dd HH:mm:ss"
+                            placeholderText="End date & time..."
+                            className="w-full rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500"
                         />
                     </div>
+
+                    <div className="p-6"></div>
 
                     <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
