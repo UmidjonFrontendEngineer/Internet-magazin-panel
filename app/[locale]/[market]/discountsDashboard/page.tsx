@@ -154,8 +154,8 @@ function ApplicationsContent() {
                 />
             )}
 
-            <GlassModal title="Create discount" open={isOpen} onClose={() => setIsOpen(false)}>
-                <form className="relative space-y-4 max-h-[80vh] w-full overflow-hidden" onSubmit={handleDiscount}>
+            <GlassModal className="overflow-visible" title="Create discount" open={isOpen} onClose={() => setIsOpen(false)}>
+                <form className="relative space-y-4 max-h-[80vh] w-full overflow-visible" onSubmit={handleDiscount}>
                     <GlassInput placeholder='Discount title...' name="title" />
                     <GlassInput placeholder='Discount percentage...' name="percentage" type="number" />
 
@@ -173,6 +173,7 @@ function ApplicationsContent() {
                             timeIntervals={1}
                             dateFormat="yyyy-MM-dd HH:mm:ss"
                             placeholderText="Start date & time..."
+                            popperClassName="z-50"
                             className="w-full rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500"
                         />
                     </div>
@@ -191,13 +192,14 @@ function ApplicationsContent() {
                             timeIntervals={1}
                             dateFormat="yyyy-MM-dd HH:mm:ss"
                             placeholderText="End date & time..."
+                            popperClassName="z-50"
                             className="w-full rounded-2xl py-3 pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500"
                         />
                     </div>
 
                     <div className="p-6"></div>
 
-                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px] bg-neutral-900/40">
                         <button
                             onClick={() => setIsOpen(false)}
                             type="button"
