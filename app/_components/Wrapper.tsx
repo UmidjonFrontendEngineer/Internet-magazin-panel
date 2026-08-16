@@ -15,6 +15,7 @@ import { useSelectMarketStore } from "../_store/useSelectMarketStore";
 import { useParams } from "next/navigation";
 import { Import } from "lucide-react";
 import { useRoleStore } from "../_store/useRoleStore";
+import { useNotification } from "@/components/Notification";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -32,10 +33,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const [menu, setMenu] = useState(true)
     const [acces, setAcces] = useState(false)
     const [tab, setTab] = useState(-1)
-    const [menuType, setMenuType] = useState('')
     const role = useRoleStore(state => state.role)
     const setRole = useRoleStore(state => state.setRole)
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
+    const notify = useNotification()
 
     const params = useParams()
     const locale = params.locale || 'uz'
@@ -73,13 +74,15 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         }
     }
 
-    const hadleRole = async () => {
+    const handleRole = async () => {
         try {
-            const res = await fetch('http://internet-magazin-nest-server.onrender.com/role', {
-                method: 'GET',
+            const res = await fetch('https://internet-magazin-nest-server.onrender.com/role', {
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
-                }
+                },
+                body: JSON.stringify({ marketId: selectMarket })
             })
 
             const req = await res.json()
@@ -87,36 +90,24 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             if (res.ok) {
                 console.log(req)
                 setRole(req.role)
+                notify.show(`${req.role || 'owner'}`, "success", dark ? 'dark' : 'light')
             } else {
-                console.log('ERROR')
+                console.log('ERROR:', req)
+                notify.show(`${req.message}`, "error", dark ? 'dark' : 'light')
             }
         } catch (err) {
-            console.log(err)
+            console.log('Xatolik:', err)
+            notify.show(`So'rov yuborilmadi`, "error", dark ? 'dark' : 'light')
         }
     }
 
     useEffect(() => {
-        renderToken(token);
-    }, [token]);
+        handleRole()
+    }, [selectMarket])
 
     useEffect(() => {
-        if (acces && selectMarket) {
-            if (role === '' || !role) {
-                setMenuType('owner');
-            } else if (role === 'admin') {
-                setMenuType('admin');
-            } else if (role === 'wherehouse') {
-                setMenuType('wherehouse');
-            } else if (role === 'cashier') {
-                setMenuType('cashier');
-            } else {
-                setMenuType('noWork');
-            }
-        } else if ((!acces && selectMarket) || (!acces)) {
-            setMenuType('noAcces');
-        }
-    }, [acces, selectMarket, role]);
-
+        renderToken(token);
+    }, [token]);
 
     useEffect(() => { setMenu(window.innerWidth > 500 ? true : false) }, [])
 
@@ -279,7 +270,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
                 <div className="relative z-1000000000 flex h-screen p-2 gap-5 max-w-[1700px] mx-auto sm-hide justify-center">
                     <div className={`fixed inset-0 pointer-events-none z-50 p-4 md:p-6 flex items-center justify-start gap-4`}>
-{/* ${(pathname === '/uz' || '/en' || '/ru') ? 'hidden' : ''}  */}
+                        {/* ${(pathname === '/uz' || '/en' || '/ru') ? 'hidden' : ''}  */}
                         <div className={`w-full h-[10vh] z-9999 fixed top-0 duration-300 left-0 bg-gradient-to-b ${dark ? 'from-[#18181b] to-transparent' : 'from-white to-transparent'}`}></div>
                         <div className={`w-full h-[10vh] z-9999 fixed bottom-0 duration-300 left-0 bg-gradient-to-t ${dark ? 'from-[#18181b] to-transparent' : 'from-white to-transparent'}`}></div>
 
@@ -332,9 +323,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                         }`}
                                 >
                                     {
-                                        (menuType === 'owner' || menuType === 'admin') ? (
+                                        (role === 'owner' || role === 'admin') ? (
                                             <>
-
                                                 <Link
                                                     href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/dashboard`}
                                                     className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
@@ -360,7 +350,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                     {tab === 4 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-list-sort-ascending-icon lucide-list-sort-ascending"><path d="M3 19h18" /><path d="M15 12H3" /><path d="M9 5H3" /></svg>
                                                 </button>
-                                                
+
                                                 <Link
                                                     href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/vacancy`}
                                                     className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
@@ -398,7 +388,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={tab === 9 ? 'text-sky-500' : ''}><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
                                                 </Link>
                                             </>
-                                        ) : (menuType === 'noAcces' || menuType === 'noWork') ? (
+                                        ) : (role === 'noAcces' || role === 'noWork') ? (
                                             <>
                                                 <Link
                                                     href={`/${locale}/vacancy/vacancy`}
@@ -410,6 +400,56 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                     {tab === 1 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-briefcase-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9" /><path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" /></svg>
                                                 </Link>
+
+                                                <button onClick={() => setTab(8)} className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark ? "hover:bg-white/10 text-neutral-300 hover:text-white" : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"}`}>
+                                                    {tab === 8 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /><circle cx="12" cy="12" r="3" /></svg>
+                                                </button>
+
+                                                <Link
+                                                    href={`/${locale}`}
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                        ? "hover:bg-white/10 text-neutral-300 hover:text-white"
+                                                        : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
+                                                        }`}
+                                                >
+                                                    {tab === 9 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={tab === 9 ? 'text-sky-500' : ''}><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+                                                </Link>
+                                            </>
+                                        ) : (role === 'warehouse') ? (
+                                            <>
+                                                <Link
+                                                    href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/dashboard`}
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                        ? "hover:bg-white/10 text-neutral-300 hover:text-white"
+                                                        : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
+                                                        }`}
+                                                >
+                                                    {tab === 1 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={tab === 1 ? 'text-sky-500' : ''}><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+                                                </Link>
+
+                                                <button onClick={() => setTab(2)} className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark ? "hover:bg-white/10 text-neutral-300 hover:text-white" : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"}`}>
+                                                    {tab === 2 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-box-icon lucide-box"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" /></svg>
+                                                </button>
+
+                                                <Link
+                                                    href={`/${locale}/${selectMarket.replaceAll(' ', '_')}/vacancy`}
+                                                    className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark
+                                                        ? "hover:bg-white/10 text-neutral-300 hover:text-white"
+                                                        : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"
+                                                        }`}
+                                                >
+                                                    {tab === 5 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-briefcase-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9" /><path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" /></svg>
+                                                </Link>
+
+                                                <button onClick={() => setTab(7)} className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark ? "hover:bg-white/10 text-neutral-300 hover:text-white" : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"}`}>
+                                                    {tab === 7 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></svg>
+                                                </button>
 
                                                 <button onClick={() => setTab(8)} className={`active:scale-80 group relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ease-out ${dark ? "hover:bg-white/10 text-neutral-300 hover:text-white" : "hover:bg-black/5 text-neutral-700 hover:text-neutral-900"}`}>
                                                     {tab === 8 && <div className="absolute inset-0 rounded-2xl bg-sky-500/20 border border-sky-400/30" />}

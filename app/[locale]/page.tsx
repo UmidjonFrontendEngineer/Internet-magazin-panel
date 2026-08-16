@@ -297,11 +297,11 @@ export default function ProfilePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {markets.map((market) => (
-                        <GlassCard hover={true} className='flex items-center justify-between group' key={market.id}>
+                        <GlassCard hover={true} className='!p-0 flex items-center justify-between group' key={market.id}>
                             <GlassButton
                                 variant='ghost'
                                 onClick={() => { setSelectMarket(market.id); handleMarketClick(market.id); }}
-                                className="flex items-center rounded-3xl p-4 gap-4 cursor-pointer flex-col flex-1"
+                                className="flex items-center rounded-3xl gap-4 cursor-pointer flex-col flex-1"
                             >
                                 <Image src={market.logo} alt={market.title} width={40000} height={40000} className="object-cover rounded-2xl" />
                                 <div className={`font-semibold ${dark ? 'text-white' : 'text-neutral-900'} flex items-center justify-between w-full group-hover:text-sky-500 transition-colors`}>
@@ -310,13 +310,13 @@ export default function ProfilePage() {
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setSelectedMarket(market.id); setIsEditModalOpen(true); }}
-                                            className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-sky-500/20 hover:text-sky-500 transition-all`}
+                                            className={`p-2 rounded-2xl ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-sky-500/20 hover:text-sky-500 transition-all`}
                                         >
                                             ✏️
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setSelectedMarket(market.id); setIsDeleteModalOpen(true); }}
-                                            className={`p-2 rounded-lg ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-red-500/20 hover:text-red-500 transition-all`}
+                                            className={`p-2 rounded-2xl ${dark ? 'bg-white/5 text-neutral-300' : 'bg-black/5 text-neutral-600'} hover:bg-red-500/20 hover:text-red-500 transition-all`}
                                         >
                                             🗑️
                                         </button>
@@ -340,11 +340,11 @@ export default function ProfilePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {workers.map((worker) => (
-                        <GlassCard hover={true} className='flex items-center justify-between group' key={worker.id}>
+                        <GlassCard hover={true} className='!p-0 flex items-center justify-between group' key={worker.id}>
                             <GlassButton
                                 variant='ghost'
                                 onClick={() => { setSelectMarket(worker.id); handleMarketClick(worker.id); }}
-                                className="flex relative items-center rounded-3xl p-4 gap-4 cursor-pointer flex-col flex-1"
+                                className="flex relative items-center rounded-3xl p-0 gap-4 cursor-pointer flex-col flex-1"
                             >
                                 <div className="absolute top-0 left-0 w-full flex items-center p-2 justify-end rounded-full">
                                     <div className='p-1 rounded-full bg-white/5 backdrop-blur-sm'>{worker.role}</div>
