@@ -539,183 +539,97 @@ const ProductsGet = () => {
                     {/* ________________________ */}
 
                     <div className="space-y-10">
-                        {data.map((item) => {
-                            const activeIndex = activeImageIndices[item.id] ?? 0;
-                            const hasImages = item.images && item.images.length > 0;
-                            const currentImageUrl = hasImages ? item.images[activeIndex] : "https://dummyimage.com/600x600/18181b/a1a1aa";
-                            const totalPrice = calculateTotalPrice(item);
+                        <div
+                            className={`relative grid p-4 rounded-2xl grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden transition-colors duration-300`}
+                        >
+                            <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
 
-                            const gradientStyle = item.gradient_select === 'custom' && item.gradient?.length > 0
-                                ? {
-                                    background: `linear-gradient(45deg, ${item.gradient.join(', ')})`,
-                                }
-                                : undefined;
-
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={`relative grid p-4 rounded-2xl grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden transition-colors duration-300`}
-                                >
-
-                                    {gradientStyle && (
-                                        <div
-                                            className="absolute inset-0 opacity-15 pointer-events-none blur-[100px] animate-spin-slow"
-                                            style={gradientStyle}
-                                        />
-                                    )}
-
-                                    <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
-
-                                        <div className="col-span-2 flex flex-col gap-2.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
-                                            {item.images?.map((img, index) => (
-                                                <button
-                                                    key={index}
-                                                    onClick={() => setActiveImageIndices(prev => ({ ...prev, [item.id]: index }))}
-                                                    className={`relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${index === activeIndex
-                                                        ? "border-sky-500 scale-95 shadow-lg shadow-sky-500/20"
-                                                        : theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
-                                                        }`}
-                                                >
-                                                    <Image src={img} alt={`thumb-${index}`} fill className="object-cover" sizes="80px" />
-                                                </button>
-                                            ))}
-
-                                            <button className={`text-4xl relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
-                                                }`}>
-                                                +
-                                            </button>
-                                        </div>
-
-                                        <div className={`col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${(theme === 'dark' ? true : false)
-                                            ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                            : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                            }`}>
-
-                                            <div className="relative w-full h-full p-4 transition-transform duration-500 ease-out group-hover/slider:scale-105">
-                                                <Image
-                                                    src={currentImageUrl}
-                                                    alt={item.title}
-                                                    fill
-                                                    className="object-contain p-4"
-                                                    sizes="500px"
-                                                />
-                                            </div>
-
-                                            {item.images && item.images.length > 1 && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handlePrevImage(item.id, item.images.length)}
-                                                        className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
-                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
-                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
-                                                            }`}
-                                                        aria-label="Oldingi rasm"
-                                                    >
-                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                                                        </svg>
-                                                    </button>
-
-                                                    <button
-                                                        onClick={() => handleNextImage(item.id, item.images.length)}
-                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
-                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
-                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
-                                                            }`}
-                                                        aria-label="Keyingi rasm"
-                                                    >
-                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                                        </svg>
-                                                    </button>
-                                                </>
-                                            )}
-
-                                            {item.foiz > 0 && (
-                                                <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
-                                                    -{item.foiz}% Chegirma
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
-                                        <div className="flex flex-col gap-4">
-
-                                            <GlassInput placeholder='mahsulot titlesini yozing...' />
-
-                                            <div className={`p-4 rounded-2xl border ${(theme === 'dark' ? true : false)
-                                                ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                                : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                                }`}>
-                                                <span className={`text-xs block mb-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>Tanlangan Konfiguratsiya Narxi:</span>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                                                        {totalPrice.toLocaleString()} UZS
-                                                    </span>
-                                                    {item.foiz > 0 && (
-                                                        <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                            {(totalPrice / (1 - item.foiz / 100)).toLocaleString()} UZS
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <textarea placeholder='Mahsulot tafsifini yozing' rows={4} className={cn(
-                                                'w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200',
-                                                'border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)]',
-                                                (theme === 'dark' ? true : false)
-                                                    ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                                    : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400')} name="description"></textarea>
-                                        </div>
-
-                                        {item.options && item.options.length > 0 && (
-                                            <div className="space-y-4">
-                                                <h3 className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>Konfiguratsiyani o'zgartirish:</h3>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    {item.options.map((optGroup, optIdx) => {
-                                                        const activeVal = selectedOptions[item.id]?.[optGroup.name];
-                                                        return (
-                                                            <div key={optIdx} className={`p-4 rounded-xl border ${(theme === 'dark' ? true : false)
-                                                                ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                                                : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                                                }`}>
-                                                                <span className={`text-xs font-semibold block capitalize mb-3 tracking-wider ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
-                                                                    }`}>
-                                                                    {optGroup.name}
-                                                                </span>
-                                                                <div className="flex flex-col gap-2">
-                                                                    {optGroup.options.map((opt, valIdx) => {
-                                                                        const isSelected = activeVal === opt.value;
-                                                                        return (
-                                                                            <button
-                                                                                key={valIdx}
-                                                                                onClick={() => handleOptionSelect(item.id, optGroup.name, opt.value)}
-                                                                                className={`flex justify-between items-center text-xs font-medium px-4 py-3 rounded-lg border transition-all duration-200 ${isSelected
-                                                                                    ? "bg-sky-500/10 text-sky-500 border-sky-500/50 shadow-[0_0_12px_rgba(14,165,233,0.1)]"
-                                                                                    : (theme === 'dark' ? true : false)
-                                                                                        ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                                                                        : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}`}
-                                                                            >
-                                                                                <span className="capitalize">{opt.name}</span>
-                                                                                <span className={`font-semibold ${isSelected ? "text-sky-500" : theme === 'dark' ? "text-zinc-500" : "text-zinc-400"}`}>
-                                                                                    +{opt.value.toLocaleString()} UZS
-                                                                                </span>
-                                                                            </button>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
+                                <div className="col-span-2 flex flex-col gap-2.5 max-h-95 overflow-y-auto pr-1 scrollbar-thin">
+                                    <button className={`text-4xl relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
+                                        }`}>
+                                        +
+                                    </button>
                                 </div>
-                            );
-                        })}
+
+                                <div className={`col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${(theme === 'dark' ? true : false)
+                                    ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                    : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
+                                    }`}>
+
+                                    <div className="relative w-full h-full p-4 transition-transform duration-500 ease-out group-hover/slider:scale-105">
+                                        {/* <Image
+                                            src={currentImageUrl}
+                                            alt={data[0].title}
+                                            fill
+                                            className="object-contain p-4"
+                                            sizes="500px"
+                                        /> */}
+                                    </div>
+                                    <>
+                                        <button
+                                            onClick={() => handlePrevImage(data[0].id, data[0].images.length)}
+                                            className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
+                                                : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
+                                                }`}
+                                            aria-label="Oldingi rasm"
+                                        >
+                                            <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </button>
+
+                                        <button
+                                            onClick={() => handleNextImage(data[0].id, data[0].images.length)}
+                                            className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
+                                                : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
+                                                }`}
+                                            aria-label="Keyingi rasm"
+                                        >
+                                            <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </>
+                                    {/* )} */}
+
+                                    <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
+                                        -20% Chegirma
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
+                                <div className="flex flex-col gap-4">
+
+                                    <GlassInput placeholder='mahsulot titlesini yozing...' />
+
+                                    <div className={`p-4 rounded-2xl border ${(theme === 'dark' ? true : false)
+                                        ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                        : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
+                                        }`}>
+                                        <span className={`text-xs block mb-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>Tanlangan Konfiguratsiya Narxi:</span>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                0 UZS
+                                            </span>
+                                            <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                                0 UZS
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <textarea placeholder='Mahsulot tafsifini yozing' rows={4} className={cn(
+                                        'w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200',
+                                        'border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)]',
+                                        (theme === 'dark' ? true : false)
+                                            ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
+                                            : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400')} name="description"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
                     {/* _________________________________ */}

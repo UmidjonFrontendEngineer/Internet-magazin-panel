@@ -32,6 +32,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const token = useTokenStore(state => state.token)
     const [menu, setMenu] = useState(true)
     const [acces, setAcces] = useState(false)
+    const [navOpen, setNavOpen] = useState(false)
     const [tab, setTab] = useState(-1)
     const role = useRoleStore(state => state.role)
     const setRole = useRoleStore(state => state.setRole)
@@ -102,6 +103,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     }
 
     useEffect(() => {
+        const isHome = ['/uz', '/en', '/ru'].includes(pathname)
+        setNavOpen(!isHome)
+    }, [pathname])
+
+    useEffect(() => {
         handleRole()
     }, [selectMarket])
 
@@ -117,9 +123,15 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         console.log(newPath)
 
         if (newPath === 'dashboard') setTab(1)
-        else if (newPath === 'nimadir') setTab(2)
+
+        else if (newPath === 'products') setTab(2)
+
         else if (newPath === 'nimadir') setTab(3)
+
         else if (newPath === 'nimadir') setTab(4)
+        else if (newPath === 'discounts') setTab(4)
+        else if (newPath === 'discountsDashboard') setTab(4)
+
         else if (newPath === 'vacancy') setTab(5)
         else if (newPath === 'nimadir') setTab(6)
         else if (newPath === 'nimadir') setTab(7)
@@ -217,6 +229,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         { label: 'Filters & Attributes', href: '/attributes' },
     ];
 
+    // _______________________________________________________________
+
+    const discounts = [
+        { label: 'Dashboard', href: '/discountsDashboard' },
+        { label: 'Discounts', href: '/discounts' }
+    ]
+
     // ===============================================================
 
     const users = [
@@ -269,8 +288,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 <div className={`absolute top-[30%] right-[-5%] w-[35vw] h-[35vw] rounded-full ${dark ? 'bg-sky-500/10' : 'bg-sky-500/20'} blur-[100px] pointer-events-none z-0`} />
 
                 <div className="relative z-1000000000 flex h-screen p-2 gap-5 max-w-[1700px] mx-auto sm-hide justify-center">
-                    <div className={`fixed inset-0 pointer-events-none z-50 p-4 md:p-6 flex items-center justify-start gap-4`}>
-                        {/* ${(pathname === '/uz' || '/en' || '/ru') ? 'hidden' : ''}  */}
+                    {navOpen && <div className={`fixed inset-0 pointer-events-none z-50 p-4 md:p-6 flex items-center justify-start gap-4`}>
                         <div className={`w-full h-[10vh] z-9999 fixed top-0 duration-300 left-0 bg-gradient-to-b ${dark ? 'from-[#18181b] to-transparent' : 'from-white to-transparent'}`}></div>
                         <div className={`w-full h-[10vh] z-9999 fixed bottom-0 duration-300 left-0 bg-gradient-to-t ${dark ? 'from-[#18181b] to-transparent' : 'from-white to-transparent'}`}></div>
 
@@ -611,6 +629,16 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                     defaultOpen={true}
                                                 />
                                             </div>
+                                            <div className={`backdrop-blur-2xl rounded-3xl ${dark
+                                                ? "bg-neutral-900/20 border-white/10 text-white shadow-xl shadow-black/20"
+                                                : "bg-white/20 border-white/60 text-neutral-900 shadow-xl shadow-black/20"
+                                                }`}>
+                                                <GlassMenu
+                                                    title="Discounts"
+                                                    items={discounts}
+                                                    defaultOpen={true}
+                                                />
+                                            </div>
                                         </> : null}
                                         {tab === 6 ? <>
                                             <div className={`backdrop-blur-2xl rounded-3xl ${dark
@@ -676,7 +704,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                             )}
                         </AnimatePresence>
 
-                    </div>
+                    </div>}
 
                     <div className='fixed top-3 right-3 z-9999'>
                         <ThemeBtn />
