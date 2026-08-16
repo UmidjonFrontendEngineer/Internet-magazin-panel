@@ -53,7 +53,10 @@ function CategoriesContent() {
             const req = await res.json();
 
             if (res.ok) {
-                const filteredData = req.filter((item: Categorie) => item.marketId === selectMarket);
+                const filteredData = req.filter((item: Categorie) => {
+                    const mId = item.marketId || item.marketid;
+                    return mId === selectMarket;
+                });
                 setCategories(filteredData);
             }
         } catch (err) {
