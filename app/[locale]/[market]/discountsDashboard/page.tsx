@@ -1,52 +1,55 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import Image from "next/image";
 import React, { useState, useEffect, Suspense } from "react";
 import { useThemeStore } from "@/app/_store/useThemeStore";
 import GlassTable from "@/components/admin/GlassTable";
 import GlassModal from "@/components/admin/GlassModal";
-import GlassCard from "@/components/admin/GlassCard";
 import GlassButton from "@/components/admin/GlassButton";
 import { useTokenStore } from "@/app/_store/useTokenStore";
 import { useNotification } from "@/components/Notification";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GlassInput from "@/components/admin/GlassInput";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Edit3, Trash2, Plus, Calendar } from "lucide-react";
 
 interface Discount {
-    id: string
-    title: string
-    percentage: number
-    startDate: string
-    endDate: string
-    market: string
-    [key: string]: unknown
+    id: string;
+    title: string;
+    percentage: number;
+    startDate: string;
+    endDate: string;
+    market: string;
+    [key: string]: unknown;
 }
 
 function ApplicationsContent() {
-    const searchParams = useSearchParams();
-    const notify = useNotification()
+    const notify = useNotification();
     const [loading, setLoading] = useState<boolean>(true);
-    const [imageModal, setImageModal] = useState(false)
-    const [isOpen, setIsOpen] = useState(false)
-    const token = useTokenStore(state => state.token)
-    const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
-    const selectMarket = useSelectMarketStore(state => state.selectMarket)
-    const [discounts, setDiscounts] = useState<Discount[]>([])
+    const [isOpen, setIsOpen] = useState(false);
+    const [editId, setEditId] = useState<string | null>(null);
+    const [deleteModal, setDeleteModal] = useState<string | null>(null);
+
+    const token = useTokenStore((state) => state.token);
+    const dark = useThemeStore((state) => state.theme) === "dark";
+    const selectMarket = useSelectMarketStore((state) => state.selectMarket);
+
+    const [discounts, setDiscounts] = useState<Discount[]>([]);
+    const [discountTitle, setDiscountTitle] = useState("");
+    const [discountPercentage, setDiscountPercentage] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await fetch("https://internet-magazin-nest-server.onrender.com/discounts")
+            const res = await fetch("https://internet-magazin-nest-server.onrender.com/discounts");
+            const req = await res.json();
 
-            const req = await res.json()
-
-            if (res.ok) {
-                const filteredData = req.filter((item: Discount) => item.market === selectMarket)
-                setDiscounts(filteredData)
+            if (res.ok && Array.isArray(req)) {
+                const filteredData = req.filter((item: Discount) => item.market === selectMarket);
+                setDiscounts(filteredData);
             }
         } catch (err) {
             console.error("Xatolik:", err);
@@ -59,104 +62,145 @@ function ApplicationsContent() {
         fetchData();
     }, [selectMarket]);
 
-    const handleDiscount = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-
-        const form = e.currentTarget
-        const formDataObj = new FormData(form)
-
-        const title = formDataObj.get('title')
-        const percentage = Number(formDataObj.get('percentage'))
+    const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
         try {
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/discounts', {
-                method: 'POST',
+            const url = editId
+                ? `https://internet-magazin-nest-server.onrender.com/discounts/${editId}`
+                : "https://internet-magazin-nest-server.onrender.com/discounts";
+
+            const method = editId ? "PATCH" : "POST";
+
+            const res = await fetch(url, {
+                method,
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    title,
-                    percentage,
+                    title: discountTitle,
+                    percentage: Number(discountPercentage),
                     startDate: startDate ? startDate.toISOString() : null,
                     endDate: endDate ? endDate.toISOString() : null,
-                    market: selectMarket
-                })
-            })
+                    market: selectMarket,
+                }),
+            });
 
-            const req = await res.json()
+            const req = await res.json();
 
             if (res.ok) {
-                setIsOpen(false)
-                notify.show("Yangi chegirma muaffaqiyatli qo'shildi", 'success', dark ? 'dark' : 'light')
-                setStartDate(null)
-                setEndDate(null)
-                fetchData()
+                setIsOpen(false);
+                setEditId(null);
+                notify.show(
+                    editId ? "Chegirma muvaffaqiyatli yangilandi" : "Yangi chegirma muvaffaqiyatli qo'shildi",
+                    "success",
+                    dark ? "dark" : "light"
+                );
+                resetForm();
+                fetchData();
             } else {
-                notify.show(req.message || 'Nimadir xato ketdi', 'error', dark ? 'dark' : 'light')
+                notify.show(req.message || "Nimadir xato ketdi", "error", dark ? "dark" : "light");
             }
         } catch (err) {
-            notify.show("So'rov yuborilmadi", 'error', dark ? 'dark' : 'light')
-            console.log(err)
+            notify.show("Serverga ulanishda xatolik", "error", dark ? "dark" : "light");
+            console.log(err);
         }
-    }
+    };
+
+    const handleDeleteDiscount = async (id: string) => {
+        try {
+            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/discounts/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (res.ok) {
+                notify.show("Chegirma o'chirildi", "success", dark ? "dark" : "light");
+                fetchData();
+            } else {
+                notify.show("O'chirishda xatolik yuz berdi", "error", dark ? "dark" : "light");
+            }
+        } catch (err) {
+            console.log(err);
+            notify.show("Serverda xatolik", "error", dark ? "dark" : "light");
+        }
+    };
+
+    const handleOpenEdit = (disc: Discount) => {
+        setEditId(disc.id);
+        setDiscountTitle(disc.title);
+        setDiscountPercentage(disc.percentage.toString());
+        setStartDate(disc.startDate ? new Date(disc.startDate) : null);
+        setEndDate(disc.endDate ? new Date(disc.endDate) : null);
+        setIsOpen(true);
+    };
+
+    const handleOpenCreate = () => {
+        setEditId(null);
+        resetForm();
+        setIsOpen(true);
+    };
+
+    const resetForm = () => {
+        setDiscountTitle("");
+        setDiscountPercentage("");
+        setStartDate(null);
+        setEndDate(null);
+    };
 
     return (
         <div className="w-full max-w-[1500px] mx-auto p-8">
             <div className="mb-10 border-l-4 border-sky-500 pl-6 flex justify-between items-center">
                 <div>
                     <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white">Discounts</h1>
+                    <p className="text-sm text-neutral-400 mt-1">Do'kon chegirmalari va aksiyalarni boshqarish</p>
                 </div>
 
-                <GlassButton onClick={() => setIsOpen(true)}>
-                    Create Discount
+                <GlassButton onClick={handleOpenCreate}>
+                    <Plus className="w-4 h-4 mr-2 inline" /> Create Discount
                 </GlassButton>
             </div>
 
             {loading ? (
                 <div className="text-center py-12 text-gray-500 text-lg">Yuklanmoqda...</div>
+            ) : discounts.length === 0 ? (
+                <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
+                    Bu market uchun chegirmalar topilmadi.
+                </div>
             ) : (
                 <GlassTable
                     columns={[
-                        { key: "title", label: "title" },
-                        { key: "percentage", label: "percentage" },
-                        { key: "startDate", label: "startDate" },
-                        { key: "endDate", label: "endDate" },
+                        { key: "title", label: "Chegirma Nomi" },
+                        { key: "percentage", label: "Foiz (%)" },
+                        { key: "startDate", label: "Boshlanish Vaqti" },
+                        { key: "endDate", label: "Tugash Vaqti" },
                     ]}
-                    data={discounts as Record<string, unknown>[]}
+                    data={discounts.map((disc) => ({
+                        ...disc,
+                        percentage: `%${disc.percentage}`,
+                        startDate: disc.startDate ? new Date(disc.startDate).toLocaleString() : "-",
+                        endDate: disc.endDate ? new Date(disc.endDate).toLocaleString() : "-",
+                    })) as Record<string, unknown>[]}
                     actions={(row) => {
+                        const disc = row as unknown as Discount;
+                        const originalDisc = discounts.find(d => d.title === disc.title && d.market === selectMarket) || disc;
+
                         return (
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2">
                                 <button
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-white/5 hover:bg-white/10 transition text-gray-200"
+                                    onClick={() => handleOpenEdit(originalDisc as Discount)}
+                                    className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
+                                    title="Tahrirlash"
                                 >
-                                    .
+                                    <Edit3 className="w-4 h-4" />
                                 </button>
                                 <button
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition flex items-center justify-center"
+                                    onClick={() => setDeleteModal(originalDisc.id)}
+                                    className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
+                                    title="O'chirish"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pen-line-icon lucide-pen-line">
-                                        <path d="M13 21h8" />
-                                        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-                                    </svg>
-                                </button>
-                                <button
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 transition flex items-center justify-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-icon lucide-trash">
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                                        <path d="M3 6h18" />
-                                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </button>
-                                <button
-                                    className="px-3 py-1.5 rounded-lg text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition flex items-center justify-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-cart-icon lucide-shopping-cart">
-                                        <circle cx="8" cy="21" r="1" />
-                                        <circle cx="19" cy="21" r="1" />
-                                        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                                    </svg>
+                                    <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
                         );
@@ -164,52 +208,60 @@ function ApplicationsContent() {
                 />
             )}
 
-            <GlassModal overflow="visible" title="Create discount" open={isOpen} onClose={() => setIsOpen(false)}>
-                <form className="space-y-4 max-h-[80vh] w-full overflow-visible" onSubmit={handleDiscount}>
-                    <GlassInput placeholder='Discount title...' name="title" />
-                    <GlassInput placeholder='Discount percentage...' name="percentage" type="number" />
+            <GlassModal
+                overflow="visible"
+                title={editId ? "Chegirmani Tahrirlash" : "Create Discount"}
+                open={isOpen}
+                onClose={() => setIsOpen(false)}
+            >
+                <form className="space-y-4 max-h-[80vh] w-full overflow-visible pb-10" onSubmit={handleSubmitForm}>
+                    <GlassInput
+                        label="Chegirma Nomi"
+                        placeholder="Chegirma nomi..."
+                        value={discountTitle}
+                        onChange={(e) => setDiscountTitle(e.target.value)}
+                        required
+                    />
+                    <GlassInput
+                        label="Chegirma Foizi"
+                        placeholder="Foiz miqdori (masalan: 20)..."
+                        type="number"
+                        value={discountPercentage}
+                        onChange={(e) => setDiscountPercentage(e.target.value)}
+                        required
+                    />
 
-                    <div className="relative flex items-center">
-                        <span className="absolute left-4 z-10 text-neutral-400 pointer-events-none flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-arrow-down">
-                                <path d="m14 17 4 4 4-4" /><path d="M16 2v3" /><path d="M18 13v8" /><path d="M21 10.354V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h7.343" /><path d="M3 9h18" /><path d="M8 2v3" />
-                            </svg>
-                        </span>
-                        <DatePicker
-                            selected={startDate}
-                            onChange={(date: Date | null) => setStartDate(date)}
-                            showTimeSelect
-                            timeFormat="HH:mm:ss"
-                            timeIntervals={1}
-                            dateFormat="yyyy-MM-dd HH:mm:ss"
-                            placeholderText="Start date & time..."
-                            popperClassName="z-50"
-                            className="w-full rounded-2xl py-3 !z-[9999999] pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500"
-                        />
+                    <div className="space-y-1.5">
+                        <label className="text-xs text-neutral-400 font-medium">Boshlanish sanasi</label>
+                        <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+                            <Calendar className="w-4 h-4 text-sky-400 mr-2" />
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date: Date | null) => setStartDate(date)}
+                                showTimeSelect
+                                dateFormat="Pp"
+                                placeholderText="Boshlanish vaqtini tanlang"
+                                className="bg-transparent text-xs text-white outline-none w-full placeholder:text-neutral-500"
+                            />
+                        </div>
                     </div>
 
-                    <div className="relative flex items-center">
-                        <span className="absolute left-4 z-10 text-neutral-400 pointer-events-none flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar-arrow-up">
-                                <path d="m14 17 4-4 4 4" /><path d="M16 2v3" /><path d="M18 21v-8" /><path d="M21 10.343V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h9" /><path d="M3 9h18" /><path d="M8 2v3" />
-                            </svg>
-                        </span>
-                        <DatePicker
-                            selected={endDate}
-                            onChange={(date: Date | null) => setEndDate(date)}
-                            showTimeSelect
-                            timeFormat="HH:mm:ss"
-                            timeIntervals={1}
-                            dateFormat="yyyy-MM-dd HH:mm:ss"
-                            placeholderText="End date & time..."
-                            popperClassName="z-50"
-                            className="w-full rounded-2xl py-3 !z-[9999999] pl-12 pr-4 outline-none transition-all duration-200 border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] bg-white/5 border-white/10 text-white placeholder:text-neutral-500"
-                        />
+                    <div className="space-y-1.5">
+                        <label className="text-xs text-neutral-400 font-medium">Tugash sanasi</label>
+                        <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+                            <Calendar className="w-4 h-4 text-sky-400 mr-2" />
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date: Date | null) => setEndDate(date)}
+                                showTimeSelect
+                                dateFormat="Pp"
+                                placeholderText="Tugash vaqtini tanlang"
+                                className="bg-transparent text-xs text-white outline-none w-full placeholder:text-neutral-500"
+                            />
+                        </div>
                     </div>
 
-                    <div className="p-6"></div>
-
-                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <div className="flex items-center justify-end gap-3 pt-4">
                         <button
                             onClick={() => setIsOpen(false)}
                             type="button"
@@ -219,12 +271,38 @@ function ApplicationsContent() {
                         </button>
                         <GlassButton
                             type="submit"
-                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20"
                         >
-                            Yuborish
+                            {editId ? "Yangilash" : "Saqlash"}
                         </GlassButton>
                     </div>
                 </form>
+            </GlassModal>
+
+            <GlassModal title="Delete discount" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
+                <div className="space-y-4">
+                    <p className="text-sm text-neutral-400">Haqiqatan ham bu chegirmani o'chirib yubormoqchimisiz?</p>
+
+                    <div className="flex items-center justify-end gap-3 pt-6">
+                        <button
+                            onClick={() => setDeleteModal(null)}
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (deleteModal) {
+                                    handleDeleteDiscount(deleteModal);
+                                    setDeleteModal(null);
+                                }
+                            }}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
             </GlassModal>
         </div>
     );
@@ -232,7 +310,7 @@ function ApplicationsContent() {
 
 export default function ApplicationsPage() {
     return (
-        <Suspense fallback={<div className="p-8 text-center">Yuklanmoqda...</div>}>
+        <Suspense fallback={<div className="p-8 text-center text-white">Yuklanmoqda...</div>}>
             <ApplicationsContent />
         </Suspense>
     );
