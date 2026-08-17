@@ -417,10 +417,8 @@ function CategoriesContent() {
             </GlassModal>
 
             <GlassModal title="Delete category" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
-                <h1>hello</h1>
-
                 <div className="space-y-4">
-                    <p className="text-sm text-neutral-400">Haqiqatan ham akkauntingizni o'chirib yubormoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.</p>
+                    <p className="text-sm text-neutral-400">Haqiqatan ham bu categoryni o'chirib yubormoqchimisiz?</p>
 
                     <div className="p-6"></div>
 
