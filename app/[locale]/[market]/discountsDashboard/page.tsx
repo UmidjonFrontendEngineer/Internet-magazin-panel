@@ -209,7 +209,7 @@ function ApplicationsContent() {
 
                     <div className="p-6"></div>
 
-                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px] bg-neutral-900/40">
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
                             onClick={() => setIsOpen(false)}
                             type="button"

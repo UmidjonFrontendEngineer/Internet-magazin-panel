@@ -398,7 +398,7 @@ function CategoriesContent() {
                         ))}
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-4 backdrop-blur-md rounded-b-[28px] bg-neutral-900/60 border-t border-white/10 z-20">
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
                             onClick={() => setIsOpen(false)}
                             type="button"
@@ -406,7 +406,10 @@ function CategoriesContent() {
                         >
                             Bekor qilish
                         </button>
-                        <GlassButton type="submit" className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95">
+                        <GlassButton
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                        >
                             {editId ? "Yangilash" : "Saqlash"}
                         </GlassButton>
                     </div>
