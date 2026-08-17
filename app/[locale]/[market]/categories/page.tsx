@@ -40,6 +40,7 @@ function CategoriesContent() {
     const [isOpen, setIsOpen] = useState(false);
     const [editId, setEditId] = useState<string | null>(null);
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
+    const [deleteModal, setDeleteModal] = useState<string | null>(null)
 
     const token = useTokenStore((state) => state.token);
     const dark = useThemeStore((state) => state.theme) === "dark";
@@ -164,7 +165,6 @@ function CategoriesContent() {
     };
 
     const handleDeleteCategory = async (id: string) => {
-        if (!confirm("Haqiqatan ham bu kategoriyani o'chirmoqchimisiz?")) return;
         try {
             const res = await fetch(`https://internet-magazin-nest-server.onrender.com/categories/${id}`, {
                 method: "DELETE",
@@ -256,7 +256,7 @@ function CategoriesContent() {
                                             <Edit3 className="w-4 h-4" />
                                         </button>
                                         <button
-                                            onClick={() => handleDeleteCategory(cat.id)}
+                                            onClick={() => setDeleteModal(cat.id)}
                                             className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
                                             title="O'chirish"
                                         >
@@ -414,6 +414,36 @@ function CategoriesContent() {
                         </GlassButton>
                     </div>
                 </form>
+            </GlassModal>
+
+            <GlassModal title="Delete category" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
+                <h1>hello</h1>
+
+                <div className="space-y-4">
+                    <p className="text-sm text-neutral-400">Haqiqatan ham akkauntingizni o'chirib yubormoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.</p>
+
+                    <div className="p-6"></div>
+
+                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                        <button
+                            onClick={() => setDeleteModal(null)}
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (deleteModal) {
+                                    handleDeleteCategory(deleteModal)
+                                    setDeleteModal(null)
+                                }
+                            }}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
             </GlassModal>
         </div>
     );
