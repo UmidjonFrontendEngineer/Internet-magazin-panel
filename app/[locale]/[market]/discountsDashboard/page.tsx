@@ -165,7 +165,7 @@ function ApplicationsContent() {
             )}
 
             <GlassModal overflow="visible" title="Create discount" open={isOpen} onClose={() => setIsOpen(false)}>
-                <form className="relative space-y-4 max-h-[80vh] w-full overflow-visible" onSubmit={handleDiscount}>
+                <form className="space-y-4 max-h-[80vh] w-full overflow-visible" onSubmit={handleDiscount}>
                     <GlassInput placeholder='Discount title...' name="title" />
                     <GlassInput placeholder='Discount percentage...' name="percentage" type="number" />
 

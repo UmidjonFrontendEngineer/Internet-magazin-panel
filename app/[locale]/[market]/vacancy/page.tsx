@@ -420,7 +420,7 @@ const Vacancy = () => {
 
             {isOpen && (
                 <GlassModal title="Elon berish" open={isOpen} size='full' className='relative' onClose={() => setIsOpen(false)}>
-                    <form className="relative space-y-4 max-h-[80vh] w-full overflow-hidden" onSubmit={handleSubmit}>
+                    <form className="space-y-4 max-h-[80vh] w-full overflow-hidden" onSubmit={handleSubmit}>
                         <div
                             className="w-[400%] flex gap-6 transition-transform duration-500 ease-out"
                             style={{ transform: `translateX(-${sliderCount * (100 / 4)}%)` }}
@@ -589,7 +589,7 @@ const Vacancy = () => {
 
             {applyModal && (
                 <GlassModal title='Ariza topshirish' open={applyModal} onClose={() => setApplyModal(false)} size='3xl'>
-                    <form className="relative space-y-4 max-h-[80vh] w-full overflow-hidden" onSubmit={handleApply}>
+                    <form className="space-y-4 max-h-[80vh] w-full overflow-hidden" onSubmit={handleApply}>
                         <div>
                             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Xabar (Message)</label>
                             <textarea

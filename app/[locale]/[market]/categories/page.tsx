@@ -302,7 +302,7 @@ function CategoriesContent() {
             )}
 
             <GlassModal size="2xl" overflow="visible" title={editId ? "Kategoriyani Tahrirlash" : "Create Category with Options"} open={isOpen} onClose={() => setIsOpen(false)}>
-                <form className="relative space-y-6 max-h-[75vh] w-full overflow-y-auto px-1 pb-20" onSubmit={handleSubmitForm}>
+                <form className="space-y-4 max-h-[75vh] w-full overflow-y-auto px-1 pb-20" onSubmit={handleSubmitForm}>
                     <GlassInput
                         label="Kategoriya Nomi"
                         placeholder="Masalan: Elektronika, Kiyim-kechak..."
@@ -330,7 +330,7 @@ function CategoriesContent() {
                             >
                                 <div className="flex items-center gap-3">
                                     <GlassInput
-                                        placeholder="Option nomi (Masalan: Rangi, Razmeri)..."
+                                        placeholder="Option nomi (Masalan: Rangi, O'lchami)..."
                                         value={opt.title}
                                         onChange={(e) => {
                                             const updated = [...optionsList];
