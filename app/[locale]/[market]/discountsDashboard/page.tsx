@@ -210,7 +210,7 @@ function ApplicationsContent() {
 
             <GlassModal
                 overflow="visible"
-                title={editId ? "Chegirmani Tahrirlash" : "Create Discount"}
+                title={editId ? "Discount update" : "Create Discount"}
                 open={isOpen}
                 onClose={() => setIsOpen(false)}
             >
@@ -261,19 +261,19 @@ function ApplicationsContent() {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 pt-4">
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
                             onClick={() => setIsOpen(false)}
                             type="button"
                             className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                         >
-                            Bekor qilish
+                            Cancel
                         </button>
                         <GlassButton
                             type="submit"
                             className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20"
                         >
-                            {editId ? "Yangilash" : "Saqlash"}
+                            {editId ? "Update" : "Save"}
                         </GlassButton>
                     </div>
                 </form>
@@ -283,7 +283,7 @@ function ApplicationsContent() {
                 <div className="space-y-4">
                     <p className="text-sm text-neutral-400">Haqiqatan ham bu chegirmani o'chirib yubormoqchimisiz?</p>
 
-                    <div className="flex items-center justify-end gap-3 pt-6">
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
                             onClick={() => setDeleteModal(null)}
                             className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
