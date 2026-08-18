@@ -132,6 +132,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         else if (newPath === 'categories') setTab(4)
         else if (newPath === 'discounts') setTab(4)
         else if (newPath === 'discountsDashboard') setTab(4)
+        else if (newPath === 'sliders') setTab(4)
 
         else if (newPath === 'vacancy') setTab(5)
         else if (newPath === 'nimadir') setTab(6)

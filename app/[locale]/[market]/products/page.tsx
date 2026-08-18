@@ -9,6 +9,7 @@ import GlassModal from "@/components/admin/GlassModal";
 import { useNotification } from "@/components/Notification";
 import { useTokenStore } from "@/app/_store/useTokenStore";
 import { cn } from "@/lib/utils/cn";
+import Item from "./_components/item";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -206,6 +207,17 @@ const ProductsGet = () => {
 
     const [activeImageIndices, setActiveImageIndices] = useState<{ [key: number]: number }>({});
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: { [groupName: string]: number } }>({});
+
+    // ========= New Product =========
+
+    const [imagesLength, setImagesLength] = useState(1)
+    const [currentImageIndex, setCurrentImageIndex] = useState(0)
+    const [descriptionLan, setDescriptionLan] = useState('uz')
+    const [discountId, setDiscountId] = useState('')
+    const [categoryId, setCategoryId] = useState('')
+    const [itemsLenght, setItemsLenght] = useState(1)
+
+    // ========= New Product =========
 
     useEffect(() => {
         const fetchData = async () => {
@@ -536,103 +548,10 @@ const ProductsGet = () => {
 
             <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title='Create Product' size="full">
                 <form onSubmit={handleCreateProduct}>
-                    {/* ________________________ */}
 
-                    <div className="space-y-10">
-                        <div
-                            className={`relative grid p-4 rounded-2xl grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden transition-colors duration-300`}
-                        >
-                            <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
-
-                                <div className="col-span-2 flex flex-col gap-2.5 max-h-95 overflow-y-auto pr-1 scrollbar-thin">
-                                    <button className={`text-4xl relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
-                                        }`}>
-                                        +
-                                    </button>
-                                </div>
-
-                                <div className={`col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${(theme === 'dark' ? true : false)
-                                    ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                    : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                    }`}>
-
-                                    <div className="relative w-full h-full p-4 transition-transform duration-500 ease-out group-hover/slider:scale-105">
-                                        {/* <Image
-                                            src={currentImageUrl}
-                                            alt={data[0].title}
-                                            fill
-                                            className="object-contain p-4"
-                                            sizes="500px"
-                                        /> */}
-                                    </div>
-                                    <>
-                                        <button
-                                            onClick={() => handlePrevImage(data[0].id, data[0].images.length)}
-                                            className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
-                                                ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
-                                                : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
-                                                }`}
-                                            aria-label="Oldingi rasm"
-                                        >
-                                            <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                                            </svg>
-                                        </button>
-
-                                        <button
-                                            onClick={() => handleNextImage(data[0].id, data[0].images.length)}
-                                            className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
-                                                ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
-                                                : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
-                                                }`}
-                                            aria-label="Keyingi rasm"
-                                        >
-                                            <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </button>
-                                    </>
-                                    {/* )} */}
-
-                                    <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
-                                        -20% Chegirma
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
-                                <div className="flex flex-col gap-4">
-
-                                    <GlassInput placeholder='mahsulot titlesini yozing...' />
-
-                                    <div className={`p-4 rounded-2xl border ${(theme === 'dark' ? true : false)
-                                        ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                        : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                        }`}>
-                                        <span className={`text-xs block mb-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>Tanlangan Konfiguratsiya Narxi:</span>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                                                0 UZS
-                                            </span>
-                                            <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                0 UZS
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <textarea placeholder='Mahsulot tafsifini yozing' rows={4} className={cn(
-                                        'w-full rounded-2xl py-3 px-4 outline-none transition-all duration-200',
-                                        'border focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)]',
-                                        (theme === 'dark' ? true : false)
-                                            ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                            : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400')} name="description"></textarea>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    {/* _________________________________ */}
+                    {Array.from({ length: itemsLenght }).map((_, index) => (
+                        <Item key={index} cIndex={index} setItemsLenght={setItemsLenght} />
+                    ))}
 
                     <div className="p-6"></div>
 
