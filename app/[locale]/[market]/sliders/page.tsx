@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useThemeStore } from "@/app/_store/useThemeStore";
 import GlassTable from "@/components/admin/GlassTable";
 import GlassModal from "@/components/admin/GlassModal";
@@ -9,19 +9,23 @@ import { useTokenStore } from "@/app/_store/useTokenStore";
 import { useNotification } from "@/components/Notification";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GlassInput from "@/components/admin/GlassInput";
-import { Edit3, Trash2, Plus, Image as ImageIcon, ExternalLink } from "lucide-react";
+import { 
+  Edit3, Trash2, Plus, ExternalLink, 
+  ChevronLeft, ChevronRight, LayoutGrid, Table as TableIcon, Upload, Image as ImageIcon 
+} from "lucide-react";
 
 interface Slider {
     id: string;
-    imageUrl: string;
-    redirectUrl: string;
-    market: string;
+    image: string;
+    link: string;
+    marketId: string;
     [key: string]: unknown;
 }
 
 function SlidersContent() {
     const notify = useNotification();
     const [loading, setLoading] = useState<boolean>(true);
+    const [viewMode, setViewMode] = useState<"slider" | "table">("slider");
     const [isOpen, setIsOpen] = useState(false);
     const [editId, setEditId] = useState<string | null>(null);
     const [deleteModal, setDeleteModal] = useState<string | null>(null);
@@ -29,10 +33,16 @@ function SlidersContent() {
     const token = useTokenStore((state) => state.token);
     const dark = useThemeStore((state) => state.theme) === "dark";
     const selectMarket = useSelectMarketStore((state) => state.selectMarket);
-
+    
     const [sliders, setSliders] = useState<Slider[]>([]);
-    const [imageUrl, setImageUrl] = useState("");
-    const [redirectUrl, setRedirectUrl] = useState("");
+    const [link, setLink] = useState("");
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>("");
+
+    const sliderRef = useRef<HTMLDivElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
 
     const fetchData = async () => {
         try {
@@ -41,7 +51,7 @@ function SlidersContent() {
             const req = await res.json();
 
             if (res.ok && Array.isArray(req)) {
-                const filteredData = req.filter((item: Slider) => item.market === selectMarket);
+                const filteredData = req.filter((item: Slider) => item.marketId === selectMarket);
                 setSliders(filteredData);
             }
         } catch (err) {
@@ -59,6 +69,13 @@ function SlidersContent() {
         e.preventDefault();
 
         try {
+            const formData = new FormData();
+            formData.append("link", link);
+            formData.append("marketId", selectMarket);
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+
             const url = editId
                 ? `https://internet-magazin-nest-server.onrender.com/sliders/${editId}`
                 : "https://internet-magazin-nest-server.onrender.com/sliders";
@@ -69,13 +86,8 @@ function SlidersContent() {
                 method,
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    imageUrl,
-                    redirectUrl,
-                    market: selectMarket,
-                }),
+                body: formData,
             });
 
             const req = await res.json();
@@ -120,8 +132,9 @@ function SlidersContent() {
 
     const handleOpenEdit = (slider: Slider) => {
         setEditId(slider.id);
-        setImageUrl(slider.imageUrl);
-        setRedirectUrl(slider.redirectUrl);
+        setLink(slider.link);
+        setImagePreview(slider.image);
+        setImageFile(null);
         setIsOpen(true);
     };
 
@@ -132,21 +145,73 @@ function SlidersContent() {
     };
 
     const resetForm = () => {
-        setImageUrl("");
-        setRedirectUrl("");
+        setLink("");
+        setImageFile(null);
+        setImagePreview("");
+    };
+
+    const handlePointerDown = (e: React.PointerEvent) => {
+        setIsDragging(true);
+        setStartX(e.pageX - (sliderRef.current?.offsetLeft || 0));
+        setScrollLeft(sliderRef.current?.scrollLeft || 0);
+    };
+
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - (sliderRef.current?.offsetLeft || 0);
+        const walk = (x - startX) * 2;
+        if (sliderRef.current) {
+            sliderRef.current.scrollLeft = scrollLeft - walk;
+        }
+    };
+
+    const handlePointerUp = () => {
+        setIsDragging(false);
+    };
+
+    const scrollSlider = (direction: "left" | "right") => {
+        if (sliderRef.current) {
+            const { clientWidth } = sliderRef.current;
+            sliderRef.current.scrollBy({
+                left: direction === "left" ? -clientWidth / 2 : clientWidth / 2,
+                behavior: "smooth",
+            });
+        }
     };
 
     return (
         <div className="w-full max-w-[1500px] mx-auto p-8">
-            <div className="mb-10 border-l-4 border-sky-500 pl-6 flex justify-between items-center">
+            <div className="mb-8 border-l-4 border-sky-500 pl-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white">Sliders (Bannerlar)</h1>
                     <p className="text-sm text-neutral-400 mt-1">Do'kon uchun reklama bannerlarini boshqarish</p>
                 </div>
 
-                <GlassButton onClick={handleOpenCreate}>
-                    <Plus className="w-4 h-4 mr-2 inline" /> Create Slider
-                </GlassButton>
+                <div className="flex items-center gap-4">
+                    <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
+                        <button
+                            onClick={() => setViewMode("slider")}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                viewMode === "slider" ? "bg-sky-500 text-white shadow" : "text-neutral-400 hover:text-white"
+                            }`}
+                        >
+                            <LayoutGrid className="w-3.5 h-3.5" /> Slider
+                        </button>
+                        <button
+                            onClick={() => setViewMode("table")}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                viewMode === "table" ? "bg-sky-500 text-white shadow" : "text-neutral-400 hover:text-white"
+                            }`}
+                        >
+                            <TableIcon className="w-3.5 h-3.5" /> Table
+                        </button>
+                    </div>
+
+                    <GlassButton onClick={handleOpenCreate}>
+                        <Plus className="w-4 h-4 mr-2 inline" /> Create Slider
+                    </GlassButton>
+                </div>
             </div>
 
             {loading ? (
@@ -155,29 +220,93 @@ function SlidersContent() {
                 <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
                     Bu market uchun sliderlar topilmadi.
                 </div>
+            ) : viewMode === "slider" ? (
+                <div className="relative group">
+                    <button 
+                        onClick={() => scrollSlider("left")}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-3 bg-black/60 hover:bg-sky-500 text-white rounded-full backdrop-blur-md transition shadow-lg opacity-0 group-hover:opacity-100"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button 
+                        onClick={() => scrollSlider("right")}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-3 bg-black/60 hover:bg-sky-500 text-white rounded-full backdrop-blur-md transition shadow-lg opacity-0 group-hover:opacity-100"
+                    >
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
+
+                    <div
+                        ref={sliderRef}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerLeave={handlePointerUp}
+                        className="flex gap-6 overflow-x-auto scrollbar-none select-none cursor-grab active:cursor-grabbing pb-6 pt-2 px-2"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
+                        {sliders.map((slider) => (
+                            <div
+                                key={slider.id}
+                                className="min-w-[380px] md:min-w-[450px] h-[240px] rounded-2xl overflow-hidden relative group/card border border-white/10 bg-white/5 flex-shrink-0 shadow-xl"
+                            >
+                                <img src={slider.image} alt="Slider" className="w-full h-full object-cover pointer-events-none" />
+                                
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            onClick={() => handleOpenEdit(slider)}
+                                            className="p-2 bg-sky-500/80 hover:bg-sky-500 text-white rounded-xl backdrop-blur-md transition shadow"
+                                            title="Tahrirlash"
+                                        >
+                                            <Edit3 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => setDeleteModal(slider.id)}
+                                            className="p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-xl backdrop-blur-md transition shadow"
+                                            title="O'chirish"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center justify-between bg-black/40 backdrop-blur-md p-3 rounded-xl border border-white/10">
+                                        <a
+                                            href={slider.link}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-xs text-sky-300 truncate max-w-[300px] hover:underline flex items-center gap-1.5"
+                                        >
+                                            {slider.link} <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             ) : (
                 <GlassTable
                     columns={[
                         { key: "preview", label: "Rasm" },
-                        { key: "redirectUrl", label: "O'tish manzili (Link)" },
+                        { key: "link", label: "O'tish manzili (Link)" },
                     ]}
                     data={sliders.map((slider) => ({
                         ...slider,
                         preview: (
-                            <img
-                                src={slider.imageUrl}
-                                alt="Slider"
-                                className="w-24 h-12 object-cover rounded-lg border border-white/10"
+                            <img 
+                                src={slider.image} 
+                                alt="Slider" 
+                                className="w-24 h-12 object-cover rounded-lg border border-white/10" 
                             />
                         ),
-                        redirectUrl: (
-                            <a
-                                href={slider.redirectUrl}
-                                target="_blank"
-                                rel="noreferrer"
+                        link: (
+                            <a 
+                                href={slider.link} 
+                                target="_blank" 
+                                rel="noreferrer" 
                                 className="text-sky-400 hover:underline flex items-center gap-1"
                             >
-                                {slider.redirectUrl} <ExternalLink className="w-3 h-3" />
+                                {slider.link} <ExternalLink className="w-3 h-3" />
                             </a>
                         )
                     })) as Record<string, unknown>[]}
@@ -214,25 +343,43 @@ function SlidersContent() {
             >
                 <form className="space-y-4 w-full pb-4" onSubmit={handleSubmitForm}>
                     <GlassInput
-                        label="Rasm havolasi (Image URL)"
-                        placeholder="https://example.com/image.jpg..."
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        required
-                    />
-                    <GlassInput
-                        label="Yo'naltirish havolasi (Redirect URL)"
-                        placeholder="https://example.com/category/... yoki mahsulot linki"
-                        value={redirectUrl}
-                        onChange={(e) => setRedirectUrl(e.target.value)}
+                        label="Yo'naltirish havolasi (Link)"
+                        placeholder="https://example.com/category/..."
+                        value={link}
+                        onChange={(e) => setLink(e.target.value)}
                         required
                     />
 
-                    {imageUrl && (
+                    <div className="space-y-1.5">
+                        <label className="text-xs text-neutral-400 font-medium">Banner Rasmi</label>
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-2xl cursor-pointer bg-white/5 hover:bg-white/10 transition">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
+                                <Upload className="w-6 h-6 text-sky-400 mb-2" />
+                                <p className="text-xs text-neutral-300">
+                                    <span className="font-semibold text-sky-400">Rasm yuklash uchun bosing</span>
+                                </p>
+                                <p className="text-[10px] text-neutral-500 mt-1">PNG, JPG, WEBP (Cloudinaryga yuklanadi)</p>
+                            </div>
+                            <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        const file = e.target.files[0];
+                                        setImageFile(file);
+                                        setImagePreview(URL.createObjectURL(file));
+                                    }
+                                }}
+                            />
+                        </label>
+                    </div>
+
+                    {imagePreview && (
                         <div className="space-y-1.5">
-                            <label className="text-xs text-neutral-400 font-medium">Ko'rinishi (Preview)</label>
+                            <label className="text-xs text-neutral-400 font-medium">Tanlangan rasm ko'rinishi</label>
                             <div className="w-full h-32 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
-                                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = "")} />
+                                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                             </div>
                         </div>
                     )}
@@ -258,8 +405,6 @@ function SlidersContent() {
             <GlassModal title="Delete slider" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
                 <div className="space-y-4">
                     <p className="text-sm text-neutral-400">Haqiqatan ham bu sliderni o'chirib yubormoqchimisiz?</p>
-
-                    <div className="p-6"></div>
 
                     <div className="flex items-center justify-end gap-3 pt-6">
                         <button
@@ -289,9 +434,7 @@ function SlidersContent() {
 export default function SlidersPage() {
     return (
         <Suspense fallback={<div className="p-8 text-center text-white">Yuklanmoqda...</div>}>
-            <Suspense fallback={null}>
-                <SlidersContent />
-            </Suspense>
+            <SlidersContent />
         </Suspense>
     );
 }
