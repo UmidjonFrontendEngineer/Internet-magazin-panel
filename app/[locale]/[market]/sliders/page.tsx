@@ -13,6 +13,7 @@ import {
     Edit3, Trash2, Plus, ExternalLink,
     ChevronLeft, ChevronRight, LayoutGrid, Table as TableIcon, Upload, Image as ImageIcon
 } from "lucide-react";
+import GlassCustomTable from "@/components/admin/GlassCustomTable";
 
 interface Slider {
     id: string;
@@ -283,22 +284,22 @@ function SlidersContent() {
                     </div>
                 </div>
             ) : (
-                <GlassTable
+                <GlassCustomTable
                     columns={[
-                        { key: "image", label: "Rasm" },
-                        { key: "link", label: "O'tish manzili (Link)" },
+                        { key: "image", label: "Image" },
+                        { key: "link", label: "Link" },
                     ]}
                     data={sliders.map((slider) => ({
                         id: slider.id,
                         marketId: slider.marketId,
                         image: (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-4">
                                 <img
                                     src={slider.image}
                                     alt="Slider"
-                                    className="w-28 h-14 object-cover rounded-xl border border-white/10 shadow-md flex-shrink-0"
+                                    className="w-32 h-16 object-cover rounded-xl border border-white/20 shadow-md flex-shrink-0"
                                 />
-                                <span className="text-xs text-neutral-400 truncate max-w-[200px]">{slider.image}</span>
+                                <span className="text-xs text-neutral-400 truncate max-w-[250px] font-mono">{slider.image}</span>
                             </div>
                         ),
                         link: (
@@ -306,27 +307,26 @@ function SlidersContent() {
                                 href={slider.link}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-sky-400 hover:underline flex items-center gap-1.5 text-xs font-medium truncate max-w-[300px]"
+                                className="text-sky-400 hover:underline flex items-center gap-1.5 text-xs font-medium truncate max-w-[350px]"
                             >
                                 {slider.link} <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                             </a>
                         )
-                    })) as Record<string, unknown>[]}
+                    })) as Record<string, React.ReactNode>[]}
                     actions={(row) => {
-                        const slider = row as unknown as Slider;
-                        const originalSlider = sliders.find(s => s.id === slider.id) || slider;
+                        const slider = sliders.find(s => s.id === row.id) || (row as unknown as Slider);
 
                         return (
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => handleOpenEdit(originalSlider as Slider)}
+                                    onClick={() => handleOpenEdit(slider)}
                                     className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
                                     title="Tahrirlash"
                                 >
                                     <Edit3 className="w-4 h-4" />
                                 </button>
                                 <button
-                                    onClick={() => setDeleteModal(originalSlider.id)}
+                                    onClick={() => setDeleteModal(slider.id)}
                                     className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
                                     title="O'chirish"
                                 >
