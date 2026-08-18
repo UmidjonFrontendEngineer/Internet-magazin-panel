@@ -33,15 +33,15 @@ const MiniItem = ({ index, cIndex, setItemLenght }: { index: number, cIndex: num
 
     return (
         <div
-            className={`flex justify-between items-center text-xs font-medium px-4 py-3 rounded-lg border transition-all duration-200 ${isSelected
+            className={`flex justify-between items-center text-xs font-medium px-2 py-2 gap-2 rounded-xl border transition-all duration-200 ${isSelected
                 ? "bg-sky-500/10 text-sky-500 border-sky-500/50 shadow-[0_0_12px_rgba(14,165,233,0.1)]"
                 : theme === 'dark'
                     ? "bg-zinc-800/20 text-zinc-300 border-zinc-800 hover:bg-zinc-800/40 hover:border-zinc-700"
                     : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300"
                 }`}
         >
-            <GlassInput name={`title-${cIndex}-${index}`} onChange={(e) => setTitle(e.target.value)} value={title} />
-            <GlassInput name={`value-${cIndex}-${index}`} type='number' onChange={(e: any) => {
+            <GlassInput className='w-full' name={`title-${cIndex}-${index}`} onChange={(e) => setTitle(e.target.value)} value={title} placeholder='key' />
+            <GlassInput className='w-full' name={`value-${cIndex}-${index}`} type='number' placeholder='value' onChange={(e: any) => {
                 const val = e.target.value;
                 if (val === '' || /^\d+$/.test(val)) {
                     setValue(val === '' ? undefined : Number(val));

@@ -33,8 +33,8 @@ const Item = ({ cIndex, setItemsLenght }: { cIndex: number, setItemsLenght: Reac
     }, [title, setItemsLenght])
 
     return (
-        <div className={`p-4 rounded-xl border ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800' : 'bg-gray-50 border-zinc-200'}`}>
-            <GlassInput onChange={(e) => setTitle(e.target.value)} value={title} name={`title-${cIndex}`} />
+        <div className={`p-4 flex flex-col gap-4 backdrop-blur-sm rounded-2xl border ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800' : 'bg-gray-50 border-zinc-200'}`}>
+            <GlassInput onChange={(e) => setTitle(e.target.value)} value={title} name={`title-${cIndex}`} placeholder='option title' />
             <div className="flex flex-col gap-2">
                 {Array.from({ length: itemLenght }).map((_, index) => (
                     <MiniItem key={index} index={index} cIndex={cIndex} setItemLenght={setItemLenght} />

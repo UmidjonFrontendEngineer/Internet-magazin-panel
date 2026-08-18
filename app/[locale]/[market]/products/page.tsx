@@ -549,9 +549,11 @@ const ProductsGet = () => {
             <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title='Create Product' size="full">
                 <form onSubmit={handleCreateProduct}>
 
-                    {Array.from({ length: itemsLenght }).map((_, index) => (
-                        <Item key={index} cIndex={index} setItemsLenght={setItemsLenght} />
-                    ))}
+                    <div className="flex flex-col p-3 gap-3">
+                        {Array.from({ length: itemsLenght }).map((_, index) => (
+                            <Item key={index} cIndex={index} setItemsLenght={setItemsLenght} />
+                        ))}
+                    </div>
 
                     <div className="p-6"></div>
 
@@ -561,13 +563,13 @@ const ProductsGet = () => {
                             type="button"
                             className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                         >
-                            Bekor qilish
+                            Cancel
                         </button>
                         <GlassButton
                             type="submit"
                             className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                         >
-                            Yuborish
+                            Save
                         </GlassButton>
                     </div>
                 </form>
