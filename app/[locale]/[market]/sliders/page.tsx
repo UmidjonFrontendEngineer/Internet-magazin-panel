@@ -9,9 +9,9 @@ import { useTokenStore } from "@/app/_store/useTokenStore";
 import { useNotification } from "@/components/Notification";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GlassInput from "@/components/admin/GlassInput";
-import { 
-  Edit3, Trash2, Plus, ExternalLink, 
-  ChevronLeft, ChevronRight, LayoutGrid, Table as TableIcon, Upload, Image as ImageIcon 
+import {
+    Edit3, Trash2, Plus, ExternalLink,
+    ChevronLeft, ChevronRight, LayoutGrid, Table as TableIcon, Upload, Image as ImageIcon
 } from "lucide-react";
 
 interface Slider {
@@ -33,7 +33,7 @@ function SlidersContent() {
     const token = useTokenStore((state) => state.token);
     const dark = useThemeStore((state) => state.theme) === "dark";
     const selectMarket = useSelectMarketStore((state) => state.selectMarket);
-    
+
     const [sliders, setSliders] = useState<Slider[]>([]);
     const [link, setLink] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -192,17 +192,15 @@ function SlidersContent() {
                     <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
                         <button
                             onClick={() => setViewMode("slider")}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                viewMode === "slider" ? "bg-sky-500 text-white shadow" : "text-neutral-400 hover:text-white"
-                            }`}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode === "slider" ? "bg-sky-500 text-white shadow" : "text-neutral-400 hover:text-white"
+                                }`}
                         >
                             <LayoutGrid className="w-3.5 h-3.5" /> Slider
                         </button>
                         <button
                             onClick={() => setViewMode("table")}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                viewMode === "table" ? "bg-sky-500 text-white shadow" : "text-neutral-400 hover:text-white"
-                            }`}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode === "table" ? "bg-sky-500 text-white shadow" : "text-neutral-400 hover:text-white"
+                                }`}
                         >
                             <TableIcon className="w-3.5 h-3.5" /> Table
                         </button>
@@ -222,13 +220,13 @@ function SlidersContent() {
                 </div>
             ) : viewMode === "slider" ? (
                 <div className="relative group">
-                    <button 
+                    <button
                         onClick={() => scrollSlider("left")}
                         className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-3 bg-black/60 hover:bg-sky-500 text-white rounded-full backdrop-blur-md transition shadow-lg opacity-0 group-hover:opacity-100"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <button 
+                    <button
                         onClick={() => scrollSlider("right")}
                         className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-3 bg-black/60 hover:bg-sky-500 text-white rounded-full backdrop-blur-md transition shadow-lg opacity-0 group-hover:opacity-100"
                     >
@@ -250,7 +248,7 @@ function SlidersContent() {
                                 className="min-w-[380px] md:min-w-[450px] h-[240px] rounded-2xl overflow-hidden relative group/card border border-white/10 bg-white/5 flex-shrink-0 shadow-xl"
                             >
                                 <img src={slider.image} alt="Slider" className="w-full h-full object-cover pointer-events-none" />
-                                
+
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4">
                                     <div className="flex justify-end gap-2">
                                         <button
@@ -287,26 +285,30 @@ function SlidersContent() {
             ) : (
                 <GlassTable
                     columns={[
-                        { key: "preview", label: "Rasm" },
+                        { key: "image", label: "Rasm" },
                         { key: "link", label: "O'tish manzili (Link)" },
                     ]}
                     data={sliders.map((slider) => ({
-                        ...slider,
-                        preview: (
-                            <img 
-                                src={slider.image} 
-                                alt="Slider" 
-                                className="w-24 h-12 object-cover rounded-lg border border-white/10" 
-                            />
+                        id: slider.id,
+                        marketId: slider.marketId,
+                        image: (
+                            <div className="flex items-center gap-3">
+                                <img
+                                    src={slider.image}
+                                    alt="Slider"
+                                    className="w-28 h-14 object-cover rounded-xl border border-white/10 shadow-md flex-shrink-0"
+                                />
+                                <span className="text-xs text-neutral-400 truncate max-w-[200px]">{slider.image}</span>
+                            </div>
                         ),
                         link: (
-                            <a 
-                                href={slider.link} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                className="text-sky-400 hover:underline flex items-center gap-1"
+                            <a
+                                href={slider.link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-sky-400 hover:underline flex items-center gap-1.5 text-xs font-medium truncate max-w-[300px]"
                             >
-                                {slider.link} <ExternalLink className="w-3 h-3" />
+                                {slider.link} <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                             </a>
                         )
                     })) as Record<string, unknown>[]}
@@ -360,9 +362,9 @@ function SlidersContent() {
                                 </p>
                                 <p className="text-[10px] text-neutral-500 mt-1">PNG, JPG, WEBP (Cloudinaryga yuklanadi)</p>
                             </div>
-                            <input 
-                                type="file" 
-                                className="hidden" 
+                            <input
+                                type="file"
+                                className="hidden"
                                 accept="image/*"
                                 onChange={(e) => {
                                     if (e.target.files && e.target.files[0]) {
