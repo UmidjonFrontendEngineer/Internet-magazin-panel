@@ -40,8 +40,13 @@ const MiniItem = ({ index, cIndex, setItemLenght }: { index: number, cIndex: num
                     : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300"
                 }`}
         >
-            <GlassInput name={`title-${cIndex}-${index}`} onChange={(text: string) => setTitle(text)} value={title} />
-            <GlassInput name={`value-${cIndex}-${index}`} type='number' onChange={(text: number) => setValue(text)} value={value} />
+            <GlassInput name={`title-${cIndex}-${index}`} onChange={(e) => setTitle(e.target.value)} value={title} />
+            <GlassInput name={`value-${cIndex}-${index}`} type='number' onChange={(e: any) => {
+                const val = e.target.value;
+                if (val === '' || /^\d+$/.test(val)) {
+                    setValue(val === '' ? undefined : Number(val));
+                }
+            }} value={value} />
         </div>
     )
 }
