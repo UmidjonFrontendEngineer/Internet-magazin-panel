@@ -1,242 +1,297 @@
-'use client'
-import React, { useState } from 'react'
-import Image from 'next/image'
-import { useParams, useRouter } from 'next/navigation'
+"use client";
 
-interface SliderItem {
-    id: string
-    imageUrl: string
-    link: string
+import React, { useState, useEffect, Suspense } from "react";
+import { useThemeStore } from "@/app/_store/useThemeStore";
+import GlassTable from "@/components/admin/GlassTable";
+import GlassModal from "@/components/admin/GlassModal";
+import GlassButton from "@/components/admin/GlassButton";
+import { useTokenStore } from "@/app/_store/useTokenStore";
+import { useNotification } from "@/components/Notification";
+import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
+import GlassInput from "@/components/admin/GlassInput";
+import { Edit3, Trash2, Plus, Image as ImageIcon, ExternalLink } from "lucide-react";
+
+interface Slider {
+    id: string;
+    imageUrl: string;
+    redirectUrl: string;
+    market: string;
+    [key: string]: unknown;
+}
+
+function SlidersContent() {
+    const notify = useNotification();
+    const [loading, setLoading] = useState<boolean>(true);
+    const [isOpen, setIsOpen] = useState(false);
+    const [editId, setEditId] = useState<string | null>(null);
+    const [deleteModal, setDeleteModal] = useState<string | null>(null);
+
+    const token = useTokenStore((state) => state.token);
+    const dark = useThemeStore((state) => state.theme) === "dark";
+    const selectMarket = useSelectMarketStore((state) => state.selectMarket);
+
+    const [sliders, setSliders] = useState<Slider[]>([]);
+    const [imageUrl, setImageUrl] = useState("");
+    const [redirectUrl, setRedirectUrl] = useState("");
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch("https://internet-magazin-nest-server.onrender.com/sliders");
+            const req = await res.json();
+
+            if (res.ok && Array.isArray(req)) {
+                const filteredData = req.filter((item: Slider) => item.market === selectMarket);
+                setSliders(filteredData);
+            }
+        } catch (err) {
+            console.error("Xatolik:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [selectMarket]);
+
+    const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        try {
+            const url = editId
+                ? `https://internet-magazin-nest-server.onrender.com/sliders/${editId}`
+                : "https://internet-magazin-nest-server.onrender.com/sliders";
+
+            const method = editId ? "PATCH" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    imageUrl,
+                    redirectUrl,
+                    market: selectMarket,
+                }),
+            });
+
+            const req = await res.json();
+
+            if (res.ok) {
+                setIsOpen(false);
+                setEditId(null);
+                notify.show(
+                    editId ? "Slider muvaffaqiyatli yangilandi" : "Yangi slider muvaffaqiyatli qo'shildi",
+                    "success",
+                    dark ? "dark" : "light"
+                );
+                resetForm();
+                fetchData();
+            } else {
+                notify.show(req.message || "Nimadir xato ketdi", "error", dark ? "dark" : "light");
+            }
+        } catch (err) {
+            notify.show("Serverga ulanishda xatolik", "error", dark ? "dark" : "light");
+            console.log(err);
+        }
+    };
+
+    const handleDeleteSlider = async (id: string) => {
+        try {
+            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/sliders/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (res.ok) {
+                notify.show("Slider o'chirildi", "success", dark ? "dark" : "light");
+                fetchData();
+            } else {
+                notify.show("O'chirishda xatolik yuz berdi", "error", dark ? "dark" : "light");
+            }
+        } catch (err) {
+            console.log(err);
+            notify.show("Serverda xatolik", "error", dark ? "dark" : "light");
+        }
+    };
+
+    const handleOpenEdit = (slider: Slider) => {
+        setEditId(slider.id);
+        setImageUrl(slider.imageUrl);
+        setRedirectUrl(slider.redirectUrl);
+        setIsOpen(true);
+    };
+
+    const handleOpenCreate = () => {
+        setEditId(null);
+        resetForm();
+        setIsOpen(true);
+    };
+
+    const resetForm = () => {
+        setImageUrl("");
+        setRedirectUrl("");
+    };
+
+    return (
+        <div className="w-full max-w-[1500px] mx-auto p-8">
+            <div className="mb-10 border-l-4 border-sky-500 pl-6 flex justify-between items-center">
+                <div>
+                    <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white">Sliders (Bannerlar)</h1>
+                    <p className="text-sm text-neutral-400 mt-1">Do'kon uchun reklama bannerlarini boshqarish</p>
+                </div>
+
+                <GlassButton onClick={handleOpenCreate}>
+                    <Plus className="w-4 h-4 mr-2 inline" /> Create Slider
+                </GlassButton>
+            </div>
+
+            {loading ? (
+                <div className="text-center py-12 text-gray-500 text-lg">Yuklanmoqda...</div>
+            ) : sliders.length === 0 ? (
+                <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
+                    Bu market uchun sliderlar topilmadi.
+                </div>
+            ) : (
+                <GlassTable
+                    columns={[
+                        { key: "preview", label: "Rasm" },
+                        { key: "redirectUrl", label: "O'tish manzili (Link)" },
+                    ]}
+                    data={sliders.map((slider) => ({
+                        ...slider,
+                        preview: (
+                            <img
+                                src={slider.imageUrl}
+                                alt="Slider"
+                                className="w-24 h-12 object-cover rounded-lg border border-white/10"
+                            />
+                        ),
+                        redirectUrl: (
+                            <a
+                                href={slider.redirectUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-sky-400 hover:underline flex items-center gap-1"
+                            >
+                                {slider.redirectUrl} <ExternalLink className="w-3 h-3" />
+                            </a>
+                        )
+                    })) as Record<string, unknown>[]}
+                    actions={(row) => {
+                        const slider = row as unknown as Slider;
+                        const originalSlider = sliders.find(s => s.id === slider.id) || slider;
+
+                        return (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => handleOpenEdit(originalSlider as Slider)}
+                                    className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
+                                    title="Tahrirlash"
+                                >
+                                    <Edit3 className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setDeleteModal(originalSlider.id)}
+                                    className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
+                                    title="O'chirish"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        );
+                    }}
+                />
+            )}
+
+            <GlassModal
+                title={editId ? "Sliderni Tahrirlash" : "Create Slider"}
+                open={isOpen}
+                onClose={() => setIsOpen(false)}
+            >
+                <form className="space-y-4 w-full pb-4" onSubmit={handleSubmitForm}>
+                    <GlassInput
+                        label="Rasm havolasi (Image URL)"
+                        placeholder="https://example.com/image.jpg..."
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        required
+                    />
+                    <GlassInput
+                        label="Yo'naltirish havolasi (Redirect URL)"
+                        placeholder="https://example.com/category/... yoki mahsulot linki"
+                        value={redirectUrl}
+                        onChange={(e) => setRedirectUrl(e.target.value)}
+                        required
+                    />
+
+                    {imageUrl && (
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-neutral-400 font-medium">Ko'rinishi (Preview)</label>
+                            <div className="w-full h-32 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex items-center justify-center">
+                                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = "")} />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-end gap-3 pt-4">
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            type="button"
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                        >
+                            Bekor qilish
+                        </button>
+                        <GlassButton
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20"
+                        >
+                            {editId ? "Yangilash" : "Saqlash"}
+                        </GlassButton>
+                    </div>
+                </form>
+            </GlassModal>
+
+            <GlassModal title="Delete slider" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
+                <div className="space-y-4">
+                    <p className="text-sm text-neutral-400">Haqiqatan ham bu sliderni o'chirib yubormoqchimisiz?</p>
+
+                    <div className="p-6"></div>
+
+                    <div className="flex items-center justify-end gap-3 pt-6">
+                        <button
+                            onClick={() => setDeleteModal(null)}
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (deleteModal) {
+                                    handleDeleteSlider(deleteModal);
+                                    setDeleteModal(null);
+                                }
+                            }}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </GlassModal>
+        </div>
+    );
 }
 
 export default function SlidersPage() {
-    const router = useRouter()
-    const params = useParams()
-    const locale = params.locale || 'uz'
-
-    const [sliders, setSliders] = useState<SliderItem[]>([
-        { id: '1', imageUrl: 'https://i.ibb.co/nNZrjBSD/user.png', link: '/products/1' },
-        { id: '2', imageUrl: 'https://i.ibb.co/nNZrjBSD/user.png', link: '/products/2' },
-    ])
-
-    const [isCreateOpen, setIsCreateOpen] = useState(false)
-    const [isEditOpen, setIsEditOpen] = useState(false)
-    const [currentSlider, setCurrentSlider] = useState<SliderItem | null>(null)
-    
-    const [deleteId, setDeleteId] = useState<string | null>(null)
-
-    const [imageUrl, setImageUrl] = useState('')
-    const [link, setLink] = useState('')
-
-    const handleCreate = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (imageUrl && link) {
-            setSliders([...sliders, { id: Date.now().toString(), imageUrl, link }])
-            setImageUrl('')
-            setLink('')
-            setIsCreateOpen(false)
-        }
-    }
-
-    const openEditModal = (slider: SliderItem) => {
-        setCurrentSlider(slider)
-        setImageUrl(slider.imageUrl)
-        setLink(slider.link)
-        setIsEditOpen(true)
-    }
-
-    const handleUpdate = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (currentSlider && imageUrl && link) {
-            setSliders(sliders.map(s => s.id === currentSlider.id ? { ...s, imageUrl, link } : s))
-            setIsEditOpen(false)
-            setCurrentSlider(null)
-            setImageUrl('')
-            setLink('')
-        }
-    }
-
-    const handleDelete = (id: string) => {
-        setSliders(sliders.filter(s => s.id !== id))
-        setDeleteId(null)
-    }
-
     return (
-        <div className="max-w-6xl mx-auto py-8 px-4 relative min-h-[80vh] animate-fade-in">
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                        Banner Slayderlar Boshqaruvi
-                    </h1>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                        Do'kon bosh sahifasida ko'rinadigan reklamalar va slayderlar
-                    </p>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
-                {sliders.map((slider) => (
-                    <div
-                        key={slider.id}
-                        className="p-5 rounded-[28px] bg-white/10 dark:bg-[#121214]/40 backdrop-blur-3xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:border-sky-500/40 transition-all duration-300 group flex flex-col justify-between"
-                    >
-                        <div className="space-y-4">
-                            <div className="relative w-full h-44 rounded-2xl overflow-hidden bg-black/10">
-                                <Image src={slider.imageUrl} alt="Slider" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                            </div>
-                            <div>
-                                <span className="text-xs uppercase font-semibold text-neutral-400">O'tish havolasi:</span>
-                                <p className="text-sm font-medium text-sky-500 truncate">{slider.link}</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 pt-4 border-t border-white/10 mt-4">
-                            <button
-                                onClick={() => openEditModal(slider)}
-                                className="flex-1 py-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 font-medium text-sm transition-all active:scale-95 border border-sky-500/20"
-                            >
-                                Tahrirlash (Edit)
-                            </button>
-                            <button
-                                onClick={() => setDeleteId(slider.id)}
-                                className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all active:scale-95 border border-red-500/20"
-                                title="O'chirish"
-                            >
-                                🗑️
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <button
-                onClick={() => {
-                    setImageUrl('')
-                    setLink('')
-                    setIsCreateOpen(true)
-                }}
-                className="fixed bottom-8 right-8 z-40 w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-sky-500 text-white flex items-center justify-center shadow-2xl shadow-sky-500/50 hover:scale-110 active:scale-95 transition-all duration-300 border border-white/30"
-                title="Yangi slayder qo'shish"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-            </button>
-
-            {isCreateOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-                    <div className="w-full max-w-md p-6 rounded-[32px] bg-[#121214] border border-white/10 shadow-2xl space-y-4">
-                        <h3 className="text-xl font-bold text-white">Yangi Slayder Qo'shish</h3>
-                        <form onSubmit={handleCreate} className="space-y-4">
-                            <div>
-                                <label className="block text-xs uppercase font-semibold text-neutral-400 mb-1">Rasm havolasi (URL)</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="https://image.url/photo.png"
-                                    value={imageUrl}
-                                    onChange={(e) => setImageUrl(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs uppercase font-semibold text-neutral-400 mb-1">Havola (Link)</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="/products/category"
-                                    value={link}
-                                    onChange={(e) => setLink(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
-                                />
-                            </div>
-                            <div className="flex justify-end gap-3 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsCreateOpen(false)}
-                                    className="px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white hover:bg-white/15"
-                                >
-                                    Bekor qilish
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-sky-500 text-white hover:bg-sky-600 shadow-lg shadow-sky-500/30"
-                                >
-                                    Qo'shish (Post)
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {isEditOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-                    <div className="w-full max-w-md p-6 rounded-[32px] bg-[#121214] border border-white/10 shadow-2xl space-y-4">
-                        <h3 className="text-xl font-bold text-white">Slayderni Tahrirlash (Put)</h3>
-                        <form onSubmit={handleUpdate} className="space-y-4">
-                            <div>
-                                <label className="block text-xs uppercase font-semibold text-neutral-400 mb-1">Rasm havolasi (URL)</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={imageUrl}
-                                    onChange={(e) => setImageUrl(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs uppercase font-semibold text-neutral-400 mb-1">Havola (Link)</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={link}
-                                    onChange={(e) => setLink(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
-                                />
-                            </div>
-                            <div className="flex justify-end gap-3 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditOpen(false)}
-                                    className="px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white hover:bg-white/15"
-                                >
-                                    Bekor qilish
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-sky-500 text-white hover:bg-sky-600 shadow-lg shadow-sky-500/30"
-                                >
-                                    Saqlash (Put)
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {deleteId && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-                    <div className="w-full max-w-sm p-6 rounded-3xl bg-[#121214] border border-white/10 shadow-2xl space-y-4">
-                        <h4 className="text-lg font-bold text-white">Slayderni o'chirish</h4>
-                        <p className="text-sm text-neutral-400">Rostdan ham ushbu slayder bannerini o'chirib tashlamoqchimisiz?</p>
-                        <div className="flex justify-end gap-3 pt-2">
-                            <button
-                                onClick={() => setDeleteId(null)}
-                                className="px-4 py-2 rounded-xl text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-all"
-                            >
-                                Bekor qilish
-                            </button>
-                            <button
-                                onClick={() => handleDelete(deleteId)}
-                                className="px-4 py-2 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-all shadow-lg shadow-red-600/30"
-                            >
-                                O'chirish
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    )
+        <Suspense fallback={<div className="p-8 text-center text-white">Yuklanmoqda...</div>}>
+            <Suspense fallback={null}>
+                <SlidersContent />
+            </Suspense>
+        </Suspense>
+    );
 }
