@@ -212,7 +212,8 @@ const ProductsGet = () => {
 
     const [imagesLength, setImagesLength] = useState(1)
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
-    const [descriptionLan, setDescriptionLan] = useState('uz')
+    const [descr, setDescr] = useState('uz');
+    const [lans, setLans] = useState(['uz', 'en', 'ru']);
     const [discountId, setDiscountId] = useState('')
     const [categoryId, setCategoryId] = useState('')
     const [itemsLenght, setItemsLenght] = useState(1)
@@ -549,11 +550,34 @@ const ProductsGet = () => {
             <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title='Create Product' size="full">
                 <form onSubmit={handleCreateProduct}>
 
-                    <div className="flex flex-col p-3 gap-3">
-                        {Array.from({ length: itemsLenght }).map((_, index) => (
-                            <Item key={index} cIndex={index} setItemsLenght={setItemsLenght} />
-                        ))}
+                    <div className="w-full flex gap-4">
+                        <div className="w-full p-1 flex gap-2 flex-col">
+
+                        </div>
+                        <div className="w-full p-1 flex gap-2 flex-col">
+                            <div>
+                                <div className="flex w-full">
+                                    {lans.map(item => (
+                                        <button key={item} type="button" className={`relative px-4 py-2 text-sm ${descr === item ? 'bg-sky-200/10 border-t border-l border-r border-sky-500/40' : ''} translate-y-[2px] z-[10] rounded-xl rounded-bl-[0] rounded-br-[0]`} onClick={() => setDescr(item)}>
+                                            {item === 'uz' ? 'O\'zbek' : item === 'en' ? 'English' : item === 'ru' ? 'Русский' : ''}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="flex gap-4">
+                                    <textarea name='descriptionUz' className={`${descr === 'uz' ? '' : 'hidden'} rounded-[1rem] rounded-tl-[0] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-sm`} placeholder="UZ description..." rows={6}></textarea>
+                                    <textarea name='descriptionEn' className={`${descr === 'en' ? '' : 'hidden'} rounded-[1rem] rounded-tl-[0] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-sm`} placeholder="EN description..." rows={6}></textarea>
+                                    <textarea name='descriptionRu' className={`${descr === 'ru' ? '' : 'hidden'} rounded-[1rem] rounded-tl-[0] bg-sky-200/10 border border-sky-500/40 py-2 px-4 w-full outline-none text-sm`} placeholder="RU description..." rows={6}></textarea>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col p-3 gap-3">
+                                {Array.from({ length: itemsLenght }).map((_, index) => (
+                                    <Item key={index} cIndex={index} setItemsLenght={setItemsLenght} />
+                                ))}
+                            </div>
+                        </div>
                     </div>
+
 
                     <div className="p-6"></div>
 
