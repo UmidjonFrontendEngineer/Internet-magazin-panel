@@ -43,9 +43,9 @@ const ImageUpload = ({ setImagesLength, index }: { setImagesLength: React.Dispat
     };
 
     return (
-        <div
+        <button
             onClick={handleButtonClick}
-            className="relative flex-1 cursor-pointer w-20 h-20 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition text-neutral-300 overflow-hidden"
+            className="relative cursor-pointer w-20 h-20 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition text-neutral-300 overflow-hidden"
         >
             {imagePreview ? (
                 <img src={imagePreview} alt="Uploaded" className="w-full h-full object-cover" />
@@ -63,7 +63,7 @@ const ImageUpload = ({ setImagesLength, index }: { setImagesLength: React.Dispat
                 className="hidden"
                 onChange={handleImageUpload}
             />
-        </div>
+        </button>
     )
 }
 

@@ -12,6 +12,7 @@ import { Plus, Trash2, Edit3, Layers, Upload, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import Item from "./_components/item";
 import ImageUpload from "./_components/image";
+import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -48,6 +49,7 @@ const ProductsGet = () => {
     const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
     const notify = useNotification()
     const token = useTokenStore(state => state.token)
+    const selectMarket = useSelectMarketStore(state => state.selectMarket)
 
     const bigData = [
         {
@@ -307,6 +309,9 @@ const ProductsGet = () => {
 
         try {
             const formData = new FormData(e.currentTarget);
+            formData.append('marketId', selectMarket)
+            formData.append('warehouseId', 'warehouse-id-32');
+            console.log(formData)
 
             const res = await fetch('https://internet-magazin-nest-server.onrender.com/products', {
                 method: 'POST',
@@ -561,7 +566,7 @@ const ProductsGet = () => {
 
                     <div className="w-full flex gap-4 max-[650px]:flex-col">
                         <div className="w-full p-1 flex gap-2">
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-3 h-[70vh] overflow-scroll">
                                 {Array.from({ length: imagesLength }).map((_, index) => (
                                     <ImageUpload setImagesLength={setImagesLength} index={index} />
                                 ))}
@@ -569,6 +574,7 @@ const ProductsGet = () => {
 
                             <div className="flex flex-col gap-3">
                                 <GlassInput label='price' name='price' placeholder="price..." />
+                                <GlassInput label='quantity' name='quantity' placeholder="quantity..." />
                                 <GlassButton>category select</GlassButton>
                                 <GlassButton>warehouse select</GlassButton>
                                 <GlassButton>gradient</GlassButton>
