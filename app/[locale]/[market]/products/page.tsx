@@ -221,8 +221,30 @@ const ProductsGet = () => {
     const [discountId, setDiscountId] = useState('')
     const [categoryId, setCategoryId] = useState('')
     const [itemsLenght, setItemsLenght] = useState(1)
-    const [gradientIsOpen, setGradientIsOpen] = useState<'hidden' | boolean>(false)
+    const [gradientIsOpen, setGradientIsOpen] = useState(false);
     const [gradientsLength, setGradientsLength] = useState(2)
+
+    const [colors, setColors] = useState<string[]>(['#3b82f6', '#3b82f6']);
+
+    const handleColorChange = (index: number, newColor: string) => {
+        const updated = [...colors];
+        updated[index] = newColor;
+        setColors(updated);
+    };
+
+    const handleAddColor = () => {
+        setColors(prev => [...prev, '#3b82f6']);
+    };
+
+    const handleRemoveColor = (index: number) => {
+        setColors(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleSave = () => {
+        console.log("Saqlangan ranglar:", colors);
+
+        setGradientIsOpen(false);
+    };
 
     // ========= New Product =========
 
@@ -310,6 +332,7 @@ const ProductsGet = () => {
 
         try {
             const formData = new FormData(e.currentTarget);
+            formData.append('gradient', JSON.stringify(colors))
             formData.append('marketId', selectMarket)
             formData.append('warehouseId', 'warehouse-id-32');
             console.log(formData)
@@ -639,11 +662,23 @@ const ProductsGet = () => {
                 </form>
             </GlassModal>
 
-            <GlassModal open={gradientIsOpen === 'hidden' ? true : gradientIsOpen ? true : false} className={`${gradientIsOpen === 'hidden' ? 'hidden' : ''}`} onClose={() => setGradientIsOpen(false)} title="gradient">
-                {Array.from({ length: gradientsLength }).map((_, index) => (
-                    <GradientColor  key={index} index={index} setGradientsLength={setGradientsLength} gradientsLength={gradientsLength} />
+            <GlassModal
+                open={gradientIsOpen}
+                onClose={() => setGradientIsOpen(false)}
+                title="gradient"
+            >
+                {colors.map((color, index) => (
+                    <GradientColor
+                        key={index}
+                        index={index}
+                        color={color}
+                        onChange={(newColor) => handleColorChange(index, newColor)}
+                        onRemove={() => handleRemoveColor(index)}
+                        canDelete={colors.length > 1}
+                    />
                 ))}
-                <GlassButton onClick={() => setGradientsLength(prev => prev + 1)}>+</GlassButton>
+
+                <GlassButton onClick={handleAddColor}>+</GlassButton>
 
                 <div className="p-6"></div>
 
@@ -656,7 +691,7 @@ const ProductsGet = () => {
                         Cancel
                     </button>
                     <GlassButton
-                        onClick={() => setGradientIsOpen('hidden')}
+                        onClick={handleSave}
                         className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                     >
                         Save

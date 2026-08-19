@@ -1,10 +1,16 @@
 'use client';
 import { Trash2 } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 
-const GradientColor = ({ index, gradientsLength, setGradientsLength }: { index: number, gradientsLength: number, setGradientsLength: React.Dispatch<React.SetStateAction<number>> }) => {
-    const [color, setColor] = useState("#3b82f6");
+interface GradientColorProps {
+    index: number;
+    color: string;
+    onChange: (color: string) => void;
+    onRemove: () => void;
+    canDelete: boolean;
+}
 
+const GradientColor = ({ index, color, onChange, onRemove, canDelete }: GradientColorProps) => {
     return (
         <div className="w-full flex items-center justify-between gap-4 py-2 px-4 rounded-xl border border-white/10 bg-white/5">
             <input type="hidden" name={`gradient-${index}`} value={color} />
@@ -15,7 +21,7 @@ const GradientColor = ({ index, gradientsLength, setGradientsLength }: { index: 
                 <input
                     type="text"
                     value={color}
-                    onChange={(e) => setColor(e.target.value)}
+                    onChange={(e) => onChange(e.target.value)}
                     className="bg-black/20 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-neutral-200 w-24 uppercase font-mono"
                 />
 
@@ -23,7 +29,7 @@ const GradientColor = ({ index, gradientsLength, setGradientsLength }: { index: 
                     <input
                         type="color"
                         value={color}
-                        onChange={(e) => setColor(e.target.value)}
+                        onChange={(e) => onChange(e.target.value)}
                         className="absolute -inset-2 w-12 h-12 cursor-pointer opacity-0"
                     />
                     <div
@@ -33,10 +39,10 @@ const GradientColor = ({ index, gradientsLength, setGradientsLength }: { index: 
                 </div>
             </div>
 
-            {gradientsLength > 1 && (
+            {canDelete && (
                 <button
                     type="button"
-                    onClick={() => setGradientsLength(prev => prev - 1)}
+                    onClick={onRemove}
                     className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition shrink-0"
                 >
                     <Trash2 className="w-4 h-4" />
