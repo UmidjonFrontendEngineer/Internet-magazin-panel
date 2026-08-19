@@ -126,7 +126,7 @@ function CategoriesContent() {
     const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!selectMarket && !editId) {
+        if (!selectMarket) {
             notify.show("Marketni tanlang!", "error", dark ? "dark" : "light");
             return;
         }
@@ -166,6 +166,7 @@ function CategoriesContent() {
                 method,
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    'marketId': selectMarket
                 },
                 body: formData,
             });
