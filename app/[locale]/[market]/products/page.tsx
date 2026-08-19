@@ -602,7 +602,8 @@ const ProductsGet = () => {
                             <div className="flex flex-col gap-3">
                                 <GlassInput label='price' name='price' placeholder="price..." />
                                 <GlassInput label='quantity' name='quantity' placeholder="quantity..." />
-                                <GlassButton type="button">category select</GlassButton>
+                                <GlassButton type="button" onClick={() => setCategoryOpen(true)}>category select</GlassButton>
+                                <GlassButton type="button" onClick={() => setDiscountOpen(true)}>discount select</GlassButton>
                                 <GlassButton type="button">warehouse select</GlassButton>
                                 <GlassButton type="button" onClick={() => setGradientIsOpen(true)}>gradient</GlassButton>
                             </div>
