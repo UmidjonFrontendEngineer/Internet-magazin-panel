@@ -8,8 +8,10 @@ import GlassButton from "@/components/admin/GlassButton";
 import GlassModal from "@/components/admin/GlassModal";
 import { useNotification } from "@/components/Notification";
 import { useTokenStore } from "@/app/_store/useTokenStore";
+import { Plus, Trash2, Edit3, Layers, Upload, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import Item from "./_components/item";
+import ImageUpload from "./_components/image";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -561,12 +563,8 @@ const ProductsGet = () => {
                         <div className="w-full p-1 flex gap-2">
                             <div className="flex flex-col gap-3">
                                 {Array.from({ length: imagesLength }).map((_, index) => (
-                                    <Item key={index} cIndex={index} setItemsLenght={setItemsLenght} />
+                                    <ImageUpload setImagesLength={setImagesLength} index={index} />
                                 ))}
-
-                                <GlassButton>
-                                    +
-                                </GlassButton>
                             </div>
 
                             <div className="flex flex-col gap-3">
