@@ -14,6 +14,8 @@ import Item from "./_components/item";
 import ImageUpload from "./_components/image";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GradientColor from "./_components/gradientColor";
+import Discount from "./_components/discount";
+import Category from "./_components/category";
 
 interface ProductOption {
     name: string;
@@ -218,11 +220,12 @@ const ProductsGet = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const [descr, setDescr] = useState('uz');
     const [lans, setLans] = useState(['uz', 'en', 'ru']);
-    const [discountId, setDiscountId] = useState('')
-    const [categoryId, setCategoryId] = useState('')
     const [itemsLenght, setItemsLenght] = useState(1)
     const [gradientIsOpen, setGradientIsOpen] = useState(false);
-    const [gradientsLength, setGradientsLength] = useState(2)
+    const [categoryOpen, setCategoryOpen] = useState(false)
+    const [categoryId, setCategoryId] = useState('')
+    const [discountOpen, setDiscountOpen] = useState(false)
+    const [discountId, setDiscountId] = useState('')
 
     const [colors, setColors] = useState<string[]>(['#3b82f6', '#3b82f6']);
 
@@ -589,7 +592,7 @@ const ProductsGet = () => {
                 <form onSubmit={handleCreateProduct}>
 
                     <div className="w-full flex gap-4 max-[650px]:flex-col">
-                        <div className="w-full p-1 flex gap-2">
+                        <div className="w-full p-2 flex gap-4">
                             <div className="flex flex-col gap-3 h-[70vh] overflow-scroll">
                                 {Array.from({ length: imagesLength }).map((_, index) => (
                                     <ImageUpload setImagesLength={setImagesLength} index={index} />
@@ -604,7 +607,7 @@ const ProductsGet = () => {
                                 <GlassButton type="button" onClick={() => setGradientIsOpen(true)}>gradient</GlassButton>
                             </div>
                         </div>
-                        <div className="w-full p-1 flex gap-2 flex-col">
+                        <div className="w-full p-2 flex gap-4 flex-col">
                             <GlassInput placeholder='title' name='title' label='title' />
 
                             <div>
@@ -685,6 +688,51 @@ const ProductsGet = () => {
                 <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                     <button
                         onClick={() => setGradientIsOpen(false)}
+                        type="button"
+                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <GlassButton
+                        onClick={handleSave}
+                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                    >
+                        Save
+                    </GlassButton>
+                </div>
+            </GlassModal>
+
+            <GlassModal open={discountOpen} onClose={() => setDiscountOpen(false)} title='discount'>
+                <Discount setDiscountId={setDiscountId} />
+
+                <div className="p-6"></div>
+                
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <button
+                        onClick={() => setDiscountOpen(false)}
+                        type="button"
+                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <GlassButton
+                        onClick={handleSave}
+                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                    >
+                        Save
+                    </GlassButton>
+                </div>
+            </GlassModal>
+
+            
+            <GlassModal open={discountOpen} onClose={() => setCategoryOpen(false)} title='discount'>
+                <Category setCategoryId={setCategoryId} />
+
+                <div className="p-6"></div>
+                
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <button
+                        onClick={() => setCategoryOpen(false)}
                         type="button"
                         className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     >
