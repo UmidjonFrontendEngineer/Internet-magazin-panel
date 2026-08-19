@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils/cn";
 
 interface SubItem {
     title: string;
-    image: string;
+    image: string | File;
 }
 
 interface CategoryOption {
@@ -40,7 +40,7 @@ function CategoriesContent() {
     const [isOpen, setIsOpen] = useState(false);
     const [editId, setEditId] = useState<string | null>(null);
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
-    const [deleteModal, setDeleteModal] = useState<string | null>(null)
+    const [deleteModal, setDeleteModal] = useState<string | null>(null);
 
     const token = useTokenStore((state) => state.token);
     const dark = useThemeStore((state) => state.theme) === "dark";
@@ -84,14 +84,15 @@ function CategoriesContent() {
         setOptionsList(optionsList.filter((_, i) => i !== index));
     };
 
-    const handleItemChange = (optIndex: number, itemIndex: number, field: 'title' | 'image', value: string) => {
+    const handleItemChange = (optIndex: number, itemIndex: number, field: 'title' | 'image', value: string | File) => {
         const updated = [...optionsList];
-        updated[optIndex].items[itemIndex][field] = value;
+        updated[optIndex].items[itemIndex][field] = value as any;
 
         const isLastItem = itemIndex === updated[optIndex].items.length - 1;
-        const hasContent = updated[optIndex].items[itemIndex].title.trim() !== '' || updated[optIndex].items[itemIndex].image.trim() !== '';
+        const hasTitle = updated[optIndex].items[itemIndex].title.trim() !== '';
+        const hasImage = updated[optIndex].items[itemIndex].image !== "";
 
-        if (isLastItem && hasContent) {
+        if (isLastItem && (hasTitle || hasImage)) {
             updated[optIndex].items.push({ title: "", image: "" });
         }
 
@@ -110,21 +111,42 @@ function CategoriesContent() {
     const handleImageUpload = (optIndex: number, itemIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                handleItemChange(optIndex, itemIndex, 'image', reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            handleItemChange(optIndex, itemIndex, 'image', file);
         }
+    };
+
+    const getImageSrc = (image: string | File) => {
+        if (!image) return "";
+        if (typeof image === "object") {
+            return URL.createObjectURL(image);
+        }
+        return image;
     };
 
     const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        const formData = new FormData();
+        formData.append("title", categoryTitle);
+        formData.append("marketId", selectMarket);
+
         const cleanedOptions = optionsList.map(opt => ({
             ...opt,
-            items: opt.items.filter(item => item.title.trim() !== "" || item.image.trim() !== "")
+            items: opt.items.filter(item => item.title.trim() !== "" || item.image !== "")
         })).filter(opt => opt.title.trim() !== "" && opt.items.length > 0);
+
+        const optionsPayload = cleanedOptions.map((opt, optIndex) => ({
+            title: opt.title,
+            items: opt.items.map((item, itemIndex) => {
+                if (item.image instanceof File) {
+                    formData.append(`file_${optIndex}_${itemIndex}`, item.image);
+                    return { title: item.title, image: "" };
+                }
+                return { title: item.title, image: item.image };
+            })
+        }));
+
+        formData.append("options", JSON.stringify(optionsPayload));
 
         try {
             const url = editId
@@ -137,13 +159,8 @@ function CategoriesContent() {
                 method,
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    title: categoryTitle,
-                    options: cleanedOptions,
-                    marketId: selectMarket,
-                }),
+                body: formData,
             });
 
             const req = await res.json();
@@ -281,7 +298,7 @@ function CategoriesContent() {
                                                             <div key={iIdx} className="flex items-center gap-2 bg-black/20 p-1.5 rounded-lg border border-white/5">
                                                                 {item.image ? (
                                                                     <div className="relative w-8 h-8 rounded-md overflow-hidden bg-neutral-800 flex-shrink-0">
-                                                                        <Image src={item.image} alt={item.title} fill className="object-cover" />
+                                                                        <Image src={typeof item.image === 'string' ? item.image : URL.createObjectURL(item.image)} alt={item.title} fill className="object-cover" />
                                                                     </div>
                                                                 ) : (
                                                                     <div className="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-[10px]">Rasm yo'q</div>
@@ -377,7 +394,7 @@ function CategoriesContent() {
                                                 </label>
                                                 {item.image && (
                                                     <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-white/20 flex-shrink-0">
-                                                        <Image src={item.image} alt="Preview" fill className="object-cover" />
+                                                        <Image src={getImageSrc(item.image)} alt="Preview" fill className="object-cover" />
                                                     </div>
                                                 )}
                                             </div>
@@ -432,8 +449,8 @@ function CategoriesContent() {
                         <button
                             onClick={() => {
                                 if (deleteModal) {
-                                    handleDeleteCategory(deleteModal)
-                                    setDeleteModal(null)
+                                    handleDeleteCategory(deleteModal);
+                                    setDeleteModal(null);
                                 }
                             }}
                             className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"

@@ -12,7 +12,7 @@ import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GlassInput from "@/components/admin/GlassInput";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Edit3, Trash2, Plus, Calendar } from "lucide-react";
+import { Edit3, Trash2, Plus, Calendar, MousePointerClick } from "lucide-react";
 
 interface Discount {
     id: string;
@@ -53,46 +53,44 @@ function DiscountContent({ setDiscountId }: { setDiscountId: React.Dispatch<Reac
     }, [selectMarket]);
 
     return (
-        <div className="w-full p-8">
-            {loading ? (
-                <div className="text-center py-12 text-gray-500 text-lg">Loading...</div>
-            ) : discounts.length === 0 ? (
-                <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
-                    Bu market uchun chegirmalar topilmadi.
-                </div>
-            ) : (
-                <GlassTable
-                    columns={[
-                        { key: "title", label: "Chegirma Nomi" },
-                        { key: "percentage", label: "Foiz (%)" },
-                        { key: "startDate", label: "Boshlanish Vaqti" },
-                        { key: "endDate", label: "Tugash Vaqti" },
-                    ]}
-                    data={discounts.map((disc) => ({
-                        ...disc,
-                        percentage: `%${disc.percentage}`,
-                        startDate: disc.startDate ? new Date(disc.startDate).toLocaleString() : "-",
-                        endDate: disc.endDate ? new Date(disc.endDate).toLocaleString() : "-",
-                    })) as Record<string, unknown>[]}
-                    actions={(row) => {
-                        const disc = row as unknown as Discount;
-                        const originalDisc = discounts.find(d => d.title === disc.title && d.market === selectMarket) || disc;
+        loading ? (
+            <div className="text-center py-12 text-gray-500 text-lg">Loading...</div>
+        ) : discounts.length === 0 ? (
+            <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
+                Bu market uchun chegirmalar topilmadi.
+            </div>
+        ) : (
+            <GlassTable
+                columns={[
+                    { key: "title", label: "Chegirma Nomi" },
+                    { key: "percentage", label: "Foiz (%)" },
+                    { key: "startDate", label: "Boshlanish Vaqti" },
+                    { key: "endDate", label: "Tugash Vaqti" },
+                ]}
+                data={discounts.map((disc) => ({
+                    ...disc,
+                    percentage: `-${disc.percentage}%`,
+                    startDate: disc.startDate ? new Date(disc.startDate).toLocaleString() : "-",
+                    endDate: disc.endDate ? new Date(disc.endDate).toLocaleString() : "-",
+                })) as Record<string, unknown>[]}
+                actions={(row) => {
+                    const disc = row as unknown as Discount;
+                    const originalDisc = discounts.find(d => d.title === disc.title && d.market === selectMarket) || disc;
 
-                        return (
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setDiscountId(originalDisc.id)}
-                                    className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
-                                    title="Tahrirlash"
-                                >
-                                    <Edit3 className="w-4 h-4" />
-                                </button>
-                            </div>
-                        );
-                    }}
-                />
-            )}
-        </div>
+                    return (
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setDiscountId(originalDisc.id)}
+                                className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
+                                title="Select"
+                            >
+                                <MousePointerClick className="w-4 h-4" />
+                            </button>
+                        </div>
+                    );
+                }}
+            />
+        )
     );
 }
 

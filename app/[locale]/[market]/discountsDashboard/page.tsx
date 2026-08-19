@@ -178,7 +178,7 @@ function ApplicationsContent() {
                     ]}
                     data={discounts.map((disc) => ({
                         ...disc,
-                        percentage: `%${disc.percentage}`,
+                        percentage: `-${disc.percentage}%`,
                         startDate: disc.startDate ? new Date(disc.startDate).toLocaleString() : "-",
                         endDate: disc.endDate ? new Date(disc.endDate).toLocaleString() : "-",
                     })) as Record<string, unknown>[]}

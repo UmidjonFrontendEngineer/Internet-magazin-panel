@@ -223,9 +223,9 @@ const ProductsGet = () => {
     const [itemsLenght, setItemsLenght] = useState(1)
     const [gradientIsOpen, setGradientIsOpen] = useState(false);
     const [categoryOpen, setCategoryOpen] = useState(false)
-    const [categoryId, setCategoryId] = useState('')
+    const [categoryId, setCategoryId] = useState('NULL')
     const [discountOpen, setDiscountOpen] = useState(false)
-    const [discountId, setDiscountId] = useState('')
+    const [discountId, setDiscountId] = useState('NULL')
 
     const [colors, setColors] = useState<string[]>(['#3b82f6', '#3b82f6']);
 
@@ -336,6 +336,8 @@ const ProductsGet = () => {
         try {
             const formData = new FormData(e.currentTarget);
             formData.append('gradient', JSON.stringify(colors))
+            formData.append('discountId', discountId)
+            formData.append('categoryId', categoryId)
             formData.append('marketId', selectMarket)
             formData.append('warehouseId', 'warehouse-id-32');
             console.log(formData)
@@ -724,7 +726,6 @@ const ProductsGet = () => {
                     </GlassButton>
                 </div>
             </GlassModal>
-
             
             <GlassModal open={categoryOpen} onClose={() => setCategoryOpen(false)} title='discount'>
                 <Category setCategoryId={setCategoryId} />
