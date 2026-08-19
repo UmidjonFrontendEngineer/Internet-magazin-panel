@@ -126,9 +126,16 @@ function CategoriesContent() {
     const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!selectMarket && !editId) {
+            notify.show("Marketni tanlang!", "error", dark ? "dark" : "light");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("title", categoryTitle);
-        formData.append("marketId", selectMarket);
+        if (selectMarket) {
+            formData.append("marketId", selectMarket);
+        }
 
         const cleanedOptions = optionsList.map(opt => ({
             ...opt,
