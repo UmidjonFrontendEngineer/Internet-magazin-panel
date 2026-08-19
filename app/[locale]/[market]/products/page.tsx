@@ -578,7 +578,7 @@ const ProductsGet = () => {
                                 <GlassInput label='quantity' name='quantity' placeholder="quantity..." />
                                 <GlassButton>category select</GlassButton>
                                 <GlassButton>warehouse select</GlassButton>
-                                <GlassButton>gradient</GlassButton>
+                                <GlassButton onClick={() => setGradientIsOpen(true)}>gradient</GlassButton>
                             </div>
                         </div>
                         <div className="w-full p-1 flex gap-2 flex-col">
@@ -641,7 +641,7 @@ const ProductsGet = () => {
 
             <GlassModal open={gradientIsOpen === 'hidden' ? true : gradientIsOpen ? true : false} className={`${gradientIsOpen === 'hidden' ? 'hidden' : ''}`} onClose={() => setGradientIsOpen(false)} title="gradient">
                 {Array.from({ length: gradientsLength }).map((_, index) => (
-                    <GradientColor key={index} index={index} setGradientsLength={setGradientsLength} gradientsLength={gradientsLength} />
+                    <GradientColor  key={index} index={index} setGradientsLength={setGradientsLength} gradientsLength={gradientsLength} />
                 ))}
                 <GlassButton onClick={() => setGradientsLength(prev => prev + 1)}>+</GlassButton>
 
