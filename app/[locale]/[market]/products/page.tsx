@@ -13,8 +13,7 @@ import { cn } from "@/lib/utils/cn";
 import Item from "./_components/item";
 import ImageUpload from "./_components/image";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+import GradientColor from "./_components/gradientColor";
 
 interface ProductOption {
     name: string;
@@ -222,6 +221,8 @@ const ProductsGet = () => {
     const [discountId, setDiscountId] = useState('')
     const [categoryId, setCategoryId] = useState('')
     const [itemsLenght, setItemsLenght] = useState(1)
+    const [gradientIsOpen, setGradientIsOpen] = useState<'hidden' | boolean>(false)
+    const [gradientsLength, setGradientsLength] = useState(2)
 
     // ========= New Product =========
 
@@ -636,6 +637,31 @@ const ProductsGet = () => {
                         </GlassButton>
                     </div>
                 </form>
+            </GlassModal>
+
+            <GlassModal open={gradientIsOpen === 'hidden' ? true : gradientIsOpen ? true : false} className={`${gradientIsOpen === 'hidden' ? 'hidden' : ''}`} onClose={() => setGradientIsOpen(false)} title="gradient">
+                {Array.from({ length: gradientsLength }).map((_, index) => (
+                    <GradientColor key={index} index={index} setGradientsLength={setGradientsLength} gradientsLength={gradientsLength} />
+                ))}
+                <GlassButton onClick={() => setGradientsLength(prev => prev + 1)}>+</GlassButton>
+
+                <div className="p-6"></div>
+
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <button
+                        onClick={() => setGradientIsOpen(false)}
+                        type="button"
+                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <GlassButton
+                        onClick={() => setGradientIsOpen('hidden')}
+                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                    >
+                        Save
+                    </GlassButton>
+                </div>
             </GlassModal>
         </div>
     );

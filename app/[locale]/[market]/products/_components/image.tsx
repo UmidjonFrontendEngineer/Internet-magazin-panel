@@ -44,6 +44,7 @@ const ImageUpload = ({ setImagesLength, index }: { setImagesLength: React.Dispat
 
     return (
         <button
+            type='button'
             onClick={handleButtonClick}
             className="relative cursor-pointer w-20 h-20 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition text-neutral-300 overflow-hidden"
         >
