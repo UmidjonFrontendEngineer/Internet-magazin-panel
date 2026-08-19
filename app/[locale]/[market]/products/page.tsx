@@ -726,7 +726,7 @@ const ProductsGet = () => {
             </GlassModal>
 
             
-            <GlassModal open={discountOpen} onClose={() => setCategoryOpen(false)} title='discount'>
+            <GlassModal open={categoryOpen} onClose={() => setCategoryOpen(false)} title='discount'>
                 <Category setCategoryId={setCategoryId} />
 
                 <div className="p-6"></div>
