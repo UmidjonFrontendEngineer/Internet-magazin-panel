@@ -143,9 +143,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     // ===============================================================
 
-    const wherehouse = [
+    const warehouse = [
         { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Wherehouses', href: '/wherehouses' },
+        { label: 'Warehouses', href: '/warehouses' },
     ];
 
     // ____________________________________________________________
@@ -251,7 +251,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const workers = [
         { label: 'All workers', href: '/all-workers' },
         { label: 'Admins', href: '/admins' },
-        { label: 'Wherehouses', href: '/wherehouses' },
+        { label: 'Warehouses', href: '/warehouses' },
         { label: 'Salers', href: '/salers' },
         { label: 'Managers', href: '/managers' },
     ];
@@ -511,8 +511,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                     : "bg-white/20 border-white/60 text-neutral-900 shadow-xl shadow-black/20"
                                                     }`}>
                                                     <GlassMenu
-                                                        title="WHEREHOUSE"
-                                                        items={wherehouse}
+                                                        title="Warehouse"
+                                                        items={warehouse}
                                                         defaultOpen={true}
                                                     />
                                                 </div>
@@ -521,7 +521,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                                     : "bg-white/20 border-white/60 text-neutral-900 shadow-xl shadow-black/20"
                                                     }`}>
                                                     <GlassMenu
-                                                        title="PRODUCTS"
+                                                        title="Products"
                                                         items={products}
                                                         defaultOpen={true}
                                                     />
