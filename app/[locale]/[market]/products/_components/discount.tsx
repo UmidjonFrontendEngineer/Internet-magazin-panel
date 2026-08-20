@@ -24,7 +24,7 @@ interface Discount {
     [key: string]: unknown;
 }
 
-function DiscountContent({ setDiscountId }: { setDiscountId: React.Dispatch<React.SetStateAction<string>> }) {
+function DiscountContent({ setDiscountId, discountId }: { setDiscountId: React.Dispatch<React.SetStateAction<string>>, discountId: string }) {
     const [loading, setLoading] = useState<boolean>(true);
 
     const dark = useThemeStore((state) => state.theme) === "dark";
@@ -81,7 +81,7 @@ function DiscountContent({ setDiscountId }: { setDiscountId: React.Dispatch<Reac
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setDiscountId(originalDisc.id)}
-                                className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
+                                className={`p-2 ${discountId === originalDisc.id ? 'bg-sky-500/10 text-sky-400 hover:bg-sky-500/20' : 'bg-white/10 text-white hover:bg-white/20'} rounded-xl duration-300`}
                                 title="Select"
                             >
                                 <MousePointerClick className="w-4 h-4" />
@@ -94,10 +94,10 @@ function DiscountContent({ setDiscountId }: { setDiscountId: React.Dispatch<Reac
     );
 }
 
-export default function ApplicationsPage({ setDiscountId }: { setDiscountId: React.Dispatch<React.SetStateAction<string>> }) {
+export default function ApplicationsPage({ setDiscountId, discountId }: { setDiscountId: React.Dispatch<React.SetStateAction<string>>, discountId: string }) {
     return (
         <Suspense fallback={<div className="p-8 text-center text-white">Loading...</div>}>
-            <DiscountContent setDiscountId={setDiscountId} />
+            <DiscountContent setDiscountId={setDiscountId} discountId={discountId} />
         </Suspense>
     );
 }

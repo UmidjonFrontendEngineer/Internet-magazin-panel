@@ -238,7 +238,7 @@ function CategoriesContent() {
             </div>
 
             {loading ? (
-                <div className="text-center py-12 text-gray-500 text-lg">Yuklanmoqda...</div>
+                <div className="text-center py-12 text-gray-500 text-lg">Loading...</div>
             ) : categories.length === 0 ? (
                 <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
                     Bu market uchun kategoriyalar topilmadi.
@@ -391,7 +391,7 @@ function CategoriesContent() {
 
                                             <div className="flex items-center gap-2 flex-1">
                                                 <label className="flex-1 cursor-pointer flex items-center justify-between px-3 py-2 rounded-xl text-xs bg-white/5 border border-white/10 hover:bg-white/10 transition text-neutral-300">
-                                                    <span className="truncate">{item.image ? "Rasm tanlandi ✓" : "PC dan rasm tanlash"}</span>
+                                                    <span className="truncate">{item.image ? "Rasm yuklandi ✓" : "rasm yuklash"}</span>
                                                     <Upload className="w-3.5 h-3.5 text-sky-400 ml-1" />
                                                     <input
                                                         type="file"

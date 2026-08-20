@@ -18,12 +18,14 @@ import Discount from "./_components/discount";
 import Category from "./_components/category";
 
 interface ProductOption {
-    name: string;
+    id: string;
+    title: string;
     value: number;
 }
 
 interface ProductOptionGroup {
-    name: string;
+    id: string;
+    title: string;
     options: ProductOption[];
 }
 
@@ -35,14 +37,12 @@ interface Product {
         en: string;
         ru: string;
     };
-    foiz: number;
-    tab: string;
-    gradient_select: string;
+    discountId: string;
+    categoryId: string;
     gradient: string[];
-    chegirma_select: string;
     options: ProductOptionGroup[];
     images: string[];
-    created_at: string;
+    createdAt: string;
 }
 
 const ProductsGet = () => {
@@ -51,161 +51,6 @@ const ProductsGet = () => {
     const notify = useNotification()
     const token = useTokenStore(state => state.token)
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
-
-    const bigData = [
-        {
-            id: 1,
-            title: "MacBook Pro 16\" M3 Max",
-            description: {
-                "uz": "Yuqori unumdorlikka ega professional noutbuk, dasturchilar va dizaynerlar uchun mukammal tanlov.",
-                "en": "High-performance professional laptop, the perfect choice for developers and designers.",
-                "ru": "Высокопроизводительный профессиональный ноутбук, идеальный выбор для разработчиков и дизайнеров."
-            },
-            foiz: 10,
-            tab: "laptop",
-            gradient_select: "custom",
-            gradient: ["#3b82f6", "#1d4ed8", "#9333ea"],
-            chegirma_select: "active",
-            options: [
-                {
-                    name: "Xotira (RAM)",
-                    options: [
-                        { name: "32 GB", value: 2500000 },
-                        { name: "64 GB", value: 5000000 },
-                        { name: "128 GB", value: 9000000 }
-                    ]
-                },
-                {
-                    name: "SSD hajmi",
-                    options: [
-                        { name: "1 TB", value: 1500000 },
-                        { name: "2 TB", value: 3500000 },
-                        { name: "4 TB", value: 7000000 }
-                    ]
-                }
-            ],
-            images: [
-                "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&auto=format&fit=crop&q=60"
-            ],
-            created_at: "2026-01-10T10:00:00Z"
-        },
-        {
-            id: 2,
-            title: "iPhone 15 Pro Max",
-            description: {
-                "uz": "Eng so'nggi avlod flagman smartfoni, kuchli kamera va titan korpus bilan jihozlangan.",
-                "en": "The latest generation flagship smartphone, equipped with a powerful camera and titanium body.",
-                "ru": "Флагманский смартфон последнего поколения, оснащенный мощной камерой и титановым корпусом."
-            },
-            foiz: 5,
-            tab: "smartphone",
-            gradient_select: "custom",
-            gradient: ["#64748b", "#334155", "#0f172a"],
-            chegirma_select: "active",
-            options: [
-                {
-                    name: "Ichki xotira",
-                    options: [
-                        { name: "256 GB", value: 12000000 },
-                        { name: "512 GB", value: 14500000 },
-                        { name: "1 TB", value: 17000000 }
-                    ]
-                }
-            ],
-            images: [
-                "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1695048065448-439589d83dfa?w=800&auto=format&fit=crop&q=60"
-            ],
-            created_at: "2026-01-12T14:30:00Z"
-        },
-        {
-            id: 3,
-            title: "AirPods Max Wireless",
-            description: {
-                "uz": "Yuqori sifatli ovoz va faol shovqinni bostirish texnologiyasiga ega quloqchin.",
-                "en": "Over-ear headphones with high-fidelity audio and active noise cancellation.",
-                "ru": "Полноразмерные наушники с высококачественным звуком и активным шумоподавлением."
-            },
-            foiz: 0,
-            tab: "audio",
-            gradient_select: "custom",
-            gradient: ["#ec4899", "#8b5cf6", "#3b82f6"],
-            chegirma_select: "none",
-            options: [
-                {
-                    name: "Rang",
-                    options: [
-                        { name: "Kosmik kulrang", value: 6500000 },
-                        { name: "Kumushrang", value: 6500000 },
-                        { name: "Ko'k", value: 6700000 }
-                    ]
-                }
-            ],
-            images: [
-                "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=60"
-            ],
-            created_at: "2026-01-15T09:15:00Z"
-        },
-        {
-            id: 4,
-            title: "Apple Watch Series 9",
-            description: {
-                "uz": "Sog'ligingizni nazorat qiluvchi va kunlik faolligingizni kuzatib boruvchi aqlli soat.",
-                "en": "Smartwatch that monitors your health and tracks your daily activity.",
-                "ru": "Умные часы, которые следят за вашим здоровьем и отслеживают ежедневную активность."
-            },
-            foiz: 15,
-            tab: "watch",
-            gradient_select: "custom",
-            gradient: ["#ef4444", "#f97316", "#eab308"],
-            chegirma_select: "active",
-            options: [
-                {
-                    name: "Kassa o'lchami",
-                    options: [
-                        { name: "41 mm", value: 4500000 },
-                        { name: "45 mm", value: 5100000 }
-                    ]
-                }
-            ],
-            images: [
-                "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=800&auto=format&fit=crop&q=60"
-            ],
-            created_at: "2026-01-18T16:20:00Z"
-        },
-        {
-            id: 5,
-            title: "iPad Pro 12.9\" M2",
-            description: {
-                "uz": "Liquid Retina XDR displey va o'ta kuchli M2 chipiga ega planshet.",
-                "en": "Tablet featuring a Liquid Retina XDR display and the ultra-powerful M2 chip.",
-                "ru": "Планшет с дисплеем Liquid Retina XDR и сверхмощным чипом M2."
-            },
-            foiz: 0,
-            tab: "tablet",
-            gradient_select: "custom",
-            gradient: ["#10b981", "#06b6d4", "#3b82f6"],
-            chegirma_select: "none",
-            options: [
-                {
-                    name: "Xotira",
-                    options: [
-                        { name: "128 GB", value: 11000000 },
-                        { name: "256 GB", value: 13000000 },
-                        { name: "512 GB", value: 15500000 }
-                    ]
-                }
-            ],
-            images: [
-                "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=800&auto=format&fit=crop&q=60"
-            ],
-            created_at: "2026-01-20T11:00:00Z"
-        }
-    ]
 
     const [data, setData] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -263,7 +108,8 @@ const ProductsGet = () => {
                 const response = await fetch(`https://internet-magazin-nest-server.onrender.com/products`);
                 if (!response.ok) throw new Error('Failed to fetch data');
                 const result: Product[] = await response.json();
-                setData(bigData);
+
+                setData(result);
 
                 const initialIndices: { [key: number]: number } = {};
                 const initialSelectedOpts: typeof selectedOptions = {};
@@ -273,7 +119,7 @@ const ProductsGet = () => {
                     initialSelectedOpts[item.id] = {};
                     item.options?.forEach(group => {
                         if (group.options && group.options.length > 0) {
-                            initialSelectedOpts[item.id][group.name] = group.options[0].value;
+                            initialSelectedOpts[item.id][group.title] = group.options[0].value;
                         }
                     });
                 });
@@ -321,11 +167,6 @@ const ProductsGet = () => {
         Object.values(productSelections).forEach(value => {
             optionsSum += value;
         });
-
-        if (product.foiz > 0) {
-            const discountAmount = (optionsSum * product.foiz) / 100;
-            return optionsSum - discountAmount;
-        }
 
         return optionsSum;
     };
@@ -414,7 +255,7 @@ const ProductsGet = () => {
                             const currentImageUrl = hasImages ? item.images[activeIndex] : "https://dummyimage.com/600x600/18181b/a1a1aa";
                             const totalPrice = calculateTotalPrice(item);
 
-                            const gradientStyle = item.gradient_select === 'custom' && item.gradient?.length > 0
+                            const gradientStyle = item.gradient?.length > 0
                                 ? {
                                     background: `linear-gradient(45deg, ${item.gradient.join(', ')})`,
                                 }
@@ -493,18 +334,16 @@ const ProductsGet = () => {
                                                 </>
                                             )}
 
-                                            {item.foiz > 0 && (
-                                                <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
-                                                    -{item.foiz}% Chegirma
-                                                </span>
-                                            )}
+                                            <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
+                                                -{item.discountId}% Chegirma
+                                            </span>
                                         </div>
                                     </div>
 
                                     <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
                                         <div>
                                             <span className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                ID: {item.id} • Turi: <span className={`capitalize ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{item.tab}</span>
+                                                ID: {item.id} • Turi: <span className={`capitalize ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{item.categoryId}</span>
                                             </span>
                                             <h2 className={`text-2xl font-bold mt-1 mb-3 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>{item.title}</h2>
 
@@ -515,11 +354,9 @@ const ProductsGet = () => {
                                                     <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                                         {totalPrice.toLocaleString()} UZS
                                                     </span>
-                                                    {item.foiz > 0 && (
-                                                        <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                            {(totalPrice / (1 - item.foiz / 100)).toLocaleString()} UZS
-                                                        </span>
-                                                    )}
+                                                    <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                                        {(totalPrice).toLocaleString()} UZS
+                                                    </span>
                                                 </div>
                                             </div>
 
@@ -534,21 +371,22 @@ const ProductsGet = () => {
                                                 <h3 className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>Konfiguratsiyani o'zgartirish:</h3>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                     {item.options.map((optGroup, optIdx) => {
-                                                        const activeVal = selectedOptions[item.id]?.[optGroup.name];
+                                                        const activeVal = selectedOptions[item.id]?.[optGroup.title];
                                                         return (
                                                             <div key={optIdx} className={`p-4 rounded-xl border ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800' : 'bg-gray-50 border-zinc-200'
                                                                 }`}>
                                                                 <span className={`text-xs font-semibold block capitalize mb-3 tracking-wider ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
                                                                     }`}>
-                                                                    {optGroup.name}
+                                                                    {optGroup.title}
                                                                 </span>
                                                                 <div className="flex flex-col gap-2">
                                                                     {optGroup.options.map((opt, valIdx) => {
                                                                         const isSelected = activeVal === opt.value;
+
                                                                         return (
                                                                             <button
                                                                                 key={valIdx}
-                                                                                onClick={() => handleOptionSelect(item.id, optGroup.name, opt.value)}
+                                                                                onClick={() => handleOptionSelect(item.id, optGroup.title, opt.value)}
                                                                                 className={`flex justify-between items-center text-xs font-medium px-4 py-3 rounded-lg border transition-all duration-200 ${isSelected
                                                                                     ? "bg-sky-500/10 text-sky-500 border-sky-500/50 shadow-[0_0_12px_rgba(14,165,233,0.1)]"
                                                                                     : theme === 'dark'
@@ -556,7 +394,7 @@ const ProductsGet = () => {
                                                                                         : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300"
                                                                                     }`}
                                                                             >
-                                                                                <span className="capitalize">{opt.name}</span>
+                                                                                <span className="capitalize">{opt.title}</span>
                                                                                 <span className={`font-semibold ${isSelected ? "text-sky-500" : theme === 'dark' ? "text-zinc-500" : "text-zinc-400"}`}>
                                                                                     +{opt.value.toLocaleString()} UZS
                                                                                 </span>
@@ -673,18 +511,20 @@ const ProductsGet = () => {
                 onClose={() => setGradientIsOpen(false)}
                 title="gradient"
             >
-                {colors.map((color, index) => (
-                    <GradientColor
-                        key={index}
-                        index={index}
-                        color={color}
-                        onChange={(newColor) => handleColorChange(index, newColor)}
-                        onRemove={() => handleRemoveColor(index)}
-                        canDelete={colors.length > 1}
-                    />
-                ))}
+                <div className="flex flex-col gap-4">
+                    {colors.map((color, index) => (
+                        <GradientColor
+                            key={index}
+                            index={index}
+                            color={color}
+                            onChange={(newColor) => handleColorChange(index, newColor)}
+                            onRemove={() => handleRemoveColor(index)}
+                            canDelete={colors.length > 1}
+                        />
+                    ))}
 
-                <GlassButton onClick={handleAddColor}>+</GlassButton>
+                    <GlassButton onClick={handleAddColor}>+</GlassButton>
+                </div>
 
                 <div className="p-6"></div>
 
@@ -706,10 +546,10 @@ const ProductsGet = () => {
             </GlassModal>
 
             <GlassModal open={discountOpen} onClose={() => setDiscountOpen(false)} title='discount'>
-                <Discount setDiscountId={setDiscountId} />
+                <Discount setDiscountId={setDiscountId} discountId={discountId} />
 
                 <div className="p-6"></div>
-                
+
                 <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                     <button
                         onClick={() => setDiscountOpen(false)}
@@ -726,12 +566,12 @@ const ProductsGet = () => {
                     </GlassButton>
                 </div>
             </GlassModal>
-            
+
             <GlassModal open={categoryOpen} onClose={() => setCategoryOpen(false)} title='discount'>
-                <Category setCategoryId={setCategoryId} />
+                <Category setCategoryId={setCategoryId} categoryId={categoryId} />
 
                 <div className="p-6"></div>
-                
+
                 <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                     <button
                         onClick={() => setCategoryOpen(false)}

@@ -15,11 +15,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 
 interface SubItem {
+    id: string;
     title: string;
     image: string;
 }
 
 interface CategoryOption {
+    id: string;
     title: string;
     items: SubItem[];
 }
@@ -34,7 +36,7 @@ interface Categorie {
     [key: string]: unknown;
 }
 
-function CategoriesContent({ setCategoryId }: { setCategoryId: React.Dispatch<React.SetStateAction<string>> }) {
+function CategoriesContent({ setCategoryId, categoryId }: { setCategoryId: React.Dispatch<React.SetStateAction<string>>, categoryId: string }) {
     const [loading, setLoading] = useState<boolean>(true);
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
@@ -88,31 +90,10 @@ function CategoriesContent({ setCategoryId }: { setCategoryId: React.Dispatch<Re
                     const cat = row as unknown as Categorie;
                     const isExpanded = expandedRow === cat.id;
 
+                    const originalDisc = categories.find(c => c.title === cat.title && c.market === selectMarket) || cat;
+
                     return (
                         <div className="flex flex-col gap-2 w-full">
-                            <div className="flex items-center justify-between gap-4">
-                                <button
-                                    onClick={() => setExpandedRow(isExpanded ? null : cat.id)}
-                                    className={cn(
-                                        "px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 border transition",
-                                        dark ? "bg-white/5 border-white/10 hover:bg-white/10 text-sky-400" : "bg-sky-50 border-sky-200 text-sky-600"
-                                    )}
-                                >
-                                    <Layers className="w-3.5 h-3.5" />
-                                    <span>{cat.options?.length || 0} ta Option</span>
-                                    <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", isExpanded && "rotate-180")} />
-                                </button>
-
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
-                                        title="O'chirish"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-
                             <AnimatePresence>
                                 {isExpanded && (
                                     <motion.div
@@ -126,7 +107,7 @@ function CategoriesContent({ setCategoryId }: { setCategoryId: React.Dispatch<Re
                                                 <span className="font-bold text-xs text-sky-400">{opt.title}</span>
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                     {opt.items?.map((item, iIdx) => (
-                                                        <button onClick={() => setCategoryId(item.title)} key={iIdx} className="flex items-center gap-2 bg-black/20 p-1.5 rounded-lg border border-white/5">
+                                                        <button onClick={() => setCategoryId(`${originalDisc.id}|${opt.id}|${item.id}`)} key={iIdx} className={`${categoryId === `${originalDisc.id}|${opt.id}|${item.id}` ? 'bg-sky-700/10 border border-sky-800/30' : 'bg-black/20 border border-white/5'} flex items-center gap-2 p-1.5 rounded-lg`}>
                                                             {item.image ? (
                                                                 <div className="relative w-8 h-8 rounded-md overflow-hidden bg-neutral-800 flex-shrink-0">
                                                                     <Image src={item.image} alt={item.title} fill className="object-cover" />
@@ -151,10 +132,10 @@ function CategoriesContent({ setCategoryId }: { setCategoryId: React.Dispatch<Re
     );
 }
 
-export default function CategoriesPage({ setCategoryId }: { setCategoryId: React.Dispatch<React.SetStateAction<string>> }) {
+export default function CategoriesPage({ setCategoryId, categoryId }: { setCategoryId: React.Dispatch<React.SetStateAction<string>>, categoryId: string }) {
     return (
         <Suspense fallback={<div className="p-8 text-center text-white">Yuklanmoqda...</div>}>
-            <CategoriesContent setCategoryId={setCategoryId} />
+            <CategoriesContent setCategoryId={setCategoryId} categoryId={categoryId} />
         </Suspense>
     );
 }
