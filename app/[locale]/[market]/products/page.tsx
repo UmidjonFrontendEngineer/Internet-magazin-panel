@@ -16,6 +16,7 @@ import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GradientColor from "./_components/gradientColor";
 import Discount from "./_components/discount";
 import Category from "./_components/category";
+import { API_URL } from '@/lib/api';
 
 interface ProductOption {
     id: string;
@@ -105,7 +106,7 @@ const ProductsGet = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`https://internet-magazin-nest-server.onrender.com/products`);
+                const response = await fetch(`${API_URL}/products`);
                 if (!response.ok) throw new Error('Failed to fetch data');
                 const result: Product[] = await response.json();
 
@@ -183,7 +184,7 @@ const ProductsGet = () => {
             formData.append('warehouseId', 'warehouse-id-32');
             console.log(formData)
 
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/products', {
+            const res = await fetch(`${API_URL}/products`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

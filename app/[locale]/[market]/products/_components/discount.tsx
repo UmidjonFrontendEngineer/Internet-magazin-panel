@@ -13,6 +13,7 @@ import GlassInput from "@/components/admin/GlassInput";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Edit3, Trash2, Plus, Calendar, MousePointerClick } from "lucide-react";
+import { API_URL } from '@/lib/api';
 
 interface Discount {
     id: string;
@@ -34,7 +35,7 @@ function DiscountContent({ setDiscountId, discountId }: { setDiscountId: React.D
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await fetch("https://internet-magazin-nest-server.onrender.com/discounts");
+            const res = await fetch(`${API_URL}/discounts`);
             const req = await res.json();
 
             if (res.ok && Array.isArray(req)) {

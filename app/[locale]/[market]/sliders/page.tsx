@@ -14,6 +14,7 @@ import {
     ChevronLeft, ChevronRight, LayoutGrid, Table as TableIcon, Upload, Image as ImageIcon
 } from "lucide-react";
 import GlassCustomTable from "@/components/admin/GlassCustomTable";
+import { API_URL } from '@/lib/api';
 
 interface Slider {
     id: string;
@@ -48,7 +49,7 @@ function SlidersContent() {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await fetch("https://internet-magazin-nest-server.onrender.com/sliders");
+            const res = await fetch(`${API_URL}/sliders`);
             const req = await res.json();
 
             if (res.ok && Array.isArray(req)) {
@@ -78,8 +79,8 @@ function SlidersContent() {
             }
 
             const url = editId
-                ? `https://internet-magazin-nest-server.onrender.com/sliders/${editId}`
-                : "https://internet-magazin-nest-server.onrender.com/sliders";
+                ? `${API_URL}/sliders/${editId}`
+                : `${API_URL}/sliders`;
 
             const method = editId ? "PATCH" : "POST";
 
@@ -114,7 +115,7 @@ function SlidersContent() {
 
     const handleDeleteSlider = async (id: string) => {
         try {
-            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/sliders/${id}`, {
+            const res = await fetch(`${API_URL}/sliders/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });

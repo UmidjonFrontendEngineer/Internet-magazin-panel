@@ -16,6 +16,7 @@ import { useParams } from "next/navigation";
 import { Import } from "lucide-react";
 import { useRoleStore } from "../_store/useRoleStore";
 import { useNotification } from "@/components/Notification";
+import { API_URL } from '@/lib/api';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -52,7 +53,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             return;
         }
         try {
-            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/auth/profile`, {
+            const res = await fetch(`${API_URL}/auth/profile`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -77,7 +78,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     const handleRole = async () => {
         try {
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/role', {
+            const res = await fetch(`${API_URL}/role`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

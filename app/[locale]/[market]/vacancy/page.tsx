@@ -12,6 +12,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useNotification } from '@/components/Notification'
 import Image from 'next/image'
 import GlassWindow from '@/components/admin/GlassWindow'
+import { API_URL } from '@/lib/api';
 
 interface VacancyType {
     id: string;
@@ -54,7 +55,7 @@ const VacancyCard = ({ item, getVacancions }: VacancyCardProps) => {
 
     const handleDeleteVacancy = async (id: string) => {
         try {
-            const req = await fetch(`https://internet-magazin-nest-server.onrender.com/vacancies/${id}`, {
+            const req = await fetch(`${API_URL}/vacancies/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -168,7 +169,7 @@ const Vacancy = () => {
 
     const getVacancions = async () => {
         try {
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/vacancies')
+            const res = await fetch(`${API_URL}/vacancies`)
             const result = await res.json()
             const dataArray = Array.isArray(result) ? result : (result.data || [])
             setVacancions(dataArray)
@@ -203,7 +204,7 @@ const Vacancy = () => {
         }
 
         try {
-            const response = await fetch('https://internet-magazin-nest-server.onrender.com/vacancies', {
+            const response = await fetch(`${API_URL}/vacancies`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -235,7 +236,7 @@ const Vacancy = () => {
         try {
             const formData = new FormData(e.currentTarget);
 
-            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/vacancies/${vacancy?.id}/apply`, {
+            const response = await fetch(`${API_URL}/vacancies/${vacancy?.id}/apply`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

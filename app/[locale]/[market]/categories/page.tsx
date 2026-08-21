@@ -13,6 +13,7 @@ import GlassInput from "@/components/admin/GlassInput";
 import { Plus, Trash2, Edit3, Layers, Upload, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
+import { API_URL } from '@/lib/api';
 
 interface SubItem {
     title: string;
@@ -55,7 +56,7 @@ function CategoriesContent() {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await fetch("https://internet-magazin-nest-server.onrender.com/categories");
+            const res = await fetch(`${API_URL}/categories`);
             const req = await res.json();
 
             if (res.ok && Array.isArray(req)) {
@@ -157,8 +158,8 @@ function CategoriesContent() {
 
         try {
             const url = editId
-                ? `https://internet-magazin-nest-server.onrender.com/categories/${editId}`
-                : "https://internet-magazin-nest-server.onrender.com/categories";
+                ? `${API_URL}/categories/${editId}`
+                : `${API_URL}/categories`;
 
             const method = editId ? "PATCH" : "POST";
 
@@ -191,7 +192,7 @@ function CategoriesContent() {
 
     const handleDeleteCategory = async (id: string) => {
         try {
-            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/categories/${id}`, {
+            const res = await fetch(`${API_URL}/categories/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });

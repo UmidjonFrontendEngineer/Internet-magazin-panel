@@ -13,6 +13,7 @@ import GlassInput from "@/components/admin/GlassInput";
 import { Plus, Trash2, Edit3, Layers, Upload, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
+import { API_URL } from '@/lib/api';
 
 interface SubItem {
     id: string;
@@ -48,7 +49,7 @@ function CategoriesContent({ setCategoryId, categoryId }: { setCategoryId: React
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await fetch("https://internet-magazin-nest-server.onrender.com/categories");
+            const res = await fetch(`${API_URL}/categories`);
             const req = await res.json();
 
             if (res.ok && Array.isArray(req)) {

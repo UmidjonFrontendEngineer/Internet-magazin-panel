@@ -14,6 +14,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Edit3, Trash2, Plus, Calendar, LayoutGrid, Table as TableIcon, Upload, Image as ImageIcon } from "lucide-react";
 import Map from '@/app/_components/Map'
+import { API_URL } from '@/lib/api';
 
 interface Warehouse {
     id: string;
@@ -46,7 +47,7 @@ function WarehousesContent() {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await fetch("https://internet-magazin-nest-server.onrender.com/warehouses");
+            const res = await fetch(`${API_URL}/warehouses`);
             const req = await res.json();
 
             if (res.ok && Array.isArray(req)) {
@@ -69,8 +70,8 @@ function WarehousesContent() {
 
         try {
             const url = editId
-                ? `https://internet-magazin-nest-server.onrender.com/warehouses/${editId}`
-                : "https://internet-magazin-nest-server.onrender.com/warehouses";
+                ? `${API_URL}/warehouses/${editId}`
+                : `${API_URL}/warehouses`;
 
             const method = editId ? "PATCH" : "POST";
 
@@ -111,7 +112,7 @@ function WarehousesContent() {
 
     const handleDeleteWarehouse = async (id: string) => {
         try {
-            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/warehouses/${id}`, {
+            const res = await fetch(`${API_URL}/warehouses/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -201,13 +202,13 @@ function WarehousesContent() {
                     <GlassTable
                         columns={[
                             { key: "title", label: "Ombor Nomi" },
-                            { key: "lat", label: "Boshlanish Vaqti" },
-                            { key: "lng", label: "Tugash Vaqti" },
+                            { key: "lat", label: "Latitude" },
+                            { key: "lng", label: "Longitude" },
                         ]}
                         data={warehouses.map((warehouse) => ({
                             ...warehouse,
-                            lat: warehouse.lat ? new Date(warehouse.lat).toLocaleString() : "-",
-                            lng: warehouse.lng ? new Date(warehouse.lng).toLocaleString() : "-",
+                            lat: warehouse.lat,
+                            lng: warehouse.lng,
                         })) as Record<string, unknown>[]}
                         actions={(row) => {
                             const warehouse = row as unknown as Warehouse;
@@ -240,7 +241,7 @@ function WarehousesContent() {
                 open={isOpen}
                 onClose={() => setIsOpen(false)}
             >
-                <form className="space-y-4 max-h-[80vh] w-full overflow-visible pb-10" onSubmit={handleSubmitForm}>
+                <form className="space-y-4 w-full pb-10" onSubmit={handleSubmitForm}>
                     <GlassInput
                         label="Title"
                         placeholder="title..."
@@ -249,7 +250,7 @@ function WarehousesContent() {
                         required
                     />
 
-                    <GlassButton onClick={() => setOpenMap(true)}>
+                    <GlassButton onClick={() => setOpenMap(true)} className="w-full">
                         Xaritadan joyni tanlash
                     </GlassButton>
 

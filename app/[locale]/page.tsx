@@ -11,6 +11,7 @@ import { useThemeStore } from '@/app/_store/useThemeStore'
 import { useSelectMarketStore } from '@/app/_store/useSelectMarketStore'
 import Map from '@/app/_components/Map'
 import { useNotification } from '@/components/Notification'
+import { API_URL } from '@/lib/api';
 
 interface Market {
     id: string
@@ -55,7 +56,7 @@ export default function ProfilePage() {
 
     const getWorkers = async () => {
         try {
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers/get', {
+            const res = await fetch(`${API_URL}/workers/get`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -81,7 +82,7 @@ export default function ProfilePage() {
             return;
         }
         try {
-            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/auth/profile`, {
+            const res = await fetch(`${API_URL}/auth/profile`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -110,7 +111,7 @@ export default function ProfilePage() {
 
     const handleDeleteAccount = async () => {
         try {
-            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/auth/account`, {
+            const response = await fetch(`${API_URL}/auth/account`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -135,7 +136,7 @@ export default function ProfilePage() {
     const [markets, setMarkets] = useState<Market[]>([])
     const handleGetMarkets = async (token: string) => {
         try {
-            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/markets/get`, {
+            const response = await fetch(`${API_URL}/markets/get`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -179,7 +180,7 @@ export default function ProfilePage() {
         setMarketAdd(false)
 
         try {
-            const response = await fetch('https://internet-magazin-nest-server.onrender.com/markets', {
+            const response = await fetch(`${API_URL}/markets`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -204,7 +205,7 @@ export default function ProfilePage() {
 
     const handleDeleteMarket = async (marketId: string) => {
         try {
-            const response = await fetch(`https://internet-magazin-nest-server.onrender.com/markets/${marketId}`, {
+            const response = await fetch(`${API_URL}/markets/${marketId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

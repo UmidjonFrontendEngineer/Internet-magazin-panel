@@ -11,6 +11,7 @@ import GlassButton from "@/components/admin/GlassButton";
 import { useTokenStore } from "@/app/_store/useTokenStore";
 import { useNotification } from "@/components/Notification";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
+import { API_URL } from '@/lib/api';
 
 interface ApplicantItem {
     rate: number | null;
@@ -69,7 +70,7 @@ function ApplicationsContent() {
 
     const getWorkers = async () => {
         try {
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers')
+            const res = await fetch(`${API_URL}/workers`)
 
             const req = await res.json();
 
@@ -94,8 +95,8 @@ function ApplicationsContent() {
             try {
                 setLoading(true);
                 const [vRes, uRes] = await Promise.all([
-                    fetch("https://internet-magazin-nest-server.onrender.com/vacancies"),
-                    fetch("https://internet-magazin-nest-server.onrender.com/users")
+                    fetch(`${API_URL}/vacancies`),
+                    fetch(`${API_URL}/users`)
                 ]);
 
                 const vacancies: Vacancy[] = await vRes.json();
@@ -143,7 +144,7 @@ function ApplicationsContent() {
         if (rateCount === 0) return
 
         try {
-            const res = await fetch(`https://internet-magazin-nest-server.onrender.com/vacancies/${queryId}/rate`, {
+            const res = await fetch(`${API_URL}/vacancies/${queryId}/rate`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -169,7 +170,7 @@ function ApplicationsContent() {
 
     const handleAccept = async (applicantId: string, marketId: string, vacancyId: string) => {
         try {
-            const res = await fetch('https://internet-magazin-nest-server.onrender.com/workers', {
+            const res = await fetch(`${API_URL}/workers`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

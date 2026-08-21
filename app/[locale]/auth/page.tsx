@@ -6,6 +6,7 @@ import { useNotification } from '@/components/Notification'
 import { useThemeStore } from '@/app/_store/useThemeStore'
 import GlassInput from '@/components/admin/GlassInput'
 import GlassModal from '@/components/admin/GlassModal'
+import { API_URL } from '@/lib/api';
 
 export default function AuthPage() {
     const notify = useNotification()
@@ -33,7 +34,7 @@ export default function AuthPage() {
             }
         }
         const bodyData = auth === 'email' ? { email } : { 'email': email, 'code': String(code) };
-        const postUrl = auth === 'email' ? `https://internet-magazin-nest-server.onrender.com/auth/send-otp` : `https://internet-magazin-nest-server.onrender.com/auth/verify-otp`;
+        const postUrl = auth === 'email' ? `${API_URL}/auth/send-otp` : `${API_URL}/auth/verify-otp`;
 
         const res = await fetch(postUrl, {
             method: 'POST',
