@@ -118,7 +118,7 @@ function WarehousesContent() {
         try {
             const res = await fetch(`${API_URL}/warehouses/${id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "marketId": selectMarket, "role": role },
             });
 
             if (res.ok) {
@@ -254,7 +254,7 @@ function WarehousesContent() {
                         required
                     />
 
-                    <GlassButton onClick={() => setOpenMap(true)} className="w-full">
+                    <GlassButton type="button" onClick={() => setOpenMap(true)} className="w-full">
                         Xaritadan joyni tanlash
                     </GlassButton>
 

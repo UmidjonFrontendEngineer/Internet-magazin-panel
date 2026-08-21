@@ -16,6 +16,7 @@ import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
 import GradientColor from "./_components/gradientColor";
 import Discount from "./_components/discount";
 import Category from "./_components/category";
+import WarehousePage from "./_components/warehouse";
 import { API_URL } from '@/lib/api';
 
 interface ProductOption {
@@ -72,6 +73,8 @@ const ProductsGet = () => {
     const [categoryId, setCategoryId] = useState('NULL')
     const [discountOpen, setDiscountOpen] = useState(false)
     const [discountId, setDiscountId] = useState('NULL')
+    const [warehouseOpen, setWarehouseOpen] = useState(false)
+    const [warehouseId, setWarehouseId] = useState('NULL')
 
     const [colors, setColors] = useState<string[]>(['#3b82f6', '#3b82f6']);
 
@@ -181,7 +184,7 @@ const ProductsGet = () => {
             formData.append('discountId', discountId)
             formData.append('categoryId', categoryId)
             formData.append('marketId', selectMarket)
-            formData.append('warehouseId', 'warehouse-id-32');
+            formData.append('warehouseId', warehouseId);
             console.log(formData)
 
             const res = await fetch(`${API_URL}/products`, {
@@ -445,7 +448,7 @@ const ProductsGet = () => {
                                 <GlassInput label='quantity' name='quantity' placeholder="quantity..." />
                                 <GlassButton type="button" onClick={() => setCategoryOpen(true)}>category select</GlassButton>
                                 <GlassButton type="button" onClick={() => setDiscountOpen(true)}>discount select</GlassButton>
-                                <GlassButton type="button">warehouse select</GlassButton>
+                                <GlassButton type="button" onClick={() => setWarehouseOpen(true)}>warehouse select</GlassButton>
                                 <GlassButton type="button" onClick={() => setGradientIsOpen(true)}>gradient</GlassButton>
                             </div>
                         </div>
@@ -576,6 +579,28 @@ const ProductsGet = () => {
                 <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                     <button
                         onClick={() => setCategoryOpen(false)}
+                        type="button"
+                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <GlassButton
+                        onClick={handleSave}
+                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                    >
+                        Save
+                    </GlassButton>
+                </div>
+            </GlassModal>
+
+            <GlassModal open={discountOpen} onClose={() => setDiscountOpen(false)} title='discount'>
+                <WarehousePage setWarehouseId={setWarehouseId} warehouseId={warehouseId} />
+
+                <div className="p-6"></div>
+
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <button
+                        onClick={() => setDiscountOpen(false)}
                         type="button"
                         className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     >
