@@ -87,14 +87,28 @@ function CategoriesContent({ setCategoryId, categoryId }: { setCategoryId: React
                     ...cat,
                     createdAt: new Date(cat.createdAt).toLocaleString()
                 })) as Record<string, unknown>[]}
+                
                 actions={(row) => {
                     const cat = row as unknown as Categorie;
                     const isExpanded = expandedRow === cat.id;
-
                     const originalDisc = categories.find(c => c.title === cat.title && c.market === selectMarket) || cat;
 
                     return (
                         <div className="flex flex-col gap-2 w-full">
+                            <div className="flex items-center justify-between gap-4">
+                                <button
+                                    onClick={() => setExpandedRow(isExpanded ? null : cat.id)}
+                                    className={cn(
+                                        "px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 border transition",
+                                        dark ? "bg-white/5 border-white/10 hover:bg-white/10 text-sky-400" : "bg-sky-50 border-sky-200 text-sky-600"
+                                    )}
+                                >
+                                    <Layers className="w-3.5 h-3.5" />
+                                    <span>{cat.options?.length || 0} ta Option</span>
+                                    <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", isExpanded && "rotate-180")} />
+                                </button>
+                            </div>
+
                             <AnimatePresence>
                                 {isExpanded && (
                                     <motion.div

@@ -593,21 +593,21 @@ const ProductsGet = () => {
                 </div>
             </GlassModal>
 
-            <GlassModal open={discountOpen} onClose={() => setDiscountOpen(false)} title='discount'>
+            <GlassModal open={warehouseOpen} onClose={() => setWarehouseOpen(false)} title='discount'>
                 <WarehousePage setWarehouseId={setWarehouseId} warehouseId={warehouseId} />
 
                 <div className="p-6"></div>
 
                 <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                     <button
-                        onClick={() => setDiscountOpen(false)}
+                        onClick={() => setWarehouseOpen(false)}
                         type="button"
                         className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     >
                         Cancel
                     </button>
                     <GlassButton
-                        onClick={handleSave}
+                        onClick={() => setWarehouseOpen(false)}
                         className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                     >
                         Save
