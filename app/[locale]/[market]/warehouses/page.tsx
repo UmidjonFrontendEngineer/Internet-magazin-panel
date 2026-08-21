@@ -15,6 +15,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Edit3, Trash2, Plus, Calendar, LayoutGrid, Table as TableIcon, Upload, Image as ImageIcon } from "lucide-react";
 import Map from '@/app/_components/Map'
 import { API_URL } from '@/lib/api';
+import { useRoleStore } from "@/app/_store/useRoleStore";
 
 interface Warehouse {
     id: string;
@@ -79,13 +80,14 @@ function WarehousesContent() {
                 method,
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "marketId": selectMarket,
+                    "role": useRoleStore(state => state.role),
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     title: warehouseountTitle,
-                    lat: mapLat ? mapLat.toString() : 0,
-                    lng: mapLng ? mapLng.toString() : 0,
-                    marketId: selectMarket,
+                    lat: mapLat ? mapLat : 0,
+                    lng: mapLng ? mapLng : 0,
                 }),
             });
 
