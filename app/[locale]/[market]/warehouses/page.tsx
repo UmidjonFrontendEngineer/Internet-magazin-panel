@@ -28,6 +28,7 @@ interface Warehouse {
 
 function WarehousesContent() {
     const notify = useNotification();
+    const role = useRoleStore(state => state.role)
     const [loading, setLoading] = useState<boolean>(true);
     const [isOpen, setIsOpen] = useState(false);
     const [editId, setEditId] = useState<string | null>(null);
@@ -81,7 +82,7 @@ function WarehousesContent() {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "marketId": selectMarket,
-                    "role": useRoleStore(state => state.role),
+                    "role": role,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
