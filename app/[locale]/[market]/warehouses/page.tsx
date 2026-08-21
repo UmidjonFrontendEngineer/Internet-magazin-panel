@@ -88,6 +88,7 @@ function WarehousesContent() {
                     title: warehouseountTitle,
                     lat: mapLat ? mapLat : 0,
                     lng: mapLng ? mapLng : 0,
+                    marketId: selectMarket
                 }),
             });
 
