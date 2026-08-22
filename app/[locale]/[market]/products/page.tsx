@@ -1,88 +1,76 @@
-'use client'
-import Image from "next/image";
-import React, { useState, useEffect } from "react";
-import { useThemeStore } from "@/app/_store/useThemeStore";
-import GlassCard from "@/components/admin/GlassCard";
-import GlassInput from "@/components/admin/GlassInput";
-import GlassButton from "@/components/admin/GlassButton";
-import GlassModal from "@/components/admin/GlassModal";
-import { useNotification } from "@/components/Notification";
-import { useTokenStore } from "@/app/_store/useTokenStore";
-import { Plus, Trash2, Edit3, Layers, Upload, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
-import Item from "./_components/item";
-import ImageUpload from "./_components/image";
-import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
-import GradientColor from "./_components/gradientColor";
-import Discount from "./_components/discount";
-import Category from "./_components/category";
-import WarehousePage from "./_components/warehouse";
-import { API_URL } from '@/lib/api';
-import { useRoleStore } from "@/app/_store/useRoleStore";
-
-interface ProductOption {
-    id: string;
-    key: string;
-    value: number;
-}
-
-interface ProductOptionGroup {
-    id: string;
-    title: string;
-    options: ProductOption[];
-}
+import React, { useState, useEffect } from 'react';
+import GlassModal from '@/components/admin/GlassModal';
+import GlassInput from '@/components/admin/GlassInput';
+import GlassButton from '@/components/admin/GlassButton';
+import ImageUpload from './_components/image';
+import Item from './_components/item';
+import GradientColor from './_components/gradientColor';
+import Discount from './_components/discount'
+import Category from './_components/category';
+import WarehousePage from './_components/warehouse';
 
 interface Product {
     id: string;
     title: string;
-    description: {
-        uz: string;
-        en: string;
-        ru: string;
-    };
-    discountId: string;
-    categoryId: string;
-    warehouseId: string;
-    marketId: string;
-    gradient: string[];
-    options: ProductOptionGroup[];
-    images: string[];
-    createdAt: string;
+    price: number;
+    quantity: number;
+    descriptionUz?: string;
+    descriptionEn?: string;
+    descriptionRu?: string;
+    categoryId?: string;
+    discountId?: string;
+    warehouseId?: string;
+    marketId?: string;
+    images?: string[];
+    colors?: string[];
+    items?: any[];
 }
 
-const ProductsGet = () => {
-    const role = useRoleStore(state => state.role)
-    const theme = useThemeStore(state => state.theme);
-    const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
-    const notify = useNotification()
-    const token = useTokenStore(state => state.token)
-    const selectMarket = useSelectMarketStore(state => state.selectMarket)
-
-    const [data, setData] = useState<Product[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [editId, setEditId] = useState<string | null>(null);
-    const [isOpen, setIsOpen] = useState(false)
+export const ProductsGet: React.FC = () => {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [gradientIsOpen, setGradientIsOpen] = useState<boolean>(false);
+    const [discountOpen, setDiscountOpen] = useState<boolean>(false);
+    const [categoryOpen, setCategoryOpen] = useState<boolean>(false);
+    const [warehouseOpen, setWarehouseOpen] = useState<boolean>(false);
     const [deleteModal, setDeleteModal] = useState<string | null>(null);
+    const [editId, setEditId] = useState<string | null>(null);
 
-    const [activeImageIndices, setActiveImageIndices] = useState<{ [key: number]: number }>({});
-    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: { [groupName: string]: number } }>({});
+    const [imagesLength, setImagesLength] = useState<number>(1);
+    const [itemsLenght, setItemsLenght] = useState<number>(1);
+    const [descr, setDescr] = useState<string>('uz');
+    const lans = ['uz', 'en', 'ru'];
 
-    // ========= New Product =========
+    const [colors, setColors] = useState<string[]>(['#ffffff']);
+    const [discountId, setDiscountId] = useState<string>('');
+    const [categoryId, setCategoryId] = useState<string>('');
+    const [warehouseId, setWarehouseId] = useState<string>('');
+    const [marketId, setMarketId] = useState<string>('');
 
-    const [imagesLength, setImagesLength] = useState(1)
-    const [currentImageIndex, setCurrentImageIndex] = useState(0)
-    const [descr, setDescr] = useState('uz');
-    const [lans, setLans] = useState(['uz', 'en', 'ru']);
-    const [itemsLenght, setItemsLenght] = useState(1)
-    const [gradientIsOpen, setGradientIsOpen] = useState(false);
-    const [categoryOpen, setCategoryOpen] = useState(false)
-    const [categoryId, setCategoryId] = useState('NULL')
-    const [discountOpen, setDiscountOpen] = useState(false)
-    const [discountId, setDiscountId] = useState('NULL')
-    const [warehouseOpen, setWarehouseOpen] = useState(false)
-    const [warehouseId, setWarehouseId] = useState('NULL')
+    const [loading, setLoading] = useState<boolean>(false);
+    const dark = true;
 
-    const [colors, setColors] = useState<string[]>(['#3b82f6', '#3b82f6']);
+    const [categoryTitle, setCategoryTitle] = useState<string>('');
+    const [optionTitle, setOptionTitle] = useState<string>('');
+    const [subOptionTitle, setSubOptionTitle] = useState<string>('');
+
+    useEffect(() => {
+        if (!categoryId) {
+            setCategoryTitle('');
+            setOptionTitle('');
+            setSubOptionTitle('');
+            return;
+        }
+
+        const parts = categoryId.split('|');
+        const catId = parts[0] || '';
+        const optId = parts[1] || '';
+        const subOptId = parts[2] || '';
+
+        setCategoryTitle(catId ? `Category: ${catId}` : '');
+        setOptionTitle(optId ? `Option: ${optId}` : '');
+        setSubOptionTitle(subOptId ? `SubOption: ${subOptId}` : '');
+    }, [categoryId]);
 
     const handleColorChange = (index: number, newColor: string) => {
         const updated = [...colors];
@@ -90,446 +78,133 @@ const ProductsGet = () => {
         setColors(updated);
     };
 
-    const handleAddColor = () => {
-        setColors(prev => [...prev, '#3b82f6']);
-    };
-
     const handleRemoveColor = (index: number) => {
-        setColors(prev => prev.filter((_, i) => i !== index));
+        setColors(colors.filter((_, i) => i !== index));
     };
 
-    const handleSave = () => {
-        console.log("Saqlangan ranglar:", colors);
+    const handleAddColor = () => {
+        setColors([...colors, '#ffffff']);
+    };
 
+    const handleSaveGradient = () => {
         setGradientIsOpen(false);
     };
 
-    // ========= New Product =========
+    const handleOpenEdit = (product: Product) => {
+        setEditId(product.id);
+        setCategoryId(product.categoryId || '');
+        setDiscountId(product.discountId || '');
+        setWarehouseId(product.warehouseId || '');
+        setMarketId(product.marketId || '');
+        if (product.colors && product.colors.length > 0) {
+            setColors(product.colors);
+        }
+        setIsOpen(true);
+    };
 
-    useEffect(() => {
-        descr === 'uz' ? setLans(['uz', 'en', 'ru']) :
-            descr === 'en' ? setLans(['en', 'uz', 'ru']) :
-                descr === 'ru' ? setLans(['ru', 'en', 'uz']) : '';
-    }, [descr]);
-
-    const fetchData = async () => {
+    const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/products`);
-            if (!response.ok) throw new Error('Failed to fetch data');
-            const req: Product[] = await response.json();
+            const formData = new FormData(e.currentTarget);
+            formData.append('categoryId', categoryId);
+            formData.append('discountId', discountId);
+            formData.append('warehouseId', warehouseId);
+            formData.append('marketId', marketId);
+            formData.append('colors', JSON.stringify(colors));
 
-            const result = req.filter(item => item.marketId === selectMarket)
-            setData(result);
-
-            const initialIndices: { [key: number]: number } = {};
-            const initialSelectedOpts: typeof selectedOptions = {};
-
-            result.forEach(item => {
-                initialIndices[item.id] = 0;
-                initialSelectedOpts[item.id] = {};
-                item.options?.forEach(group => {
-                    if (group.options && group.options.length > 0) {
-                        initialSelectedOpts[item.id][group.title] = group.options[0].value;
-                    }
-                });
-            });
-
-            setActiveImageIndices(initialIndices);
-            setSelectedOptions(initialSelectedOpts);
+            if (editId) {
+                console.log("Updating product ID:", editId, Object.fromEntries(formData));
+            } else {
+                console.log("Creating new product:", Object.fromEntries(formData));
+            }
+            setIsOpen(false);
+            setEditId(null);
         } catch (error) {
-            console.error('Xatolik:', error);
+            console.error("Error saving product:", error);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const handleOptionSelect = (productId: number, groupName: string, value: number) => {
-        setSelectedOptions(prev => ({
-            ...prev,
-            [productId]: {
-                ...(prev[productId] || {}),
-                [groupName]: value
-            }
-        }));
-    };
-
-    const handleNextImage = (productId: number, totalImages: number) => {
-        setActiveImageIndices(prev => {
-            const currentIndex = prev[productId] ?? 0;
-            return { ...prev, [productId]: (currentIndex + 1) % totalImages };
-        });
-    };
-
-    const handlePrevImage = (productId: number, totalImages: number) => {
-        setActiveImageIndices(prev => {
-            const currentIndex = prev[productId] ?? 0;
-            return { ...prev, [productId]: (currentIndex - 1 + totalImages) % totalImages };
-        });
-    };
-
-    const calculateTotalPrice = (product: Product) => {
-        const productSelections = selectedOptions[product.id] || {};
-        let optionsSum = 0;
-
-        Object.values(productSelections).forEach(value => {
-            optionsSum += value;
-        });
-
-        return optionsSum;
-    };
-
-    const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        try {
-            const url = editId
-                ? `${API_URL}/products${editId}`
-                : `${API_URL}/products`
-
-            const method = editId ? "PATCH" : "POST";
-
-            const formData = new FormData(e.currentTarget);
-            formData.append('gradient', JSON.stringify(colors))
-            formData.append('discountId', discountId)
-            formData.append('categoryId', categoryId)
-            formData.append('marketId', selectMarket)
-            formData.append('role', role)
-            formData.append('warehouseId', warehouseId);
-            console.log(formData)
-
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            })
-
-            const req = await res.json()
-
-            if (res.ok) {
-                notify.show("Mahsulot muaffaqiyatli yaratildi.", 'success', theme === 'dark' ? 'dark' : 'light')
-                setIsOpen(false)
-            } else {
-                notify.show(`${req.message || 'xatolik yuz berdi'}`, 'error', theme === 'dark' ? 'dark' : 'light')
-            }
-        } catch (err) {
-            notify.show("So'rov yuborilmadi", 'error', theme === 'dark' ? 'dark' : 'light')
-        }
-    }
-
-    const handleDeleteProduct = async (id: string) => {
-        try {
-            const res = await fetch(`${API_URL}/products/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}`, marketId: selectMarket, role: role }
-            });
-            if (res.ok) {
-                notify.show("Mahsulot o'chirildi", "success", dark ? "dark" : "light");
-                fetchData();
-            } else {
-                notify.show("O'chirishda xatolik", "error", dark ? "dark" : "light");
-            }
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    const handleOpenEdit = (cat: Product) => {
-        setIsOpen(true);
-    };
-
-    return (
-        <div className={`min-h-screen transition-colors duration-300 py-12 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>
-            <div className="space-y-10 mx-auto">
-
-                <GlassCard className='flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10 w-full p-4'>
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <h1 className='text-2xl font-bold'>Products</h1>
-                    </div>
-
-                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                        <div className="relative flex items-center flex-1 sm:flex-initial">
-                            <GlassInput
-                                type="text"
-                                placeholder="Search..."
-                                // value={searchTerm}
-                                // onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full sm:w-48 sm:focus:w-72 transition-all duration-300 text-xs py-2"
-                            />
-                        </div>
-                        <GlassButton className="whitespace-nowrap" onClick={() => setIsOpen(true)}>
-                            Create Product
-                        </GlassButton>
-                    </div>
-                </GlassCard>
-
-                {loading || data.length === 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {Array(12).fill(null).map((_, index) => (
-                            <GlassCard key={index} className={`space-y-4 animate-pulse`}>
-                                <div className={`aspect-square w-full rounded-2xl ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                <div className={`h-3 rounded w-1/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                <div className={`h-6 rounded w-3/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                <div className="space-y-2">
-                                    <div className={`h-4 rounded w-full ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                    <div className={`h-4 rounded w-5/6 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                </div>
-                                <div className="flex justify-between items-center pt-2">
-                                    <div className={`h-5 rounded w-1/3 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                    <div className={`h-5 rounded w-1/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                </div>
-                            </GlassCard>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="space-y-10">
-                        {data.map((item) => {
-                            const activeIndex = activeImageIndices[item.id] ?? 0;
-                            const hasImages = item.images && item.images.length > 0;
-                            const currentImageUrl = hasImages ? item.images[activeIndex] : "https://dummyimage.com/600x600/18181b/a1a1aa";
-                            const totalPrice = calculateTotalPrice(item);
-
-                            const gradientStyle = item.gradient?.length > 0
-                                ? {
-                                    background: `linear-gradient(45deg, ${item.gradient.join(', ')})`,
-                                }
-                                : undefined;
-
-                            return (
-                                <GlassCard
-                                    key={item.id}
-                                    className={`relative grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden transition-colors duration-300`}
-                                >
-
-                                    {gradientStyle && (
-                                        <div
-                                            className="absolute inset-0 opacity-15 pointer-events-none blur-[100px] animate-spin-slow"
-                                            style={gradientStyle}
-                                        />
-                                    )}
-
-                                    <div className="asbolute top-0 right-0 rounded-2xl flex items-center justify-center p-4 gap-4">
-                                        <button
-                                            onClick={() => handleOpenEdit(item)}
-                                            className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
-                                            title="Edit"
-                                        >
-                                            <Edit3 className="w-8 h-8" />
-                                        </button>
-                                        <button
-                                            onClick={() => setDeleteModal(item.id)}
-                                            className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="w-8 h-8" />
-                                        </button>
-                                    </div>
-
-                                    <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
-
-                                        <div className="col-span-2 flex flex-col gap-2.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
-                                            {item.images?.map((img, index) => (
-                                                <button
-                                                    key={index}
-                                                    onClick={() => setActiveImageIndices(prev => ({ ...prev, [item.id]: index }))}
-                                                    className={`relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${index === activeIndex
-                                                        ? "border-sky-500 scale-95 shadow-lg shadow-sky-500/20"
-                                                        : theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
-                                                        }`}
-                                                >
-                                                    <Image src={img} alt={`thumb-${index}`} fill className="object-cover" sizes="80px" />
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className={`col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800/60' : 'bg-gray-50 border-zinc-200'
-                                            }`}>
-
-                                            <div className="relative w-full h-full p-4 transition-transform duration-500 ease-out group-hover/slider:scale-105">
-                                                <Image
-                                                    src={currentImageUrl}
-                                                    alt={item.title}
-                                                    fill
-                                                    className="object-contain p-4"
-                                                    sizes="500px"
-                                                />
-                                            </div>
-
-                                            {item.images && item.images.length > 1 && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handlePrevImage(item.id, item.images.length)}
-                                                        className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
-                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
-                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
-                                                            }`}
-                                                        aria-label="Oldingi rasm"
-                                                    >
-                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                                                        </svg>
-                                                    </button>
-
-                                                    <button
-                                                        onClick={() => handleNextImage(item.id, item.images.length)}
-                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
-                                                            ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
-                                                            : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
-                                                            }`}
-                                                        aria-label="Keyingi rasm"
-                                                    >
-                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                                        </svg>
-                                                    </button>
-                                                </>
-                                            )}
-
-                                            <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
-                                                -{item.discountId}% Chegirma
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
-                                        <div>
-                                            <span className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                ID: {item.id} • Turi: <span className={`capitalize ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{item.categoryId}</span>
-                                            </span>
-                                            <h2 className={`text-2xl font-bold mt-1 mb-3 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>{item.title}</h2>
-
-                                            <div className={`mb-4 p-4 rounded-2xl border ${theme === 'dark' ? 'bg-sky-400/10 border-zinc-800/50' : 'bg-sky-50 border-sky-100'
-                                                }`}>
-                                                <span className={`text-xs block mb-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>Tanlangan Konfiguratsiya Narxi:</span>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                                                        {totalPrice.toLocaleString()} UZS
-                                                    </span>
-                                                    <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                        {(totalPrice).toLocaleString()} UZS
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <p className={`text-sm leading-relaxed p-4 rounded-xl border ${theme === 'dark' ? 'text-zinc-400 bg-sky-400/10 border-zinc-800/40' : 'text-zinc-600 bg-gray-50 border-gray-200'
-                                                }`}>
-                                                {item.description.uz}
-                                            </p>
-                                        </div>
-
-                                        {item.options && item.options.length > 0 && (
-                                            <div className="space-y-4">
-                                                <h3 className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>Konfiguratsiyani o'zgartirish:</h3>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    {item.options.map((optGroup, optIdx) => {
-                                                        const activeVal = selectedOptions[item.id]?.[optGroup.title];
-                                                        return (
-                                                            <div key={optIdx} className={`p-4 rounded-xl border ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800' : 'bg-gray-50 border-zinc-200'
-                                                                }`}>
-                                                                <span className={`text-xs font-semibold block capitalize mb-3 tracking-wider ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
-                                                                    }`}>
-                                                                    {optGroup.title}
-                                                                </span>
-                                                                <div className="flex flex-col gap-2">
-                                                                    {optGroup.options.map((opt, valIdx) => {
-                                                                        const isSelected = activeVal === opt.value;
-
-                                                                        return (
-                                                                            <button
-                                                                                key={valIdx}
-                                                                                onClick={() => handleOptionSelect(item.id, optGroup.title, opt.value)}
-                                                                                className={`flex justify-between items-center text-xs font-medium px-4 py-3 rounded-lg border transition-all duration-200 ${isSelected
-                                                                                    ? "bg-sky-500/10 text-sky-500 border-sky-500/50 shadow-[0_0_12px_rgba(14,165,233,0.1)]"
-                                                                                    : theme === 'dark'
-                                                                                        ? "bg-zinc-800/20 text-zinc-300 border-zinc-800 hover:bg-zinc-800/40 hover:border-zinc-700"
-                                                                                        : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300"
-                                                                                    }`}
-                                                                            >
-                                                                                <span className="capitalize">{opt.key}</span>
-                                                                                <span className={`font-semibold ${isSelected ? "text-sky-500" : theme === 'dark' ? "text-zinc-500" : "text-zinc-400"}`}>
-                                                                                    +{opt.value.toLocaleString()} UZS
-                                                                                </span>
-                                                                            </button>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                </GlassCard>
-                            );
-                        })}
-                    </div>
-                )}
-
+    const handleDeleteProduct = (id: string) => {
+        setProducts(products.filter(p => p.id !== id));
+        console.log("Deleted product id:", id);
+    };return (
+        <div className="p-6 relative min-h-screen">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold text-white">Products Management</h1>
+                    <p className="text-sm text-neutral-400">Manage your store products, options, and market structures.</p>
+                </div>
+                <button 
+                    onClick={() => { 
+                        setEditId(null); 
+                        setCategoryId('');
+                        setDiscountId('');
+                        setWarehouseId('');
+                        setMarketId('');
+                        setColors(['#ffffff']);
+                        setIsOpen(true); 
+                    }}
+                    className="px-5 py-2.5 bg-sky-500 text-white rounded-xl font-medium hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                >
+                    Create Product
+                </button>
             </div>
 
-            <style jsx global>{`
-                @keyframes spin-slow {
-                  0% { transform: rotate(0deg); }
-                  100% { transform: rotate(360deg); }
-                }
-                .animate-spin-slow {
-                  animation: spin-slow 22s linear infinite;
-                }
-            `}</style>
-
-            <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title={editId ? '' : 'Create Product'} size="full">
+            <GlassModal open={isOpen} onClose={() => { setIsOpen(false); setEditId(null); }} title={editId ? 'Edit Product' : 'Create Product'} size="full">
                 <form onSubmit={handleCreateProduct}>
-
-                    <div className="w-full flex gap-4 max-[650px]:flex-col h-[70vh]">
+                    <div className="w-full flex gap-4 max-[650px]:flex-col h-[70vh] pb-16">
                         <div className="w-full p-2 flex gap-4 h-full max-[650px]:flex-col">
-                            <div className="flex flex-col gap-3 overflow-scroll">
+                            <div className="flex flex-col gap-3 overflow-y-auto max-h-full pr-2 w-full">
                                 {Array.from({ length: imagesLength }).map((_, index) => (
-                                    <ImageUpload setImagesLength={setImagesLength} index={index} />
+                                    <ImageUpload key={index} setImagesLength={setImagesLength} index={index} />
                                 ))}
                             </div>
 
-                            <div className="flex flex-col gap-3 h-full overflow-scroll">
-                                <GlassInput label='price' name='price' placeholder="price..." />
-                                <GlassInput label='quantity' name='quantity' placeholder="quantity..." />
-                                <GlassButton type="button" onClick={() => setCategoryOpen(true)}>category select</GlassButton>
-                                <GlassButton type="button" onClick={() => setDiscountOpen(true)}>discount select</GlassButton>
-                                <GlassButton type="button" onClick={() => setWarehouseOpen(true)}>warehouse select</GlassButton>
-                                <GlassButton type="button" onClick={() => setGradientIsOpen(true)}>gradient</GlassButton>
+                            <div className="flex flex-col gap-3 h-full overflow-y-auto max-h-full pr-2 w-full">
+                                <GlassInput label='price' name='price' placeholder="price..." required />
+                                <GlassInput label='quantity' name='quantity' placeholder="quantity..." required />
+                                
+                                <GlassButton type="button" onClick={() => setCategoryOpen(true)}>
+                                    {categoryId ? `${subOptionTitle || optionTitle || categoryTitle}` : 'Category Select'}
+                                </GlassButton>
+
+                                <GlassButton type="button" onClick={() => setDiscountOpen(true)}>
+                                    {discountId ? `Discount ID: ${discountId}` : 'Discount Select'}
+                                </GlassButton>
+
+                                <GlassButton type="button" onClick={() => setWarehouseOpen(true)}>
+                                    {warehouseId ? `Warehouse ID: ${warehouseId}` : 'Warehouse Select'}
+                                </GlassButton>
+
+                                <GlassButton type="button" onClick={() => setGradientIsOpen(true)}>
+                                    Gradient Colors ({colors.length})
+                                </GlassButton>
                             </div>
                         </div>
-                        <div className="w-full p-2 flex gap-4 flex-col overflow-scroll h-full">
-                            <GlassInput placeholder='title' name='title' label='title' />
+                        
+                        <div className="w-full p-2 flex gap-4 flex-col overflow-y-auto h-full max-h-full">
+                            <GlassInput placeholder='title' name='title' label='title' required />
 
                             <div>
                                 <div className="flex w-full">
                                     {lans.map(item => (
-                                        <button key={item} type="button" className={`relative px-4 py-2 duration-200 text-sm ${item === descr ? 'border-sky-500/60 shadow-[0_0_0_3px_rgba(14,165,233,0.15)]' : ''} ${descr === item ? `bg-sky-200/10 border-t border-l border-r ${dark
-                                            ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                            : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}` : ''} translate-y-[2px] z-[10] rounded-xl rounded-bl-[0] rounded-br-[0]`} onClick={() => setDescr(item)}>
+                                        <button 
+                                            key={item} 
+                                            type="button" 
+                                            className={`relative px-4 py-2 duration-200 text-sm ${item === descr ? 'border-sky-500/60 shadow-[0_0_0_3px_rgba(14,165,233,0.15)]' : ''} ${descr === item ? `bg-sky-200/10 border-t border-l border-r ${dark ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500' : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}` : ''} translate-y-[2px] z-[10] rounded-xl rounded-bl-[0] rounded-br-[0]`} 
+                                            onClick={() => setDescr(item)}
+                                        >
                                             {item === 'uz' ? 'O\'zbek' : item === 'en' ? 'English' : item === 'ru' ? 'Русский' : ''}
                                         </button>
                                     ))}
                                 </div>
                                 <div className="flex gap-4">
-                                    <textarea name='descriptionUz' className={`${descr === 'uz' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
-                                        ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                        : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                        }`} placeholder="UZ description..." rows={6}></textarea>
-                                    <textarea name='descriptionEn' className={`${descr === 'en' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
-                                        ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                        : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                        }`} placeholder="EN description..." rows={6}></textarea>
-                                    <textarea name='descriptionRu' className={`${descr === 'ru' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
-                                        ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
-                                        : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
-                                        }`} placeholder="RU description..." rows={6}></textarea>
+                                    <textarea name='descriptionUz' className={`${descr === 'uz' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500' : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}`} placeholder="UZ description..." rows={6}></textarea>
+                                    <textarea name='descriptionEn' className={`${descr === 'en' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500' : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}`} placeholder="EN description..." rows={6}></textarea>
+                                    <textarea name='descriptionRu' className={`${descr === 'ru' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500' : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}`} placeholder="RU description..." rows={6}></textarea>
                                 </div>
                             </div>
 
@@ -541,12 +216,9 @@ const ProductsGet = () => {
                         </div>
                     </div>
 
-
-                    <div className="p-6"></div>
-
-                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 bg-neutral-900/90 backdrop-blur-md rounded-b-[28px] border-t border-white/10">
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => { setIsOpen(false); setEditId(null); }}
                             type="button"
                             className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                         >
@@ -554,143 +226,71 @@ const ProductsGet = () => {
                         </button>
                         <GlassButton
                             type="submit"
-                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
+                            disabled={loading}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95 disabled:opacity-50"
                         >
-                            {editId ? "Update" : "Save"}
+                            {loading ? "Processing..." : editId ? "Update" : "Save"}
                         </GlassButton>
                     </div>
                 </form>
             </GlassModal>
 
-            <GlassModal
-                open={gradientIsOpen}
-                onClose={() => setGradientIsOpen(false)}
-                title="gradient"
-            >
-                <div className="flex flex-col gap-4">
+            <GlassModal open={gradientIsOpen} onClose={() => setGradientIsOpen(false)} title="gradient">
+                <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2 pb-16">
                     {colors.map((color, index) => (
                         <GradientColor
                             key={index}
                             index={index}
                             color={color}
-                            onChange={(newColor) => handleColorChange(index, newColor)}
+                            onChange={(newColor: string) => handleColorChange(index, newColor)}
                             onRemove={() => handleRemoveColor(index)}
                             canDelete={colors.length > 1}
                         />
                     ))}
-
-                    <GlassButton onClick={handleAddColor}>+</GlassButton>
+                    <GlassButton onClick={handleAddColor} type="button">+</GlassButton>
                 </div>
-
-                <div className="p-6"></div>
-
-                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
-                    <button
-                        onClick={() => setGradientIsOpen(false)}
-                        type="button"
-                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-                    >
-                        Cancel
-                    </button>
-                    <GlassButton
-                        onClick={handleSave}
-                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
-                    >
-                        Save
-                    </GlassButton>
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 bg-neutral-900/90 backdrop-blur-md rounded-b-[28px] border-t border-white/10">
+                    <button onClick={() => setGradientIsOpen(false)} type="button" className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Cancel</button>
+                    <GlassButton onClick={handleSaveGradient} type="button" className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95">Save</GlassButton>
                 </div>
             </GlassModal>
 
             <GlassModal open={discountOpen} onClose={() => setDiscountOpen(false)} title='Discount' size="3xl">
-                <Discount setDiscountId={setDiscountId} discountId={discountId} />
-
-                <div className="p-6"></div>
-
-                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
-                    <button
-                        onClick={() => setDiscountOpen(false)}
-                        type="button"
-                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-                    >
-                        Close
-                    </button>
-                    <GlassButton
-                        onClick={() => setDiscountOpen(false)}
-                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
-                    >
-                        Save
-                    </GlassButton>
+                <div className="max-h-[65vh] overflow-y-auto pb-16">
+                    <Discount setDiscountId={setDiscountId} discountId={discountId} />
+                </div>
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 bg-neutral-900/90 backdrop-blur-md rounded-b-[28px] border-t border-white/10">
+                    <button onClick={() => setDiscountOpen(false)} type="button" className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Close</button>
+                    <GlassButton onClick={() => setDiscountOpen(false)} type="button" className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95">Save</GlassButton>
                 </div>
             </GlassModal>
 
             <GlassModal open={categoryOpen} onClose={() => setCategoryOpen(false)} title='Category' size="full">
-                <Category setCategoryId={setCategoryId} categoryId={categoryId} />
-
-                <div className="p-6"></div>
-
-                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
-                    <button
-                        onClick={() => setCategoryOpen(false)}
-                        type="button"
-                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-                    >
-                        Close
-                    </button>
-                    <GlassButton
-                        onClick={() => setCategoryOpen(false)}
-                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
-                    >
-                        Save
-                    </GlassButton>
+                <div className="max-h-[70vh] overflow-y-auto pb-16">
+                    <Category setCategoryId={setCategoryId} categoryId={categoryId} />
+                </div>
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 bg-neutral-900/90 backdrop-blur-md rounded-b-[28px] border-t border-white/10">
+                    <button onClick={() => setCategoryOpen(false)} type="button" className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Close</button>
+                    <GlassButton onClick={() => setCategoryOpen(false)} type="button" className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95">Save</GlassButton>
                 </div>
             </GlassModal>
 
             <GlassModal open={warehouseOpen} onClose={() => setWarehouseOpen(false)} title='Warehouse' size="3xl">
-                <WarehousePage setWarehouseId={setWarehouseId} warehouseId={warehouseId} />
-
-                <div className="p-6"></div>
-
-                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
-                    <button
-                        onClick={() => setWarehouseOpen(false)}
-                        type="button"
-                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
-                    >
-                        Close
-                    </button>
-                    <GlassButton
-                        onClick={() => setWarehouseOpen(false)}
-                        className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
-                    >
-                        Save
-                    </GlassButton>
+                <div className="max-h-[65vh] overflow-y-auto pb-16">
+                    <WarehousePage setWarehouseId={setWarehouseId} warehouseId={warehouseId} />
+                </div>
+                <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 bg-neutral-900/90 backdrop-blur-md rounded-b-[28px] border-t border-white/10">
+                    <button onClick={() => setWarehouseOpen(false)} type="button" className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Close</button>
+                    <GlassButton onClick={() => setWarehouseOpen(false)} type="button" className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95">Save</GlassButton>
                 </div>
             </GlassModal>
 
             <GlassModal title="Delete product" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
-                <div className="space-y-4">
-                    <p className="text-sm text-neutral-400">Haqiqatan ham bu mahsulotni o'chirib yubormoqchimisiz?</p>
-
-                    <div className="p-6"></div>
-
-                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
-                        <button
-                            onClick={() => setDeleteModal(null)}
-                            className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={() => {
-                                if (deleteModal) {
-                                    handleDeleteProduct(deleteModal);
-                                    setDeleteModal(null);
-                                }
-                            }}
-                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
-                        >
-                            Delete
-                        </button>
+                <div className="space-y-4 pb-12">
+                    <p className="text-sm text-neutral-300">Haqiqatan ham bu mahsulotni o'chirib yubormoqchimisiz?</p>
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 bg-neutral-900/90 backdrop-blur-md rounded-b-[28px] border-t border-white/10">
+                        <button onClick={() => setDeleteModal(null)} type="button" className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors text-zinc-300">Cancel</button>
+                        <button onClick={() => { if (deleteModal) { handleDeleteProduct(deleteModal); setDeleteModal(null); } }} type="button" className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20">Delete</button>
                     </div>
                 </div>
             </GlassModal>
