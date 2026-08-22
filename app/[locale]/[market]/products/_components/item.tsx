@@ -5,10 +5,20 @@ import MiniItem from './miniItem'
 import { useThemeStore } from '@/app/_store/useThemeStore'
 import GlassInput from '@/components/admin/GlassInput'
 
-const Item = ({ cIndex, setItemsLenght }: { cIndex: number, setItemsLenght: React.Dispatch<React.SetStateAction<number>> }) => {
+const Item = ({
+    cIndex,
+    setItemsLenght,
+    defaultTitle = '',
+    defaultItems = [],
+}: {
+    cIndex: number
+    setItemsLenght: React.Dispatch<React.SetStateAction<number>>
+    defaultTitle?: string
+    defaultItems?: { key: string; value: number }[]
+}) => {
 
-    const [title, setTitle] = useState('')
-    const [itemLenght, setItemLenght] = useState(1)
+    const [title, setTitle] = useState(defaultTitle)
+    const [itemLenght, setItemLenght] = useState(Math.max(1, defaultItems.length || 1))
 
     const isFirstRun = useRef(true)
     const hasValue = useRef(false)
@@ -37,7 +47,14 @@ const Item = ({ cIndex, setItemsLenght }: { cIndex: number, setItemsLenght: Reac
             <GlassInput onChange={(e) => setTitle(e.target.value)} value={title} name={`title-${cIndex}`} placeholder='option title' />
             <div className="flex flex-col gap-2">
                 {Array.from({ length: itemLenght }).map((_, index) => (
-                    <MiniItem key={index} index={index} cIndex={cIndex} setItemLenght={setItemLenght} />
+                    <MiniItem
+                        key={index}
+                        index={index}
+                        cIndex={cIndex}
+                        setItemLenght={setItemLenght}
+                        defaultKey={defaultItems[index]?.key ?? ''}
+                        defaultValue={defaultItems[index]?.value}
+                    />
                 ))}
             </div>
         </div>

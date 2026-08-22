@@ -8,8 +8,7 @@ import GlassButton from "@/components/admin/GlassButton";
 import GlassModal from "@/components/admin/GlassModal";
 import { useNotification } from "@/components/Notification";
 import { useTokenStore } from "@/app/_store/useTokenStore";
-import { Plus, Trash2, Edit3, Layers, Upload, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
+import { Trash2, Edit3 } from "lucide-react";
 import Item from "./_components/item";
 import ImageUpload from "./_components/image";
 import { useSelectMarketStore } from "@/app/_store/useSelectMarketStore";
@@ -40,6 +39,8 @@ interface Product {
         en: string;
         ru: string;
     };
+    price?: number;
+    quantity?: number;
     discountId: string;
     categoryId: string;
     warehouseId: string;
@@ -50,30 +51,73 @@ interface Product {
     createdAt: string;
 }
 
+interface CategoryItem {
+    id: string;
+    title: string;
+    image: string;
+}
+
+interface CategoryOption {
+    id: string;
+    title: string;
+    items: CategoryItem[];
+}
+
+interface CategoryData {
+    id: string;
+    title: string;
+    marketId?: string;
+    marketid?: string;
+    options: CategoryOption[];
+}
+
+interface DiscountData {
+    id: string;
+    title: string;
+    percentage: number;
+    market: string;
+}
+
+const resolveCategoryLabel = (categoryId: string, categories: CategoryData[]): string => {
+    if (!categoryId || categoryId === 'NULL') return 'Tanlanmagan';
+
+    const parts = categoryId.split('|');
+    if (parts.length !== 3) return categoryId;
+
+    const [catId, optId, itemId] = parts;
+    const category = categories.find(c => c.id === catId);
+    if (!category) return categoryId;
+
+    const option = category.options?.find(o => o.id === optId);
+    const item = option?.items?.find(i => i.id === itemId);
+
+    return [category.title, option?.title, item?.title].filter(Boolean).join(' › ');
+};
+
 const ProductsGet = () => {
     const role = useRoleStore(state => state.role)
     const theme = useThemeStore(state => state.theme);
-    const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
+    const dark = theme === 'dark';
     const notify = useNotification()
     const token = useTokenStore(state => state.token)
     const selectMarket = useSelectMarketStore(state => state.selectMarket)
 
     const [data, setData] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<CategoryData[]>([]);
+    const [discounts, setDiscounts] = useState<DiscountData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [editId, setEditId] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false)
     const [deleteModal, setDeleteModal] = useState<string | null>(null);
 
-    const [activeImageIndices, setActiveImageIndices] = useState<{ [key: number]: number }>({});
-    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: { [groupName: string]: number } }>({});
-
-    // ========= New Product =========
+    const [activeImageIndices, setActiveImageIndices] = useState<Record<string, number>>({});
+    const [selectedOptions, setSelectedOptions] = useState<Record<string, Record<string, number>>>({});
 
     const [imagesLength, setImagesLength] = useState(1)
-    const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const [descr, setDescr] = useState('uz');
     const [lans, setLans] = useState(['uz', 'en', 'ru']);
     const [itemsLenght, setItemsLenght] = useState(1)
+    const [editOptions, setEditOptions] = useState<ProductOptionGroup[]>([])
     const [gradientIsOpen, setGradientIsOpen] = useState(false);
     const [categoryOpen, setCategoryOpen] = useState(false)
     const [categoryId, setCategoryId] = useState('NULL')
@@ -81,6 +125,13 @@ const ProductsGet = () => {
     const [discountId, setDiscountId] = useState('NULL')
     const [warehouseOpen, setWarehouseOpen] = useState(false)
     const [warehouseId, setWarehouseId] = useState('NULL')
+
+    const [productTitle, setProductTitle] = useState('')
+    const [descriptionUz, setDescriptionUz] = useState('')
+    const [descriptionEn, setDescriptionEn] = useState('')
+    const [descriptionRu, setDescriptionRu] = useState('')
+    const [price, setPrice] = useState('')
+    const [quantity, setQuantity] = useState('')
 
     const [colors, setColors] = useState<string[]>(['#3b82f6', '#3b82f6']);
 
@@ -98,44 +149,56 @@ const ProductsGet = () => {
         setColors(prev => prev.filter((_, i) => i !== index));
     };
 
-    const handleSave = () => {
-        console.log("Saqlangan ranglar:", colors);
-
+    const handleSaveGradient = () => {
         setGradientIsOpen(false);
     };
-
-    // ========= New Product =========
 
     useEffect(() => {
         descr === 'uz' ? setLans(['uz', 'en', 'ru']) :
             descr === 'en' ? setLans(['en', 'uz', 'ru']) :
-                descr === 'ru' ? setLans(['ru', 'en', 'uz']) : '';
+                descr === 'ru' ? setLans(['ru', 'en', 'uz']) : undefined;
     }, [descr]);
 
     const fetchData = async () => {
         try {
-            const response = await fetch(`${API_URL}/products`);
-            if (!response.ok) throw new Error('Failed to fetch data');
-            const req: Product[] = await response.json();
+            setLoading(true);
+            const [productsRes, categoriesRes, discountsRes] = await Promise.all([
+                fetch(`${API_URL}/products`),
+                fetch(`${API_URL}/categories`),
+                fetch(`${API_URL}/discounts`),
+            ]);
 
-            const result = req.filter(item => item.marketId === selectMarket)
-            setData(result);
+            if (productsRes.ok) {
+                const req: Product[] = await productsRes.json();
+                const result = req.filter(item => item.marketId === selectMarket);
+                setData(result);
 
-            const initialIndices: { [key: number]: number } = {};
-            const initialSelectedOpts: typeof selectedOptions = {};
+                const initialIndices: Record<string, number> = {};
+                const initialSelectedOpts: Record<string, Record<string, number>> = {};
 
-            result.forEach(item => {
-                initialIndices[item.id] = 0;
-                initialSelectedOpts[item.id] = {};
-                item.options?.forEach(group => {
-                    if (group.options && group.options.length > 0) {
-                        initialSelectedOpts[item.id][group.title] = group.options[0].value;
-                    }
+                result.forEach(item => {
+                    initialIndices[item.id] = 0;
+                    initialSelectedOpts[item.id] = {};
+                    item.options?.forEach(group => {
+                        if (group.options && group.options.length > 0) {
+                            initialSelectedOpts[item.id][group.title] = group.options[0].value;
+                        }
+                    });
                 });
-            });
 
-            setActiveImageIndices(initialIndices);
-            setSelectedOptions(initialSelectedOpts);
+                setActiveImageIndices(initialIndices);
+                setSelectedOptions(initialSelectedOpts);
+            }
+
+            if (categoriesRes.ok) {
+                const categoriesReq: CategoryData[] = await categoriesRes.json();
+                setCategories(categoriesReq.filter(item => (item.marketId || item.marketid) === selectMarket));
+            }
+
+            if (discountsRes.ok) {
+                const discountsReq: DiscountData[] = await discountsRes.json();
+                setDiscounts(discountsReq.filter(item => item.market === selectMarket));
+            }
         } catch (error) {
             console.error('Xatolik:', error);
         } finally {
@@ -144,10 +207,12 @@ const ProductsGet = () => {
     };
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (selectMarket) {
+            fetchData();
+        }
+    }, [selectMarket]);
 
-    const handleOptionSelect = (productId: number, groupName: string, value: number) => {
+    const handleOptionSelect = (productId: string, groupName: string, value: number) => {
         setSelectedOptions(prev => ({
             ...prev,
             [productId]: {
@@ -157,14 +222,14 @@ const ProductsGet = () => {
         }));
     };
 
-    const handleNextImage = (productId: number, totalImages: number) => {
+    const handleNextImage = (productId: string, totalImages: number) => {
         setActiveImageIndices(prev => {
             const currentIndex = prev[productId] ?? 0;
             return { ...prev, [productId]: (currentIndex + 1) % totalImages };
         });
     };
 
-    const handlePrevImage = (productId: number, totalImages: number) => {
+    const handlePrevImage = (productId: string, totalImages: number) => {
         setActiveImageIndices(prev => {
             const currentIndex = prev[productId] ?? 0;
             return { ...prev, [productId]: (currentIndex - 1 + totalImages) % totalImages };
@@ -173,7 +238,7 @@ const ProductsGet = () => {
 
     const calculateTotalPrice = (product: Product) => {
         const productSelections = selectedOptions[product.id] || {};
-        let optionsSum = 0;
+        let optionsSum = product.price || 0;
 
         Object.values(productSelections).forEach(value => {
             optionsSum += value;
@@ -182,51 +247,89 @@ const ProductsGet = () => {
         return optionsSum;
     };
 
+    const resetForm = () => {
+        setEditId(null);
+        setProductTitle('');
+        setDescriptionUz('');
+        setDescriptionEn('');
+        setDescriptionRu('');
+        setPrice('');
+        setQuantity('');
+        setCategoryId('NULL');
+        setDiscountId('NULL');
+        setWarehouseId('NULL');
+        setColors(['#3b82f6', '#3b82f6']);
+        setImagesLength(1);
+        setItemsLenght(1);
+        setEditOptions([]);
+    };
+
     const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!selectMarket) {
+            notify.show("Marketni tanlang!", 'error', dark ? 'dark' : 'light');
+            return;
+        }
+
         try {
             const url = editId
-                ? `${API_URL}/products${editId}`
-                : `${API_URL}/products`
+                ? `${API_URL}/products/${editId}`
+                : `${API_URL}/products`;
 
             const method = editId ? "PATCH" : "POST";
 
             const formData = new FormData(e.currentTarget);
-            formData.append('gradient', JSON.stringify(colors))
-            formData.append('discountId', discountId)
-            formData.append('categoryId', categoryId)
-            formData.append('marketId', selectMarket)
-            formData.append('role', role)
+            formData.set('title', productTitle);
+            formData.set('descriptionUz', descriptionUz);
+            formData.set('descriptionEn', descriptionEn);
+            formData.set('descriptionRu', descriptionRu);
+            formData.set('price', price);
+            formData.set('quantity', quantity);
+            formData.append('gradient', JSON.stringify(colors));
+            formData.append('discountId', discountId);
+            formData.append('categoryId', categoryId);
+            formData.append('marketId', selectMarket);
+            formData.append('role', role);
             formData.append('warehouseId', warehouseId);
-            console.log(formData)
 
             const res = await fetch(url, {
                 method,
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    // 'marketId': selectMarket,
                 },
                 body: formData
-            })
+            });
 
-            const req = await res.json()
+            const req = await res.json();
 
             if (res.ok) {
-                notify.show("Mahsulot muaffaqiyatli yaratildi.", 'success', theme === 'dark' ? 'dark' : 'light')
-                setIsOpen(false)
+                notify.show(
+                    editId ? "Mahsulot muvaffaqiyatli yangilandi." : "Mahsulot muvaffaqiyatli yaratildi.",
+                    'success',
+                    dark ? 'dark' : 'light'
+                );
+                setIsOpen(false);
+                resetForm();
+                fetchData();
             } else {
-                notify.show(`${req.message || 'xatolik yuz berdi'}`, 'error', theme === 'dark' ? 'dark' : 'light')
+                notify.show(`${req.message || 'xatolik yuz berdi'}`, 'error', dark ? 'dark' : 'light');
             }
-        } catch (err) {
-            notify.show("So'rov yuborilmadi", 'error', theme === 'dark' ? 'dark' : 'light')
+        } catch {
+            notify.show("So'rov yuborilmadi", 'error', dark ? 'dark' : 'light');
         }
-    }
+    };
 
     const handleDeleteProduct = async (id: string) => {
         try {
             const res = await fetch(`${API_URL}/products/${id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}`, marketId: selectMarket, role: role }
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    marketId: selectMarket,
+                    role: role,
+                }
             });
             if (res.ok) {
                 notify.show("Mahsulot o'chirildi", "success", dark ? "dark" : "light");
@@ -239,17 +342,43 @@ const ProductsGet = () => {
         }
     };
 
-    const handleOpenEdit = (cat: Product) => {
+    const handleOpenEdit = (product: Product) => {
+        setEditId(product.id);
+        setProductTitle(product.title);
+        setDescriptionUz(product.description?.uz || '');
+        setDescriptionEn(product.description?.en || '');
+        setDescriptionRu(product.description?.ru || '');
+        setPrice(product.price?.toString() || '');
+        setQuantity(product.quantity?.toString() || '');
+        setCategoryId(product.categoryId || 'NULL');
+        setDiscountId(product.discountId || 'NULL');
+        setWarehouseId(product.warehouseId || 'NULL');
+        setColors(product.gradient?.length ? product.gradient : ['#3b82f6', '#3b82f6']);
+        setEditOptions(product.options || []);
+        setItemsLenght(product.options?.length ? product.options.length + 1 : 1);
+        setImagesLength(product.images?.length ? product.images.length + 1 : 1);
         setIsOpen(true);
     };
 
+    const handleOpenCreate = () => {
+        resetForm();
+        setIsOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsOpen(false);
+        resetForm();
+    };
+
+    const getDiscountInfo = (id: string) => discounts.find(d => d.id === id);
+
     return (
-        <div className={`min-h-screen transition-colors duration-300 py-12 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>
-            <div className="space-y-10 mx-auto">
+        <div className={`min-h-screen transition-colors duration-300 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>
+            <div className="space-y-6 sm:space-y-10 mx-auto max-w-[1500px]">
 
                 <GlassCard className='flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10 w-full p-4'>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <h1 className='text-2xl font-bold'>Products</h1>
+                        <h1 className='text-xl sm:text-2xl font-bold'>Products</h1>
                     </div>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
@@ -257,55 +386,51 @@ const ProductsGet = () => {
                             <GlassInput
                                 type="text"
                                 placeholder="Search..."
-                                // value={searchTerm}
-                                // onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full sm:w-48 sm:focus:w-72 transition-all duration-300 text-xs py-2"
                             />
                         </div>
-                        <GlassButton className="whitespace-nowrap" onClick={() => setIsOpen(true)}>
+                        <GlassButton className="whitespace-nowrap" onClick={handleOpenCreate}>
                             Create Product
                         </GlassButton>
                     </div>
                 </GlassCard>
 
-                {loading || data.length === 0 ? (
+                {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {Array(12).fill(null).map((_, index) => (
-                            <GlassCard key={index} className={`space-y-4 animate-pulse`}>
+                        {Array(6).fill(null).map((_, index) => (
+                            <GlassCard key={index} className="space-y-4 animate-pulse">
                                 <div className={`aspect-square w-full rounded-2xl ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
                                 <div className={`h-3 rounded w-1/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
                                 <div className={`h-6 rounded w-3/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                <div className="space-y-2">
-                                    <div className={`h-4 rounded w-full ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                    <div className={`h-4 rounded w-5/6 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                </div>
-                                <div className="flex justify-between items-center pt-2">
-                                    <div className={`h-5 rounded w-1/3 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                    <div className={`h-5 rounded w-1/4 ${theme === 'dark' ? 'bg-zinc-800/60' : 'bg-zinc-200'}`}></div>
-                                </div>
                             </GlassCard>
                         ))}
                     </div>
+                ) : data.length === 0 ? (
+                    <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
+                        Bu market uchun mahsulotlar topilmadi.
+                    </div>
                 ) : (
-                    <div className="space-y-10">
+                    <div className="space-y-6 sm:space-y-10">
                         {data.map((item) => {
                             const activeIndex = activeImageIndices[item.id] ?? 0;
                             const hasImages = item.images && item.images.length > 0;
                             const currentImageUrl = hasImages ? item.images[activeIndex] : "https://dummyimage.com/600x600/18181b/a1a1aa";
                             const totalPrice = calculateTotalPrice(item);
+                            const discountInfo = getDiscountInfo(item.discountId);
+                            const discountedPrice = discountInfo
+                                ? Math.round(totalPrice * (1 - discountInfo.percentage / 100))
+                                : totalPrice;
+                            const categoryLabel = resolveCategoryLabel(item.categoryId, categories);
 
                             const gradientStyle = item.gradient?.length > 0
-                                ? {
-                                    background: `linear-gradient(45deg, ${item.gradient.join(', ')})`,
-                                }
+                                ? { background: `linear-gradient(45deg, ${item.gradient.join(', ')})` }
                                 : undefined;
 
                             return (
                                 <GlassCard
                                     key={item.id}
-                                    className={`relative grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden transition-colors duration-300`}
+                                    className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 overflow-hidden transition-colors duration-300 p-4 sm:p-6"
                                 >
-
                                     {gradientStyle && (
                                         <div
                                             className="absolute inset-0 opacity-15 pointer-events-none blur-[100px] animate-spin-slow"
@@ -313,31 +438,30 @@ const ProductsGet = () => {
                                         />
                                     )}
 
-                                    <div className="asbolute top-0 right-0 rounded-2xl flex items-center justify-center p-4 gap-4">
+                                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-2 sm:gap-4">
                                         <button
                                             onClick={() => handleOpenEdit(item)}
                                             className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
                                             title="Edit"
                                         >
-                                            <Edit3 className="w-8 h-8" />
+                                            <Edit3 className="w-5 h-5 sm:w-6 sm:h-6" />
                                         </button>
                                         <button
                                             onClick={() => setDeleteModal(item.id)}
                                             className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
                                             title="Delete"
                                         >
-                                            <Trash2 className="w-8 h-8" />
+                                            <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
                                         </button>
                                     </div>
 
-                                    <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
-
-                                        <div className="col-span-2 flex flex-col gap-2.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
+                                    <div className="lg:col-span-6 grid grid-cols-12 gap-3 sm:gap-4 z-10 mt-10 sm:mt-0">
+                                        <div className="col-span-12 sm:col-span-2 flex sm:flex-col gap-2 max-h-[120px] sm:max-h-[380px] overflow-x-auto sm:overflow-y-auto sm:overflow-x-hidden sm:pr-1 scrollbar-thin">
                                             {item.images?.map((img, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => setActiveImageIndices(prev => ({ ...prev, [item.id]: index }))}
-                                                    className={`relative aspect-square w-full rounded-xl overflow-hidden border-2 transition-all duration-200 ${index === activeIndex
+                                                    className={`relative aspect-square w-16 sm:w-full flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-200 ${index === activeIndex
                                                         ? "border-sky-500 scale-95 shadow-lg shadow-sky-500/20"
                                                         : theme === 'dark' ? "border-zinc-800 hover:border-zinc-700" : "border-zinc-200 hover:border-zinc-300"
                                                         }`}
@@ -347,16 +471,15 @@ const ProductsGet = () => {
                                             ))}
                                         </div>
 
-                                        <div className={`col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800/60' : 'bg-gray-50 border-zinc-200'
+                                        <div className={`col-span-12 sm:col-span-10 relative aspect-square rounded-2xl border overflow-hidden flex items-center justify-center group/slider ${theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800/60' : 'bg-gray-50 border-zinc-200'
                                             }`}>
-
                                             <div className="relative w-full h-full p-4 transition-transform duration-500 ease-out group-hover/slider:scale-105">
                                                 <Image
                                                     src={currentImageUrl}
                                                     alt={item.title}
                                                     fill
                                                     className="object-contain p-4"
-                                                    sizes="500px"
+                                                    sizes="(max-width: 640px) 100vw, 500px"
                                                 />
                                             </div>
 
@@ -364,55 +487,62 @@ const ProductsGet = () => {
                                                 <>
                                                     <button
                                                         onClick={() => handlePrevImage(item.id, item.images.length)}
-                                                        className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                        className={`absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-100 sm:opacity-0 sm:group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
                                                             ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
                                                             : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
                                                             }`}
                                                         aria-label="Oldingi rasm"
                                                     >
-                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                                                         </svg>
                                                     </button>
 
                                                     <button
                                                         onClick={() => handleNextImage(item.id, item.images.length)}
-                                                        className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-0 group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
+                                                        className={`absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full backdrop-blur-md border transition-all opacity-100 sm:opacity-0 sm:group-hover/slider:opacity-100 shadow-xl ${theme === 'dark'
                                                             ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-900/90'
                                                             : 'bg-white/80 border-zinc-200 text-zinc-700 hover:text-black hover:bg-white'
                                                             }`}
                                                         aria-label="Keyingi rasm"
                                                     >
-                                                        <svg className="w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                                         </svg>
                                                     </button>
                                                 </>
                                             )}
 
-                                            <span className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
-                                                -{item.discountId}% Chegirma
-                                            </span>
+                                            {discountInfo && (
+                                                <span className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
+                                                    -{discountInfo.percentage}% {discountInfo.title}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
-                                    <div className="lg:col-span-6 flex flex-col justify-between space-y-6 z-10">
+                                    <div className="lg:col-span-6 flex flex-col justify-between space-y-4 sm:space-y-6 z-10">
                                         <div>
                                             <span className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                ID: {item.id} • Turi: <span className={`capitalize ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{item.categoryId}</span>
+                                                ID: {item.id}
                                             </span>
-                                            <h2 className={`text-2xl font-bold mt-1 mb-3 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>{item.title}</h2>
+                                            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                                                Kategoriya: <span className={`font-medium ${theme === 'dark' ? 'text-sky-400' : 'text-sky-600'}`}>{categoryLabel}</span>
+                                            </p>
+                                            <h2 className={`text-xl sm:text-2xl font-bold mt-1 mb-3 tracking-tight ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}>{item.title}</h2>
 
                                             <div className={`mb-4 p-4 rounded-2xl border ${theme === 'dark' ? 'bg-sky-400/10 border-zinc-800/50' : 'bg-sky-50 border-sky-100'
                                                 }`}>
                                                 <span className={`text-xs block mb-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>Tanlangan Konfiguratsiya Narxi:</span>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className={`text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                                                        {totalPrice.toLocaleString()} UZS
+                                                <div className="flex items-baseline gap-2 flex-wrap">
+                                                    <span className={`text-xl sm:text-2xl font-extrabold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                        {discountedPrice.toLocaleString()} UZS
                                                     </span>
-                                                    <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
-                                                        {(totalPrice).toLocaleString()} UZS
-                                                    </span>
+                                                    {discountInfo && (
+                                                        <span className={`text-sm line-through ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                                            {totalPrice.toLocaleString()} UZS
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -424,7 +554,7 @@ const ProductsGet = () => {
 
                                         {item.options && item.options.length > 0 && (
                                             <div className="space-y-4">
-                                                <h3 className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>Konfiguratsiyani o'zgartirish:</h3>
+                                                <h3 className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>Konfiguratsiyani o&apos;zgartirish:</h3>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                     {item.options.map((optGroup, optIdx) => {
                                                         const activeVal = selectedOptions[item.id]?.[optGroup.title];
@@ -465,13 +595,11 @@ const ProductsGet = () => {
                                             </div>
                                         )}
                                     </div>
-
                                 </GlassCard>
                             );
                         })}
                     </div>
                 )}
-
             </div>
 
             <style jsx global>{`
@@ -484,33 +612,36 @@ const ProductsGet = () => {
                 }
             `}</style>
 
-            <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title={editId ? '' : 'Create Product'} size="full">
+            <GlassModal open={isOpen} onClose={handleCloseModal} title={editId ? 'Edit Product' : 'Create Product'} size="full">
                 <form onSubmit={handleCreateProduct}>
-
-                    <div className="w-full flex gap-4 max-[650px]:flex-col h-[70vh]">
+                    <div className="w-full flex gap-4 max-[650px]:flex-col min-h-[50vh] sm:h-[70vh]">
                         <div className="w-full p-2 flex gap-4 h-full max-[650px]:flex-col">
-                            <div className="flex flex-col gap-3 overflow-scroll">
+                            <div className="flex flex-row sm:flex-col gap-3 overflow-auto">
                                 {Array.from({ length: imagesLength }).map((_, index) => (
-                                    <ImageUpload setImagesLength={setImagesLength} index={index} />
+                                    <ImageUpload key={`img-${editId ?? 'new'}-${index}`} setImagesLength={setImagesLength} index={index} />
                                 ))}
                             </div>
 
-                            <div className="flex flex-col gap-3 h-full overflow-scroll">
-                                <GlassInput label='price' name='price' placeholder="price..." />
-                                <GlassInput label='quantity' name='quantity' placeholder="quantity..." />
-                                <GlassButton type="button" onClick={() => setCategoryOpen(true)}>category select</GlassButton>
-                                <GlassButton type="button" onClick={() => setDiscountOpen(true)}>discount select</GlassButton>
+                            <div className="flex flex-col gap-3 h-full overflow-auto flex-1">
+                                <GlassInput label='price' name='price' placeholder="price..." value={price} onChange={(e) => setPrice(e.target.value)} />
+                                <GlassInput label='quantity' name='quantity' placeholder="quantity..." value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+                                <GlassButton type="button" onClick={() => setCategoryOpen(true)}>
+                                    category select {categoryId !== 'NULL' && `(${resolveCategoryLabel(categoryId, categories)})`}
+                                </GlassButton>
+                                <GlassButton type="button" onClick={() => setDiscountOpen(true)}>
+                                    discount select {discountId !== 'NULL' && getDiscountInfo(discountId) && `(${getDiscountInfo(discountId)?.title})`}
+                                </GlassButton>
                                 <GlassButton type="button" onClick={() => setWarehouseOpen(true)}>warehouse select</GlassButton>
                                 <GlassButton type="button" onClick={() => setGradientIsOpen(true)}>gradient</GlassButton>
                             </div>
                         </div>
-                        <div className="w-full p-2 flex gap-4 flex-col overflow-scroll h-full">
-                            <GlassInput placeholder='title' name='title' label='title' />
+                        <div className="w-full p-2 flex gap-4 flex-col overflow-auto h-full">
+                            <GlassInput placeholder='title' name='title' label='title' value={productTitle} onChange={(e) => setProductTitle(e.target.value)} />
 
                             <div>
-                                <div className="flex w-full">
+                                <div className="flex w-full overflow-x-auto">
                                     {lans.map(item => (
-                                        <button key={item} type="button" className={`relative px-4 py-2 duration-200 text-sm ${item === descr ? 'border-sky-500/60 shadow-[0_0_0_3px_rgba(14,165,233,0.15)]' : ''} ${descr === item ? `bg-sky-200/10 border-t border-l border-r ${dark
+                                        <button key={item} type="button" className={`relative px-4 py-2 duration-200 text-sm whitespace-nowrap ${item === descr ? 'border-sky-500/60 shadow-[0_0_0_3px_rgba(14,165,233,0.15)]' : ''} ${descr === item ? `bg-sky-200/10 border-t border-l border-r ${dark
                                             ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
                                             : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'}` : ''} translate-y-[2px] z-[10] rounded-xl rounded-bl-[0] rounded-br-[0]`} onClick={() => setDescr(item)}>
                                             {item === 'uz' ? 'O\'zbek' : item === 'en' ? 'English' : item === 'ru' ? 'Русский' : ''}
@@ -518,15 +649,15 @@ const ProductsGet = () => {
                                     ))}
                                 </div>
                                 <div className="flex gap-4">
-                                    <textarea name='descriptionUz' className={`${descr === 'uz' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
+                                    <textarea name='descriptionUz' value={descriptionUz} onChange={(e) => setDescriptionUz(e.target.value)} className={`${descr === 'uz' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
                                         ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
                                         : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
                                         }`} placeholder="UZ description..." rows={6}></textarea>
-                                    <textarea name='descriptionEn' className={`${descr === 'en' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
+                                    <textarea name='descriptionEn' value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} className={`${descr === 'en' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
                                         ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
                                         : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
                                         }`} placeholder="EN description..." rows={6}></textarea>
-                                    <textarea name='descriptionRu' className={`${descr === 'ru' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
+                                    <textarea name='descriptionRu' value={descriptionRu} onChange={(e) => setDescriptionRu(e.target.value)} className={`${descr === 'ru' ? '' : 'hidden'} rounded-[1rem] duration-200 focus:border-sky-500/60 focus:shadow-[0_0_0_3px_rgba(14,165,233,0.15)] rounded-tl-[0] bg-sky-200/10 border py-2 px-4 w-full outline-none text-sm ${dark
                                         ? 'bg-white/5 border-white/10 text-white placeholder:text-neutral-500'
                                         : 'bg-white/60 border-sky-200/60 text-neutral-900 placeholder:text-neutral-400'
                                         }`} placeholder="RU description..." rows={6}></textarea>
@@ -535,18 +666,23 @@ const ProductsGet = () => {
 
                             <div className="flex flex-col gap-3">
                                 {Array.from({ length: itemsLenght }).map((_, index) => (
-                                    <Item key={index} cIndex={index} setItemsLenght={setItemsLenght} />
+                                    <Item
+                                        key={`${editId ?? 'new'}-opt-${index}`}
+                                        cIndex={index}
+                                        setItemsLenght={setItemsLenght}
+                                        defaultTitle={editOptions[index]?.title ?? ''}
+                                        defaultItems={editOptions[index]?.options?.map(o => ({ key: o.key, value: o.value })) ?? []}
+                                    />
                                 ))}
                             </div>
                         </div>
                     </div>
 
-
                     <div className="p-6"></div>
 
-                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                    <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-4 sm:p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={handleCloseModal}
                             type="button"
                             className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                         >
@@ -593,7 +729,7 @@ const ProductsGet = () => {
                         Cancel
                     </button>
                     <GlassButton
-                        onClick={handleSave}
+                        onClick={handleSaveGradient}
                         className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                     >
                         Save
@@ -669,7 +805,7 @@ const ProductsGet = () => {
 
             <GlassModal title="Delete product" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
                 <div className="space-y-4">
-                    <p className="text-sm text-neutral-400">Haqiqatan ham bu mahsulotni o'chirib yubormoqchimisiz?</p>
+                    <p className="text-sm text-neutral-400">Haqiqatan ham bu mahsulotni o&apos;chirib yubormoqchimisiz?</p>
 
                     <div className="p-6"></div>
 

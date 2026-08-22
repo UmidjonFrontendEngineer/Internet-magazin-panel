@@ -4,9 +4,21 @@ import { useThemeStore } from '@/app/_store/useThemeStore'
 import GlassInput from '@/components/admin/GlassInput'
 import React, { useState, useEffect, useRef } from 'react'
 
-const MiniItem = ({ index, cIndex, setItemLenght }: { index: number, cIndex: number, setItemLenght: React.Dispatch<React.SetStateAction<number>> }) => {
-    const [title, setTitle] = useState('')
-    const [value, setValue] = useState<number>()
+const MiniItem = ({
+    index,
+    cIndex,
+    setItemLenght,
+    defaultKey = '',
+    defaultValue,
+}: {
+    index: number
+    cIndex: number
+    setItemLenght: React.Dispatch<React.SetStateAction<number>>
+    defaultKey?: string
+    defaultValue?: number
+}) => {
+    const [title, setTitle] = useState(defaultKey)
+    const [value, setValue] = useState<number | undefined>(defaultValue)
 
     const isFirstRun = useRef(true)
     const hasValue = useRef(false)
