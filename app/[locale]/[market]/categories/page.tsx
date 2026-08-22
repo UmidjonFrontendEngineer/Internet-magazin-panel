@@ -277,14 +277,14 @@ function CategoriesContent() {
                                         <button
                                             onClick={() => handleOpenEdit(cat)}
                                             className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
-                                            title="Tahrirlash"
+                                            title="Edit"
                                         >
                                             <Edit3 className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={() => setDeleteModal(cat.id)}
                                             className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
-                                            title="O'chirish"
+                                            title="Delete"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -327,8 +327,8 @@ function CategoriesContent() {
                 />
             )}
 
-            <GlassModal size="2xl" overflow="visible" title={editId ? "Kategoriyani Tahrirlash" : "Create Category with Options"} open={isOpen} onClose={() => setIsOpen(false)}>
-                <form className="space-y-4 max-h-[75vh] w-full overflow-y-auto px-1 pb-20" onSubmit={handleSubmitForm}>
+            <GlassModal size="2xl" title={editId ? "Kategoriyani Tahrirlash" : "Create Category with Options"} open={isOpen} onClose={() => setIsOpen(false)}>
+                <form className="space-y-4 max-h-[75vh] w-full px-1 pb-20" onSubmit={handleSubmitForm}>
                     <GlassInput
                         label="Kategoriya Nomi"
                         placeholder="Masalan: Elektronika, Kiyim-kechak..."

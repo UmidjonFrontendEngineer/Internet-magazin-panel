@@ -18,10 +18,11 @@ import Discount from "./_components/discount";
 import Category from "./_components/category";
 import WarehousePage from "./_components/warehouse";
 import { API_URL } from '@/lib/api';
+import { useRoleStore } from "@/app/_store/useRoleStore";
 
 interface ProductOption {
     id: string;
-    title: string;
+    key: string;
     value: number;
 }
 
@@ -32,7 +33,7 @@ interface ProductOptionGroup {
 }
 
 interface Product {
-    id: number;
+    id: string;
     title: string;
     description: {
         uz: string;
@@ -41,6 +42,8 @@ interface Product {
     };
     discountId: string;
     categoryId: string;
+    warehouseId: string;
+    marketId: string;
     gradient: string[];
     options: ProductOptionGroup[];
     images: string[];
@@ -48,6 +51,7 @@ interface Product {
 }
 
 const ProductsGet = () => {
+    const role = useRoleStore(state => state.role)
     const theme = useThemeStore(state => state.theme);
     const dark = useThemeStore(state => state.theme) === 'dark' ? true : false
     const notify = useNotification()
@@ -56,7 +60,9 @@ const ProductsGet = () => {
 
     const [data, setData] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [editId, setEditId] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false)
+    const [deleteModal, setDeleteModal] = useState<string | null>(null);
 
     const [activeImageIndices, setActiveImageIndices] = useState<{ [key: number]: number }>({});
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: { [groupName: string]: number } }>({});
@@ -106,37 +112,38 @@ const ProductsGet = () => {
                 descr === 'ru' ? setLans(['ru', 'en', 'uz']) : '';
     }, [descr]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`${API_URL}/products`);
-                if (!response.ok) throw new Error('Failed to fetch data');
-                const result: Product[] = await response.json();
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${API_URL}/products`);
+            if (!response.ok) throw new Error('Failed to fetch data');
+            const req: Product[] = await response.json();
 
-                setData(result);
+            const result = req.filter(item => item.marketId === selectMarket)
+            setData(result);
 
-                const initialIndices: { [key: number]: number } = {};
-                const initialSelectedOpts: typeof selectedOptions = {};
+            const initialIndices: { [key: number]: number } = {};
+            const initialSelectedOpts: typeof selectedOptions = {};
 
-                result.forEach(item => {
-                    initialIndices[item.id] = 0;
-                    initialSelectedOpts[item.id] = {};
-                    item.options?.forEach(group => {
-                        if (group.options && group.options.length > 0) {
-                            initialSelectedOpts[item.id][group.title] = group.options[0].value;
-                        }
-                    });
+            result.forEach(item => {
+                initialIndices[item.id] = 0;
+                initialSelectedOpts[item.id] = {};
+                item.options?.forEach(group => {
+                    if (group.options && group.options.length > 0) {
+                        initialSelectedOpts[item.id][group.title] = group.options[0].value;
+                    }
                 });
+            });
 
-                setActiveImageIndices(initialIndices);
-                setSelectedOptions(initialSelectedOpts);
-            } catch (error) {
-                console.error('Xatolik:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+            setActiveImageIndices(initialIndices);
+            setSelectedOptions(initialSelectedOpts);
+        } catch (error) {
+            console.error('Xatolik:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -179,16 +186,23 @@ const ProductsGet = () => {
         e.preventDefault();
 
         try {
+            const url = editId
+                ? `${API_URL}/products${editId}`
+                : `${API_URL}/products`
+
+            const method = editId ? "PATCH" : "POST";
+
             const formData = new FormData(e.currentTarget);
             formData.append('gradient', JSON.stringify(colors))
             formData.append('discountId', discountId)
             formData.append('categoryId', categoryId)
             formData.append('marketId', selectMarket)
+            formData.append('role', role)
             formData.append('warehouseId', warehouseId);
             console.log(formData)
 
-            const res = await fetch(`${API_URL}/products`, {
-                method: 'POST',
+            const res = await fetch(url, {
+                method,
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
@@ -207,6 +221,27 @@ const ProductsGet = () => {
             notify.show("So'rov yuborilmadi", 'error', theme === 'dark' ? 'dark' : 'light')
         }
     }
+
+    const handleDeleteProduct = async (id: string) => {
+        try {
+            const res = await fetch(`${API_URL}/products/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}`, marketId: selectMarket, role: role }
+            });
+            if (res.ok) {
+                notify.show("Mahsulot o'chirildi", "success", dark ? "dark" : "light");
+                fetchData();
+            } else {
+                notify.show("O'chirishda xatolik", "error", dark ? "dark" : "light");
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const handleOpenEdit = (cat: Product) => {
+        setIsOpen(true);
+    };
 
     return (
         <div className={`min-h-screen transition-colors duration-300 py-12 px-4 sm:px-6 lg:px-8 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>
@@ -277,6 +312,23 @@ const ProductsGet = () => {
                                             style={gradientStyle}
                                         />
                                     )}
+
+                                    <div className="asbolute top-0 right-0 rounded-2xl flex items-center justify-center p-4 gap-4">
+                                        <button
+                                            onClick={() => handleOpenEdit(item)}
+                                            className="p-2 bg-sky-500/10 text-sky-400 rounded-xl hover:bg-sky-500/20 transition"
+                                            title="Edit"
+                                        >
+                                            <Edit3 className="w-8 h-8" />
+                                        </button>
+                                        <button
+                                            onClick={() => setDeleteModal(item.id)}
+                                            className="p-2 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition"
+                                            title="Delete"
+                                        >
+                                            <Trash2 className="w-8 h-8" />
+                                        </button>
+                                    </div>
 
                                     <div className="lg:col-span-6 grid grid-cols-12 gap-4 z-10">
 
@@ -398,7 +450,7 @@ const ProductsGet = () => {
                                                                                         : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300"
                                                                                     }`}
                                                                             >
-                                                                                <span className="capitalize">{opt.title}</span>
+                                                                                <span className="capitalize">{opt.key}</span>
                                                                                 <span className={`font-semibold ${isSelected ? "text-sky-500" : theme === 'dark' ? "text-zinc-500" : "text-zinc-400"}`}>
                                                                                     +{opt.value.toLocaleString()} UZS
                                                                                 </span>
@@ -432,18 +484,18 @@ const ProductsGet = () => {
                 }
             `}</style>
 
-            <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title='Create Product' size="full">
+            <GlassModal open={isOpen} onClose={() => setIsOpen(false)} title={editId ? '' : 'Create Product'} size="full">
                 <form onSubmit={handleCreateProduct}>
 
-                    <div className="w-full flex gap-4 max-[650px]:flex-col">
-                        <div className="w-full p-2 flex gap-4">
-                            <div className="flex flex-col gap-3 h-[70vh] overflow-scroll">
+                    <div className="w-full flex gap-4 max-[650px]:flex-col h-[70vh]">
+                        <div className="w-full p-2 flex gap-4 h-full max-[650px]:flex-col">
+                            <div className="flex flex-col gap-3 overflow-scroll">
                                 {Array.from({ length: imagesLength }).map((_, index) => (
                                     <ImageUpload setImagesLength={setImagesLength} index={index} />
                                 ))}
                             </div>
 
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-3 h-full overflow-scroll">
                                 <GlassInput label='price' name='price' placeholder="price..." />
                                 <GlassInput label='quantity' name='quantity' placeholder="quantity..." />
                                 <GlassButton type="button" onClick={() => setCategoryOpen(true)}>category select</GlassButton>
@@ -452,7 +504,7 @@ const ProductsGet = () => {
                                 <GlassButton type="button" onClick={() => setGradientIsOpen(true)}>gradient</GlassButton>
                             </div>
                         </div>
-                        <div className="w-full p-2 flex gap-4 flex-col">
+                        <div className="w-full p-2 flex gap-4 flex-col overflow-scroll h-full">
                             <GlassInput placeholder='title' name='title' label='title' />
 
                             <div>
@@ -504,7 +556,7 @@ const ProductsGet = () => {
                             type="submit"
                             className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                         >
-                            Save
+                            {editId ? "Update" : "Save"}
                         </GlassButton>
                     </div>
                 </form>
@@ -549,7 +601,7 @@ const ProductsGet = () => {
                 </div>
             </GlassModal>
 
-            <GlassModal open={discountOpen} onClose={() => setDiscountOpen(false)} title='discount'>
+            <GlassModal open={discountOpen} onClose={() => setDiscountOpen(false)} title='Discount' size="3xl">
                 <Discount setDiscountId={setDiscountId} discountId={discountId} />
 
                 <div className="p-6"></div>
@@ -560,10 +612,10 @@ const ProductsGet = () => {
                         type="button"
                         className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     >
-                        Cancel
+                        Close
                     </button>
                     <GlassButton
-                        onClick={handleSave}
+                        onClick={() => setDiscountOpen(false)}
                         className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                     >
                         Save
@@ -571,7 +623,7 @@ const ProductsGet = () => {
                 </div>
             </GlassModal>
 
-            <GlassModal open={categoryOpen} onClose={() => setCategoryOpen(false)} title='discount'>
+            <GlassModal open={categoryOpen} onClose={() => setCategoryOpen(false)} title='Category' size="full">
                 <Category setCategoryId={setCategoryId} categoryId={categoryId} />
 
                 <div className="p-6"></div>
@@ -582,10 +634,10 @@ const ProductsGet = () => {
                         type="button"
                         className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     >
-                        Cancel
+                        Close
                     </button>
                     <GlassButton
-                        onClick={handleSave}
+                        onClick={() => setCategoryOpen(false)}
                         className="px-5 py-2.5 rounded-xl text-sm font-medium bg-sky-500 text-white hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 active:scale-95"
                     >
                         Save
@@ -593,7 +645,7 @@ const ProductsGet = () => {
                 </div>
             </GlassModal>
 
-            <GlassModal open={warehouseOpen} onClose={() => setWarehouseOpen(false)} title='discount'>
+            <GlassModal open={warehouseOpen} onClose={() => setWarehouseOpen(false)} title='Warehouse' size="3xl">
                 <WarehousePage setWarehouseId={setWarehouseId} warehouseId={warehouseId} />
 
                 <div className="p-6"></div>
@@ -604,7 +656,7 @@ const ProductsGet = () => {
                         type="button"
                         className="px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
                     >
-                        Cancel
+                        Close
                     </button>
                     <GlassButton
                         onClick={() => setWarehouseOpen(false)}
@@ -612,6 +664,34 @@ const ProductsGet = () => {
                     >
                         Save
                     </GlassButton>
+                </div>
+            </GlassModal>
+
+            <GlassModal title="Delete product" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
+                <div className="space-y-4">
+                    <p className="text-sm text-neutral-400">Haqiqatan ham bu mahsulotni o'chirib yubormoqchimisiz?</p>
+
+                    <div className="p-6"></div>
+
+                    <div className="flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
+                        <button
+                            onClick={() => setDeleteModal(null)}
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (deleteModal) {
+                                    handleDeleteProduct(deleteModal);
+                                    setDeleteModal(null);
+                                }
+                            }}
+                            className="px-5 py-2.5 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20"
+                        >
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </GlassModal>
         </div>
