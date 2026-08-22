@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import GlassModal from '@/components/admin/GlassModal';
 import GlassInput from '@/components/admin/GlassInput';
