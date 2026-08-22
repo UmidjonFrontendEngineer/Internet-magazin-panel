@@ -33,6 +33,7 @@ const MiniItem = ({ index, cIndex, setItemLenght }: { index: number, cIndex: num
 
     return (
         <button
+            type='button'
             className={`flex justify-between items-center text-xs font-medium p-2 gap-2 rounded-2xl border transition-all duration-200 ${isSelected
                 ? "bg-sky-500/10 text-sky-500 border-sky-500/50 shadow-[0_0_12px_rgba(14,165,233,0.1)]"
                 : theme === 'dark'

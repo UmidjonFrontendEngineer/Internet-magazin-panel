@@ -81,15 +81,14 @@ function WarehousesContent() {
                 method,
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "marketId": selectMarket,
-                    "role": role,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     title: warehouseountTitle,
                     lat: mapLat ? mapLat : 0,
                     lng: mapLng ? mapLng : 0,
-                    marketId: selectMarket
+                    marketId: selectMarket,
+                    role: role
                 }),
             });
 
@@ -99,7 +98,7 @@ function WarehousesContent() {
                 setIsOpen(false);
                 setEditId(null);
                 notify.show(
-                    editId ? "Ombor muvaffaqiyatli yangilandi" : "Yangi chegirma muvaffaqiyatli qo'shildi",
+                    editId ? "Ombor yangilandi" : "Yangi ombor qo'shildi",
                     "success",
                     dark ? "dark" : "light"
                 );
@@ -118,7 +117,8 @@ function WarehousesContent() {
         try {
             const res = await fetch(`${API_URL}/warehouses/${id}`, {
                 method: "DELETE",
-                headers: { Authorization: `Bearer ${token}`, "marketId": selectMarket, "role": role },
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ "marketId": selectMarket, "role": role })
             });
 
             if (res.ok) {
@@ -190,7 +190,7 @@ function WarehousesContent() {
                 <div className="text-center py-12 text-gray-500 text-lg">Loading...</div>
             ) : warehouses.length === 0 ? (
                 <div className="text-center py-12 text-neutral-400 text-base bg-white/5 rounded-2xl border border-white/10">
-                    Bu marketId uchun chegirmalar topilmadi.
+                    Bu marketId uchun omborlar topilmadi.
                 </div>
             ) : (
                 viewMode === 'map' ? (
@@ -278,7 +278,7 @@ function WarehousesContent() {
 
             <GlassModal title="Delete warehouseount" open={!!deleteModal} onClose={() => setDeleteModal(null)}>
                 <div className="space-y-4">
-                    <p className="text-sm text-neutral-400">Haqiqatan ham bu chegirmani o'chirib yubormoqchimisiz?</p>
+                    <p className="text-sm text-neutral-400">Haqiqatan ham bu omborni o'chirib yubormoqchimisiz?</p>
 
                     <div className="z-[999] flex items-center justify-end gap-3 absolute bottom-0 left-0 w-full p-6 pt-0 backdrop-blur-sm rounded-b-[28px]">
                         <button
